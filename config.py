@@ -10,6 +10,9 @@ cache_path = path.join(BaseDirectory.xdg_cache_home, APPLICATION_NAME)
 config_path = path.join(BaseDirectory.xdg_config_home, APPLICATION_NAME)
 data_path = path.join(BaseDirectory.xdg_data_home, APPLICATION_NAME)
 
+metadata_path = path.join(cache_path, 'metadata')
+metadata_raw_path = path.join(metadata_path, 'raw')
+
 import json
 
 SOURCES_FILENAME = "sources.json"

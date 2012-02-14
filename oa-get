@@ -12,13 +12,11 @@ import config
 from helpers import ftp
 
 if action == 'metadata':
-    metadata_path = path.join(config.cache_path, 'metadata')
-
     for source_name in config.sources.keys():
         source = config.sources[source_name]
         if source['type'] == 'ftp':
             ftp.get(source['server'], source['files'],
-                path.join(metadata_path, source_name))
+                path.join(config.metadata_raw_path, source_name))
 
 if action == 'media':
     raise NotImplementedError
