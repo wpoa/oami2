@@ -12,6 +12,7 @@ data_path = path.join(BaseDirectory.xdg_data_home, APPLICATION_NAME)
 
 metadata_path = path.join(cache_path, 'metadata')
 metadata_raw_path = path.join(metadata_path, 'raw')
+metadata_refined_path = path.join(metadata_path, 'refined')
 
 import json
 

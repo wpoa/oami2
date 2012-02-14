@@ -1,0 +1,27 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from os import listdir, path
+from sys import argv, stderr
+
+action = argv[1]
+assert(action in ['find-media', 'search'])
+
+import config
+
+from helpers import tar
+
+if action == 'find-media':
+    for source_name in config.sources.keys():
+        source = config.sources[source_name]
+        if source_name == 'pubmed':
+            listing = listdir(path.join(config.metadata_raw_path, source_name))
+            metadata_raw_source_path = path.join(config.metadata_raw_path, source_name)
+            for filename in listing:
+                tar.find_media(
+                    path.join(metadata_raw_source_path, filename),
+                    path.join(config.metadata_refined_path, source_name)
+                )
+
+if action == 'search':
+    raise NotImplementedError
