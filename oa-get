@@ -16,7 +16,7 @@ if action == 'metadata':
         source = config.sources[source_name]
         if source['type'] == 'ftp':
             ftp.get(source['server'], source['files'],
-                path.join(config.metadata_raw_path, source_name))
+                config.get_metadata_raw_source_path(source_name))
 
 if action == 'media':
     raise NotImplementedError

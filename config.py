@@ -10,9 +10,15 @@ cache_path = path.join(BaseDirectory.xdg_cache_home, APPLICATION_NAME)
 config_path = path.join(BaseDirectory.xdg_config_home, APPLICATION_NAME)
 data_path = path.join(BaseDirectory.xdg_data_home, APPLICATION_NAME)
 
-metadata_path = path.join(cache_path, 'metadata')
-metadata_raw_path = path.join(metadata_path, 'raw')
-metadata_refined_path = path.join(metadata_path, 'refined')
+_metadata_path = path.join(cache_path, 'metadata')
+
+_metadata_raw_path = path.join(_metadata_path, 'raw')
+def get_metadata_raw_source_path(source_name):
+    return path.join(_metadata_raw_path, source_name)
+
+_metadata_refined_path = path.join(_metadata_path, 'refined')
+def get_metadata_refined_source_path(source_name):
+    return path.join(_metadata_refined_path, source_name)
 
 import json
 
