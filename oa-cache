@@ -16,7 +16,7 @@ if action == 'find-media':
         source = config.sources[source_name]
         if source_name == 'pubmed':
             metadata_raw_source_path = config.get_metadata_raw_source_path(source_name)
-            listing = listdir(path.join(metadata_raw_source_path))
+            listing = listdir(metadata_raw_source_path)
             for filename in listing:
                 tar.find_media(
                     path.join(metadata_raw_source_path, filename),
