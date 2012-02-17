@@ -6,3 +6,5 @@ The aim of this project is to write a tool that would:
 * (possibly) suggest Wikipedia articles for which the video might be relevant
 
 Wiki page: http://en.wikiversity.org/wiki/User:OpenScientist/Open_grant_writing/Wissenswert_2011
+
+To use oa-get and oa-cache, copy sources.json into ~/.config/open-access-media-importer/
