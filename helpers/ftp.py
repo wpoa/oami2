@@ -15,9 +15,6 @@ def get(server, filenames, local_directory):
         for remote_filename in filenames
     ]
 
-    if not path.exists(local_directory):
-        makedirs(local_directory)
-
     ftp = FTP(server)
     ftp.login()
 
