@@ -5,7 +5,7 @@ from os import makedirs, path
 from sys import stderr, exit
 from xdg import BaseDirectory
 
-APPLICATION_NAME="open-access-importer"
+APPLICATION_NAME="open-access-media-importer"
 cache_path = path.join(BaseDirectory.xdg_cache_home, APPLICATION_NAME)
 config_path = path.join(BaseDirectory.xdg_config_home, APPLICATION_NAME)
 data_path = path.join(BaseDirectory.xdg_data_home, APPLICATION_NAME)
