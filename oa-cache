@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from os import listdir, path
-from sys import argv, stderr
+from sys import argv, stderr, stdout
 
 action = argv[1]
 assert(action in ['find-media', 'search'])
@@ -34,4 +34,4 @@ if action == 'search':
         with open(success_cache_path, 'r') as f:
             for line in f.readlines():
                 if query in line:
-                    print line
+                    stdout.write(line)
