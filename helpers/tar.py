@@ -26,7 +26,6 @@ def find_media(filename, results_directory):
         with open(success_cache_path, 'r') as success_cache:
             reader = csv.reader(success_cache)
             success_filenames = [row[0] for row in reader]
-            print success_filenames
     except IOError:  # file does not exist on first run
         success_filenames = []
 
@@ -48,7 +47,6 @@ def find_media(filename, results_directory):
                                 stderr.write('#')  # denotes file with supplementary materials
                                 stderr.flush()
                                 for url in urllist:
-                                    stderr.write(url)
                                     success_writer.writerow([item.name, url])
                             else:
                                 stderr.write('.')  # denotes file without supplementary materials

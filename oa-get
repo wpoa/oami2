@@ -23,7 +23,6 @@ import config
 from helpers import ftp
 
 if action == 'metadata':
-    print target
     for source_name in config.sources.keys():
         source = config.sources[source_name]
         if source['type'] == 'ftp':
