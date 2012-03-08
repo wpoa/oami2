@@ -5,13 +5,25 @@ from os import path
 from sys import argv, stderr
 
 action = argv[1]
-assert(action in ['metadata', 'media'])
+target = ' '.join(argv[2:])
+
+try:
+    assert(action in ['download-metadata', 'download-media'])
+except AssertionError:
+    stderr.write("""
+oa-get – Open Access Importer download operations
+
+usage:  oa-get download-metadata [source] |
+        oa-get download-media [source]
+
+""")
 
 import config
 
 from helpers import ftp
 
 if action == 'metadata':
+    print target
     for source_name in config.sources.keys():
         source = config.sources[source_name]
         if source['type'] == 'ftp':

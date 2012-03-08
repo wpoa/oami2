@@ -5,7 +5,19 @@ from os import listdir, path
 from sys import argv, stderr, stdout
 
 action = argv[1]
-assert(action in ['find-media', 'search'])
+target = ' '.join(argv[2:])
+
+try:
+    assert(action in ['find-media', 'search'])
+except AssertionError:
+    stderr.write("""
+oa-cache – Open Access Importer local operations
+
+usage:  oa-cache convert-media [source] |
+        oa-cache find-media [source] |
+        oa-cache search [query]
+
+""")
 
 import config
 
