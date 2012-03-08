@@ -24,4 +24,14 @@ if action == 'find-media':
                 )
 
 if action == 'search':
-    raise NotImplementedError
+    query = ' '.join(argv[2:])  # query for search action
+    for source_name in config.sources.keys():
+        source = config.sources[source_name]
+        success_cache_path = path.join(
+            config.get_metadata_refined_source_path(source_name),
+            'success_cache'
+        )
+        with open(success_cache_path, 'r') as f:
+            for line in f.readlines():
+                if query in line:
+                    print line
