@@ -31,6 +31,20 @@ def get_metadata_refined_source_path(source_name):
     ensure_directory_exists(p)
     return p
 
+_media_path = path.join(cache_path, 'metadata')
+
+_media_raw_path = path.join(_media_path, 'raw')
+def get_media_raw_source_path(source_name):
+    p = path.join(_media_raw_path, source_name)
+    ensure_directory_exists(p)
+    return p
+
+_media_refined_path = path.join(_media_path, 'refined')
+def get_media_refined_source_path(source_name):
+    p = path.join(_media_refined_path, source_name)
+    ensure_directory_exists(p)
+    return p
+
 import json
 
 SOURCES_FILENAME = "sources.json"
