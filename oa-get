@@ -1,24 +1,36 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import csv
+import csv, progressbar
 
 from os import path
 from sys import argv, stderr
 
-action = argv[1]
-target = ' '.join(argv[2:])
-
 try:
-    assert(action in ['download-media', 'download-metadata'])
-except AssertionError:
+    action = argv[1]
+    target = ' '.join(argv[2:])
+except IndexError:  # no arguments given
     stderr.write("""
 oa-get – Open Access Importer download operations
 
-usage:  oa-get download-metadata [source] |
-        oa-get download-media [source]
+usage:  oa-get metadata [source] |
+        oa-get media [source]
 
 """)
+    exit(1)
+
+
+try:
+    assert(action in ['media', 'metadata'])
+except AssertionError:  # invalid action
+    stderr.write("Unknown action “%s”.\n" % action)
+    exit(2)
+
+try:
+    exec "from sources import %s as source_module" % target
+except ImportError:  # invalid source
+    stderr.write("Unknown source “%s”.\n" % target)
+    exit(3)
 
 import config
 
@@ -41,6 +53,17 @@ if action == 'download-metadata':
         if source['type'] == 'ftp':
             ftp.get(source['server'], source['files'],
                 config.get_metadata_raw_source_path(source_name))
+
+if action == 'metadata':
+    source_path = config.get_metadata_raw_source_path(target)
+    url = None
+    for result in source_module.download_metadata(source_path):
+        if result['url'] != url:
+            url = result['url']
+            stderr.write("Downloading “%s”, saving into directory “%s” …\n" % \
+                (url, source_path))
+            p = progressbar.ProgressBar(maxval=result['total'])
+        p.update(result['completed'])
 
 if action == 'media':
     raise NotImplementedError
