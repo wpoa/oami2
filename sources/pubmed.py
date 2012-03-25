@@ -37,17 +37,16 @@ def download_metadata(target_directory):
         except OSError:  # local file does not exist
             pass
 
-        local_file = open(local_filename,'wb')
-        while True:
-            chunk = remote_file.read(BUFSIZE)
-            if chunk != '':
-                local_file.write(chunk)
-                completed += len(chunk)
-                yield {
-                    'url': url,
-                    'completed': completed,
-                    'total': total
-                }
-            else:
-                local_file.close()
-                break
+        with open(local_filename,'wb') as local_file:
+            while True:
+                chunk = remote_file.read(BUFSIZE)
+                if chunk != '':
+                    local_file.write(chunk)
+                    completed += len(chunk)
+                    yield {
+                        'url': url,
+                        'completed': completed,
+                        'total': total
+                    }
+                else:
+                    break
