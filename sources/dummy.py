@@ -18,6 +18,33 @@ def download_metadata(target_directory):
             }
             sleep(0.5)
 
+def list_articles(target_directory):
+    for fake_article in [
+        {
+            'article-contrib-authors': 'Alisson A, Bobsen B',
+            'article-title': 'An Article regarding a specific Subject',
+            'article-abstract': 'Lorem Ipsum Dolor Sit Amet.',
+            'journal-title': 'Subject Research and Therapy',
+            'article-date': '1997',
+            'article-url': 'http://example.org/article-regarding-subject',
+            'article-license-url': 'http://creativecommons.org/licenses/by/2.0',
+            'article-license-holder': 'FakeMed Ltd.'
+
+        },
+        {
+            'article-contrib-authors': 'Charleson C',
+            'article-title': 'Another Article regarding that Subject',
+            'article-abstract': 'Place abstract here, something about subject.',
+            'journal-title': 'New England Journal of Subject',
+            'article-date': '2003',
+            'article-url': 'http://example.org/another-article-regarding-subject',
+            'article-license-url': 'http://creativecommons.org/licenses/by-sa/2.0',
+            'article-license-holder': 'EvilPub MegaCorp.'
+
+        }
+    ]:
+        yield fake_article
+
 def find_media(target_directory):
     for fake_media in [
         {

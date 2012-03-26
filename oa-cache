@@ -3,21 +3,33 @@
 
 from os import listdir, path
 from sys import argv, stderr, stdout
-
-action = argv[1]
-target = ' '.join(argv[2:])
+from csv import writer
 
 try:
-    assert(action in ['find-media', 'search'])
-except AssertionError:
+    action = argv[1]
+    target = argv[2]
+except IndexError:
     stderr.write("""
 oa-cache – Open Access Importer local operations
 
 usage:  oa-cache convert-media [source] |
         oa-cache find-media [source] |
-        oa-cache search [query]
+        oa-cache list-articles [source]
 
 """)
+    exit(1)
+
+try:
+    assert(action in ['convert-media', 'find-media', 'list-articles'])
+except AssertionError:  # invalid action
+    stderr.write('Unknown action “%s”.\n' % action)
+    exit(2)
+
+try:
+    exec "from sources import %s as source_module" % target
+except ImportError:  # invalid source
+    stderr.write("Unknown source “%s”.\n" % target)
+    exit(3)
 
 import config
 
@@ -26,6 +38,34 @@ from helpers import tar
 if action == 'convert-media':
     for source_name in config.sources.keys():
         config.get_metadata_refined_source_path(source_name)
+
+if action == 'list-articles':
+    csv_writer = writer(stdout)
+    # categories based on:
+    # “Citation Rules with Examples for Journal Articles on the Internet”
+    # <http://www.ncbi.nlm.nih.gov/books/NBK7281/#A55596>
+    csv_writer.writerow([
+        'Authors',
+        'Article Title',
+        'Article Abstract',  # not part of citation rules, but useful
+        'Journal Title',
+        'Date of Publication',
+        'Available from',
+        'License',  # also not part of citation rules
+        'License-Holder'  # same here
+    ])
+    source_path = config.get_metadata_raw_source_path(target)
+    for result in source_module.list_articles(source_path):
+        csv_writer.writerow([
+            result['article-contrib-authors'],
+            result['article-title'],
+            result['article-abstract'],
+            result['journal-title'],
+            result['article-date'],
+            result['article-url'],
+            result['article-license-url'],
+            result['article-license-holder']
+        ])
 
 if action == 'find-media':
     for source_name in config.sources.keys():

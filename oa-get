@@ -8,7 +8,7 @@ from sys import argv, stderr
 
 try:
     action = argv[1]
-    target = ' '.join(argv[2:])
+    target = argv[2]
 except IndexError:  # no arguments given
     stderr.write("""
 oa-get – Open Access Importer download operations
@@ -18,7 +18,6 @@ usage:  oa-get metadata [source] |
 
 """)
     exit(1)
-
 
 try:
     assert(action in ['media', 'metadata'])
