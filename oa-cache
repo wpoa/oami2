@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from csv import writer
 from os import listdir, path
 from sys import argv, stderr, stdout
-from csv import writer
+
+import errno
 
 try:
     action = argv[1]
@@ -56,16 +58,27 @@ if action == 'list-articles':
     ])
     source_path = config.get_metadata_raw_source_path(target)
     for result in source_module.list_articles(source_path):
-        csv_writer.writerow([
-            result['article-contrib-authors'],
-            result['article-title'],
-            result['article-abstract'],
-            result['journal-title'],
-            result['article-date'],
-            result['article-url'],
-            result['article-license-url'],
-            result['article-license-holder']
-        ])
+        dataset = [item.encode('utf-8') for item in
+            [
+                result['article-contrib-authors'],
+                result['article-title'],
+                result['article-abstract'],
+                result['journal-title'],
+                result['article-date'],
+                result['article-url'],
+                result['article-license-url'],
+                result['article-license-holder']
+            ]
+            if 'encode' in dir(item)
+            # I have no idea why some results have no encode methods
+        ]
+        try:
+            csv_writer.writerow(dataset)
+        except IOError, e:
+            if e.errno == errno.EPIPE:
+                exit(0)  # broken pipe, exit normally
+            else:
+                raise
 
 if action == 'find-media':
     for source_name in config.sources.keys():
