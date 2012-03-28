@@ -10,3 +10,7 @@ Wiki page: http://en.wikiversity.org/wiki/User:OpenScientist/Open_grant_writing/
 Feature-complete commands:
     oa-get metadata [dummy|pubmed]
     oa-cache list-articles [dummy|pubmed]
+
+Dependencies:
+    python-progressbar <http://pypi.python.org/pypi/progressbar/2.2>
+    python-xdg <http://freedesktop.org/wiki/Software/pyxdg>
