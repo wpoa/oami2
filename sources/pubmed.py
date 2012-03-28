@@ -77,7 +77,7 @@ def list_articles(target_directory):
                     result['article-date'] = _get_article_date(tree)
                     result['article-url'] = _get_article_url(tree)
                     result['article-license-url'] = _get_article_license_url(tree)
-                    result['article-license-holder'] = _get_article_license_holder(tree)
+                    result['article-copyright-holder'] = _get_article_copyright_holder(tree)
                     yield result
 
 def _get_article_contrib_authors(tree):
@@ -173,10 +173,9 @@ def _get_article_license_url(tree):
     except KeyError:  # license statement is in plain text
         return ''
 
-def _get_article_license_holder(tree):
-    # FIXME: this should probably be named _get_article_copyright_holder
+def _get_article_copyright_holder(tree):
     """
-    Given an ElementTree, returns article license holder.
+    Given an ElementTree, returns article copyright holder.
     """
     copyright_holder = ElementTree(tree).find(
         'front/article-meta/permissions/copyright-holder'

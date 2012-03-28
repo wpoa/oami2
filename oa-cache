@@ -54,7 +54,7 @@ if action == 'list-articles':
         'Date of Publication',
         'Available from',
         'License',  # also not part of citation rules
-        'License-Holder'  # same here
+        'Copyright Holder'  # same here
     ])
     source_path = config.get_metadata_raw_source_path(target)
     for result in source_module.list_articles(source_path):
@@ -67,7 +67,7 @@ if action == 'list-articles':
                 result['article-date'],
                 result['article-url'],
                 result['article-license-url'],
-                result['article-license-holder']
+                result['article-copyright-holder']
             ]
             if 'encode' in dir(item)
             # I have no idea why some results have no encode methods

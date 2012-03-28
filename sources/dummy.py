@@ -28,7 +28,7 @@ def list_articles(target_directory):
             'article-date': '1997',
             'article-url': 'http://example.org/article-regarding-subject',
             'article-license-url': 'http://creativecommons.org/licenses/by/2.0',
-            'article-license-holder': 'FakeMed Ltd.'
+            'article-copyright-holder': 'FakeMed Ltd.'
 
         },
         {
@@ -39,7 +39,7 @@ def list_articles(target_directory):
             'article-date': '2003',
             'article-url': 'http://example.org/another-article-regarding-subject',
             'article-license-url': 'http://creativecommons.org/licenses/by-sa/2.0',
-            'article-license-holder': 'EvilPub MegaCorp.'
+            'article-copyright-holder': 'EvilPub MegaCorp.'
 
         }
     ]:
