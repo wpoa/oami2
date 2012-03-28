@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from csv import writer
 from os import listdir, path
 from sys import argv, stderr, stdout
+
+import csv
+# csv.field_size_limit must be reset according to
+# <http://lethain.com/handling-very-large-csv-and-xml-files-in-python/>
+csv.field_size_limit(999999999)
 
 import errno
 
@@ -42,7 +46,7 @@ if action == 'convert-media':
         config.get_metadata_refined_source_path(source_name)
 
 if action == 'list-articles':
-    csv_writer = writer(stdout)
+    csv_writer = csv.writer(stdout)
     # categories based on:
     # “Citation Rules with Examples for Journal Articles on the Internet”
     # <http://www.ncbi.nlm.nih.gov/books/NBK7281/#A55596>
