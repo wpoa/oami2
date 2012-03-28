@@ -85,13 +85,74 @@ if action == 'list-articles':
                 raise
 
 if action == 'find-media':
-    for source_name in config.sources.keys():
-        source = config.sources[source_name]
-        if source_name == 'pubmed':
-            metadata_raw_source_path = config.get_metadata_raw_source_path(source_name)
-            listing = listdir(metadata_raw_source_path)
-            for filename in listing:
-                tar.find_media(
-                    path.join(metadata_raw_source_path, filename),
-                    config.get_metadata_refined_source_path(source_name)
-                )
+    results_directory = config.get_metadata_refined_source_path(target)
+
+    fail_cache_path = path.join(results_directory, 'fail_cache')
+    try:
+        with open(fail_cache_path, 'r') as fail_cache:
+            reader = csv.reader(fail_cache)
+            fail_filenames = [row[0] for row in reader]
+    except IOError:  # file does not exist on first run
+        fail_filenames = []
+
+    success_cache_path = path.join(results_directory, 'success_cache')
+    try:
+        with open(success_cache_path, 'r') as success_cache:
+            reader = csv.reader(success_cache)
+            success_filenames = [row[0] for row in reader]
+    except IOError:  # file does not exist on first run
+        success_filenames = []
+
+    with open(fail_cache_path, 'w') as fail_cache:
+        with open(success_cache_path, 'w') as success_cache:
+            csv_writer_fail = csv.writer(fail_cache)
+            csv_writer_success = csv.writer(success_cache)
+            #csv_writer_success.writerow([
+            #    'Name',
+            #    'Authors',
+            #    'Article Title',
+            #    'Article Abstract',
+            #    'Journal Title',
+            #    'Date of Publication',
+            #    'Available from',
+            #    'License',
+            #    'Copyright Holder',
+            #    'Supplementary Material Label',
+            #    'Supplementary Material Caption',
+            #    'Supplementary Material Mimetype',
+            #    'Supplementary Material Mime-Subtype',
+            #    'Supplementary Material URL'
+            #])
+            source_path = config.get_metadata_raw_source_path(target)
+            for result in source_module.list_articles(
+                source_path,
+                supplementary_materials=True,
+                skip = fail_filenames + success_filenames
+            ):
+                materials = result['supplementary-materials']
+                if materials:
+                    for material in materials:
+                        dataset = [item.encode('utf-8') for item in
+                            [
+                                result['name'],
+                                result['article-contrib-authors'],
+                                result['article-title'],
+                                result['article-abstract'],
+                                result['journal-title'],
+                                result['article-date'],
+                                result['article-url'],
+                                result['article-license-url'],
+                                result['article-copyright-holder'],
+                                material['label'],
+                                material['caption'],
+                                material['mimetype'],
+                                material['mime-subtype'],
+                                material['url']
+                            ]
+                            if 'encode' in dir(item)
+                            # I have no idea why some results have no encode methods
+                        ]
+                        csv_writer_success.writerow(dataset)
+                    else:
+                        csv_writer_fail.writerow([result['name']])
+    

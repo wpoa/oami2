@@ -56,7 +56,7 @@ def download_metadata(target_directory):
                 else:
                     break
 
-def list_articles(target_directory):
+def list_articles(target_directory, supplementary_materials=False, skip=[]):
     """
     Iterates over archive files in target_directory, yielding article information.
     """
@@ -64,12 +64,15 @@ def list_articles(target_directory):
     for filename in listing:
         with tarfile.open(path.join(target_directory, filename)) as archive:
             for item in archive:
+                if item.name in skip:
+                    continue
                 if path.splitext(item.name)[1] == '.nxml':
                     content = archive.extractfile(item)
                     tree = ElementTree()
                     tree.parse(content)
 
                     result = {}
+                    result['name'] = item.name
                     result['article-contrib-authors'] = _get_article_contrib_authors(tree)
                     result['article-title'] = _get_article_title(tree)
                     result['article-abstract'] = _get_article_abstract(tree)
@@ -78,6 +81,9 @@ def list_articles(target_directory):
                     result['article-url'] = _get_article_url(tree)
                     result['article-license-url'] = _get_article_license_url(tree)
                     result['article-copyright-holder'] = _get_article_copyright_holder(tree)
+
+                    if supplementary_materials:
+                        result['supplementary-materials'] = _get_supplementary_materials(tree)
                     yield result
 
 def _get_article_contrib_authors(tree):
@@ -116,19 +122,17 @@ def _get_article_title(tree):
     front = ElementTree(tree).find('front')
     for title in front.iter('article-title'):
         return title.text
+    return ''
 
 def _get_article_abstract(tree):
-    # FIXME: this does not work right
     """
     Given an ElementTree, returns article abstract.
     """
     result = []
-    front = ElementTree(tree).find('front')
-    for abstract in front.iter('abstract'):
-        for element in abstract.iter():
-            if element.text is not None:
-                result.append(element.text)
-    return '  '.join(result)
+    abstract = ElementTree(tree).find('front/article-meta/abstract')
+    if abstract:
+        return ' '.join(abstract.itertext())
+    return ''
 
 def _get_journal_title(tree):
     """
@@ -151,6 +155,7 @@ def _get_article_date(tree):
             month = int(pub_date_tree.find('month').text)
             day = int(pub_date_tree.find('day').text)
             return str(date(year, month, day))
+    return ''
 
 def _get_article_url(tree):
     """
@@ -160,6 +165,7 @@ def _get_article_url(tree):
     for article_id in article_meta.iter('article-id'):
         if article_id.attrib['pub-id-type'] == 'doi':
             return 'http://dx.doi.org/' + article_id.text
+    return ''  # FIXME: this should never, ever happen
 
 def _get_article_license_url(tree):
     """
@@ -184,3 +190,71 @@ def _get_article_copyright_holder(tree):
         return copyright_holder.text
     except AttributeError:  # no copyright_holder known
         return ''
+
+from sys import stderr
+
+def _get_supplementary_materials(tree):
+    """
+    Given an ElementTree, returns a list of article supplementary materials.
+    """
+    materials = []
+    for xref in tree.iter('xref'):
+        try:
+            if xref.attrib['ref-type'] == 'supplementary-material':
+                rid = xref.attrib['rid']
+                sup = _get_supplementary_material(tree, rid)
+                if sup:
+                    materials.append(sup)
+        except KeyError:  # xref is missing ref-type or rid
+            pass
+    return materials
+
+def _get_supplementary_material(tree, rid):
+    """
+    Given an ElementTree and an rid, returns supplementary material as a dictionary
+    containing url, mimetype and label and caption.
+    """
+    for sup in tree.iter('supplementary-material'):
+        try:
+            if sup.attrib['id'] == rid:  # supplementary material found
+                result = {}
+                sup_tree = ElementTree(sup)
+
+                label = sup_tree.find('label')
+                result['label'] = ''
+                if label is not None:
+                    result['label'] = label.text
+
+                caption = sup_tree.find('caption')
+                result['caption'] = ''
+                if caption is not None:
+                    result['caption'] = ' '.join(caption.itertext())
+
+                media = sup_tree.find('media')
+                if media is not None:
+                    result['mimetype'] = media.attrib['mimetype']
+                    result['mime-subtype'] = media.attrib['mime-subtype']
+                    result['url'] = _get_supplementary_material_url(
+                        _get_pmcid(tree),
+                        media.attrib['{http://www.w3.org/1999/xlink}href']
+                    )
+                    return result
+        except KeyError:  # supplementary material has no ID
+            continue
+
+def _get_pmcid(tree):
+    """
+    Given an ElementTree, returns PubMed Central ID.
+    """
+    front = ElementTree(tree).find('front')
+    for article_id in front.iter('article-id'):
+        if article_id.attrib['pub-id-type'] == 'pmc':
+            return article_id.text
+
+def _get_supplementary_material_url(pmcid, href):
+    """
+    This function creates absolute URIs for supplementary materials,
+    using a PubMed Central ID and a relative URI.
+    """
+    return str('http://www.ncbi.nlm.nih.gov/pmc/articles/PMC' + pmcid +
+        '/bin/' + href)
