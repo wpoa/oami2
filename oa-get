@@ -5,6 +5,9 @@ import csv, progressbar
 
 from os import path
 from sys import argv, stderr
+from urllib2 import urlopen, urlparse
+
+BUFSIZE = 1024000  # (1024KB)
 
 try:
     action = argv[1]
@@ -65,4 +68,44 @@ if action == 'metadata':
         p.update(result['completed'])
 
 if action == 'media':
-    raise NotImplementedError
+    metadata_path = config.get_metadata_refined_source_path(target)
+    success_cache_path = path.join(metadata_path, 'success_cache')
+
+    media_path = config.get_media_raw_source_path(target)
+    with open(success_cache_path, 'r') as success_cache:
+        reader = csv.reader(success_cache)
+        for row in reader:
+            # see oa-cache for row definition
+            mimetype = row[11]
+            if mimetype != 'video':
+                continue
+
+            url = row[13]
+            remote_file = urlopen(url)
+            total = int(remote_file.headers['content-length'])
+            completed = 0
+
+            stderr.write("Downloading “%s”, saving into directory “%s” …\n" % \
+                (url, media_path))
+            p = progressbar.ProgressBar(maxval=total)
+
+            url_path = urlparse.urlsplit(url).path
+            local_filename = path.join(media_path, \
+                url_path.split('/')[-1])
+
+            # if local file has same size as remote file, skip download
+            try:
+                if (path.getsize(local_filename) == total):
+                    continue
+            except OSError:  # local file does not exist
+                pass
+
+            with open(local_filename,'wb') as local_file:
+                while True:
+                    chunk = remote_file.read(BUFSIZE)
+                    if chunk != '':
+                        local_file.write(chunk)
+                        completed += len(chunk)
+                        p.update(completed)
+                    else:
+                        break
