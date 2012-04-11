@@ -31,7 +31,7 @@ def get_metadata_refined_source_path(source_name):
     ensure_directory_exists(p)
     return p
 
-_media_path = path.join(cache_path, 'metadata')
+_media_path = path.join(cache_path, 'media')
 
 _media_raw_path = path.join(_media_path, 'raw')
 def get_media_raw_source_path(source_name):
