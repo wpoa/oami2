@@ -103,8 +103,8 @@ if action == 'find-media':
     except IOError:  # file does not exist on first run
         success_filenames = []
 
-    with open(fail_cache_path, 'w') as fail_cache:
-        with open(success_cache_path, 'w') as success_cache:
+    with open(fail_cache_path, 'a') as fail_cache:
+        with open(success_cache_path, 'a') as success_cache:
             csv_writer_fail = csv.writer(fail_cache)
             csv_writer_success = csv.writer(success_cache)
             #csv_writer_success.writerow([
