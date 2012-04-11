@@ -131,7 +131,20 @@ if action == 'find-media':
             ):
                 materials = result['supplementary-materials']
                 if materials:
+                    stderr.write(
+                        '%d supplementary materials in “%s”:\n\t' %
+                        (
+                            len(result['supplementary-materials']),
+                            result['article-title'].encode('utf-8')
+                        )
+                    )
                     for material in materials:
+                        stderr.write(
+                            '%s/%s ' % (
+                                material['mimetype'],
+                                material['mime-subtype']
+                            )
+                        )
                         dataset = [item.encode('utf-8') for item in
                             [
                                 result['name'],
@@ -155,4 +168,4 @@ if action == 'find-media':
                         csv_writer_success.writerow(dataset)
                     else:
                         csv_writer_fail.writerow([result['name']])
-    
+                    stderr.write('\n')
