@@ -36,26 +36,6 @@ except ImportError:  # invalid source
 
 import config
 
-from helpers import ftp
-
-if action == 'download-media':
-    for source_name in config.sources.keys():
-        success_cache_path = path.join(
-            config.get_metadata_refined_source_path(source_name),
-            'success_cache'
-        )
-        with open(success_cache_path, 'r') as success_cache:
-            reader = csv.reader(success_cache)
-            urls = [row[1] for row in reader]
-            print urls
-
-if action == 'download-metadata':
-    for source_name in config.sources.keys():
-        source = config.sources[source_name]
-        if source['type'] == 'ftp':
-            ftp.get(source['server'], source['files'],
-                config.get_metadata_raw_source_path(source_name))
-
 if action == 'metadata':
     source_path = config.get_metadata_raw_source_path(target)
     url = None
