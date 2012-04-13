@@ -44,21 +44,3 @@ def get_media_refined_source_path(source_name):
     p = path.join(_media_refined_path, source_name)
     ensure_directory_exists(p)
     return p
-
-import json
-
-SOURCES_FILENAME = "sources.json"
-config_sources = path.join(config_path, SOURCES_FILENAME)
-
-try:
-    with open(config_sources) as f:
-        try:
-            sources = json.load(f)
-        except ValueError:
-            stderr.write("“%s” is not a valid JSON file. Aborting …\n" %
-                config_sources)
-            exit(1)
-except IOError:
-    stderr.write("No file named “%s” in “%s”. Aborting …\n" %
-        (SOURCES_FILENAME, config_path))
-    exit(1)
