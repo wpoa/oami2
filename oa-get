@@ -56,6 +56,14 @@ if action == 'media':
         reader = csv.reader(success_cache)
         for row in reader:
             # see oa-cache for row definition
+            license_url = row[7]
+            if license_url == '':
+                continue
+            if not license_url in config.free_license_urls:
+                stderr.write('Unknown, possibly non-free license: <%s>\n' %
+                    license_url)
+                continue
+
             mimetype = row[11]
             if mimetype != 'video':
                 continue
