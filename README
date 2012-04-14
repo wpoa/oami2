@@ -8,9 +8,13 @@ The aim of this project is to write a tool that would:
 Wiki page: http://en.wikiversity.org/wiki/User:OpenScientist/Open_grant_writing/Wissenswert_2011
 
 Feature-complete commands:
-    oa-get metadata [dummy|pubmed]
-    oa-cache list-articles [dummy|pubmed]
+    oa-get [metadata|media] [dummy|pubmed]
+    oa-cache [list-articles|find-media] [dummy|pubmed]
+
+Feature-incomplete commands:
+    oa-cache convert-media [dummy|pubmed]
 
 Dependencies:
+    python-gst0.10 <http://gstreamer.freedesktop.org/modules/gst-python.html>
     python-progressbar <http://pypi.python.org/pypi/progressbar/2.2>
     python-xdg <http://freedesktop.org/wiki/Software/pyxdg>
