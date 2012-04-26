@@ -23,7 +23,9 @@ except IndexError:
     stderr.write("""
 oa-cache – Open Access Importer local operations
 
-usage:  oa-cache convert-media [source] |
+usage:  oa-cache clear-media [source] |
+        oa-cache clear-metadata [source] |
+        oa-cache convert-media [source] |
         oa-cache find-media [source] |
         oa-cache list-articles [source]
 
@@ -31,7 +33,8 @@ usage:  oa-cache convert-media [source] |
     exit(1)
 
 try:
-    assert(action in ['convert-media', 'find-media', 'list-articles'])
+    assert(action in ['clear-media', 'clear-metadata', \
+        'convert-media', 'find-media', 'list-articles'])
 except AssertionError:  # invalid action
     stderr.write('Unknown action “%s”.\n' % action)
     exit(2)
@@ -45,6 +48,28 @@ except ImportError:  # invalid source
 import config
 
 from helpers import tar
+
+if action == 'clear-media':
+    media_raw_directory = config.get_media_raw_source_path(target)
+    listing = listdir(media_raw_directory)
+
+    for filename in listing:
+        media_path = path.join(media_raw_directory, filename)
+        stderr.write("Removing “%s” … " % media_path)
+        remove(media_path)
+        stderr.write("done.\n")
+
+if action == 'clear-metadata':
+    metadata_refined_directory = config.get_metadata_refined_source_path(target)
+    fail_cache_path = path.join(metadata_refined_directory, 'fail_cache')
+    success_cache_path = path.join(metadata_refined_directory, 'success_cache')
+    for cache_path in [fail_cache_path, success_cache_path]:
+        stderr.write("Removing “%s” … " % cache_path)
+        try:
+            remove(cache_path)
+            stderr.write("done.\n")
+        except OSError, e:
+            stderr.write('\n%s\n' % str(e))
 
 if action == 'convert-media':
     loop = gobject.MainLoop()
