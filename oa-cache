@@ -50,7 +50,7 @@ import config
 from helpers import tar
 
 if action == 'clear-media':
-    media_raw_directory = config.get_media_raw_source_path(target)
+    media_raw_directory = config.get_media_refined_source_path(target)
     listing = listdir(media_raw_directory)
 
     for filename in listing:
