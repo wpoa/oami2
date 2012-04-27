@@ -16,14 +16,14 @@ except IndexError:  # no arguments given
     stderr.write("""
 oa-get – Open Access Importer download operations
 
-usage:  oa-get metadata [source] |
-        oa-get media [source]
+usage:  oa-get download-metadata [source] |
+        oa-get download-media [source]
 
 """)
     exit(1)
 
 try:
-    assert(action in ['media', 'metadata'])
+    assert(action in ['download-media', 'download-metadata'])
 except AssertionError:  # invalid action
     stderr.write("Unknown action “%s”.\n" % action)
     exit(2)
@@ -36,7 +36,7 @@ except ImportError:  # invalid source
 
 import config
 
-if action == 'metadata':
+if action == 'download-metadata':
     source_path = config.get_metadata_raw_source_path(target)
     url = None
     for result in source_module.download_metadata(source_path):
@@ -47,7 +47,7 @@ if action == 'metadata':
             p = progressbar.ProgressBar(maxval=result['total'])
         p.update(result['completed'])
 
-if action == 'media':
+if action == 'download-media':
     metadata_path = config.get_metadata_refined_source_path(target)
     success_cache_path = path.join(metadata_path, 'success_cache')
 
