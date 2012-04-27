@@ -169,6 +169,27 @@ def _get_article_url(tree):
             return 'http://dx.doi.org/' + article_id.text
     return ''  # FIXME: this should never, ever happen
 
+license_url_equivalents = {
+    'This is an open access article distributed under the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.' : 'http://creativecommons.org/licenses/by/3.0',
+    'This is an open-access article distributed under the terms of the Creative Commons Attribution Non-commercial License, which permits use, distribution, and reproduction in any medium, provided the original work is properly cited, the use is non commercial and is otherwise in compliance with the license. See:  http://creativecommons.org/licenses/by-nc/2.0/  and  http://creativecommons.org/licenses/by-nc/2.0/legalcode .': 'http://creativecommons.org/licenses/by-nc/2.0/',
+    'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial License ( http://creativecommons.org/licenses/by-nc/2.0/uk/ ) which permits unrestricted non-commercial use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by-nc/2.0/uk/',
+    'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial License ( http://creativecommons.org/licenses/by-nc/2.5/uk/ ) which permits unrestricted non-commercial use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by-nc/2.5/uk/',
+    'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial License ( http://creativecommons.org/licenses/by-nc/2.5 ), which permits unrestricted non-commercial use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by-nc/2.5',
+    'This is an Open Access article which permits unrestricted noncommercial use, provided the original work is properly cited.': '',
+    """Users may view, print, copy, download and text and data- mine the content in such documents, for the purposes of academic research, subject always to the full Conditions of use: 
+ http://www.nature.com/authors/editorial_policies/license.html#terms""": 'http://www.nature.com/authors/editorial_policies/license.html#terms',  # TODO: Is this a free license?
+    """Users may view, print, copy, download and text and data- mine the content in such documents, for the purposes of academic research, subject always to the full Conditions of use:
+ http://www.nature.com/authors/editorial_policies/license.html#terms""": 'http://www.nature.com/authors/editorial_policies/license.html#terms',  # this statement is different
+    """Users may view, print, copy, download and text and data- mine the content in such documents, for the purposes of academic research, subject always to the full Conditions of use:  http://www.nature.com/authors/editorial_policies/license.html#terms""": 'http://www.nature.com/authors/editorial_policies/license.html#terms',  # this statement, again, is different
+    'This document may be redistributed and reused, subject to  certain conditions .': '',  # TODO: Which conditions?
+    'This is an Open Access article distributed under the terms of the Creative Commons Attribution License (<url>http://creativecommons.org/licenses/by/2.0</url>), which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/2.0',
+    'This work is licensed under a Creative Commons Attribution 3.0 License (by-nc 3.0) Licensee PAGEPress, Italy': 'http://creativecommons.org/licenses/by-nc/3.0',
+    'This work is licensed under a Creative Commons Attribution 3.0 License (by-nc 3.0). Licensee PAGEPress, Italy': 'http://creativecommons.org/licenses/by-nc/3.0',  # this statement is inconsistent
+    'This work is licensed under a Creative Commons Attribution 3.0 License (by-nc 3.0). Licensee PAGE Press, Italy': 'http://creativecommons.org/licenses/by-nc/3.0',  # this statement is, again, inconsistent
+    'This work is licensed under a Creative Commons Attr0ibution 3.0 License (by-nc 3.0). Licensee PAGE Press, Italy': 'http://creativecommons.org/licenses/by-nc/3.0',  # this statement is is inconsistent and contains a typo
+    'This work is licensed under a Creative Commons Attribution NonCommercial 3.0 License (CC BY-NC 3.0). Licensee PAGEPress, Italy': 'http://creativecommons.org/licenses/by-nc/3.0'
+}
+
 def _get_article_license_url(tree):
     """
     Given an ElementTree, returns article license URL.
@@ -179,7 +200,14 @@ def _get_article_license_url(tree):
     except AttributeError:  # license statement is missing
         return ''
     except KeyError:  # license statement is in plain text
-        return ''
+        license_text = ' '.join(license.itertext())
+        if license_text in license_url_equivalents:
+            return license_url_equivalents[license_text]
+        else:
+            with open('/tmp/testfile', 'w') as f:
+                f.write(license_text)
+            raise RuntimeError, 'Unknown license statement:\n' + \
+                license_text
 
 def _get_article_copyright_holder(tree):
     """
