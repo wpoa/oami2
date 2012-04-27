@@ -16,6 +16,8 @@ pygst.require("0.10")
 import gst
 import progressbar
 
+from helpers import media
+
 try:
     action = argv[1]
     target = argv[2]
@@ -94,60 +96,10 @@ if action == 'convert-media':
             )
         )
 
-        pipeline = gst.parse_launch("""
-            filesrc name=source ! decodebin2 name=decoder !
-            theoraenc ! oggmux name=muxer ! filesink name=sink
-        """)
-
-        source = pipeline.get_by_name('source')
-        source.set_property('location', media_raw_path)
-
-        sink = pipeline.get_by_name('sink')
-
-        sink.set_property('location', temporary_media_path)
-
-        pipeline.set_state(gst.STATE_PLAYING)
-
-        # listen to messages
-        bus = pipeline.get_bus()
-        def on_message(bus, message):
-            t = message.type
-            if t == gst.MESSAGE_EOS:  # end of stream
-                pipeline.set_state(gst.STATE_NULL)
-                loop.quit()
-                # this makes encoding an atomic action
-                rename(temporary_media_path, media_refined_path)
-            elif t == gst.MESSAGE_ERROR:  # error
-                err, debug = message.parse_error()
-                stderr.write("%s\n" % err)
-                pipeline.set_state(gst.STATE_NULL)
-                loop.quit()
-                remove(temporary_media_path)
-
-        bus.add_signal_watch()
-        bus.connect("message", on_message)
-
-        pipeline.get_state()
-        try:
-            duration = pipeline.query_duration(gst.FORMAT_TIME, None)[0]
-            p = progressbar.ProgressBar(maxval=duration)
-        except:
-            pass
-
-        # update encoding status
-        def update_progressbar():
-            try:
-                completed = pipeline.query_position(gst.FORMAT_TIME, \
-                    None)[0]
-                p.update(completed)
-                return True
-            except:  # stop loop, so application does not hang
-                return False
-
-        gobject.timeout_add(100, update_progressbar)
-
-        # enter main loop
-        loop.run()
+        m = media.Media(media_raw_path)
+        m.find_streams()
+        m.convert(temporary_media_path)
+        rename(temporary_media_path, media_refined_path)
 
 
 if action == 'list-articles':
