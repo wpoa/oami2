@@ -204,8 +204,6 @@ def _get_article_license_url(tree):
         if license_text in license_url_equivalents:
             return license_url_equivalents[license_text]
         else:
-            with open('/tmp/testfile', 'w') as f:
-                f.write(license_text)
             raise RuntimeError, 'Unknown license statement:\n' + \
                 license_text
 
