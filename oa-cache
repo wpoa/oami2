@@ -16,6 +16,8 @@ pygst.require("0.10")
 import gst
 import progressbar
 
+import mutagen.oggtheora
+
 from helpers import media
 
 try:
@@ -99,8 +101,21 @@ if action == 'convert-media':
         m = media.Media(media_raw_path)
         m.find_streams()
         m.convert(temporary_media_path)
-        rename(temporary_media_path, media_refined_path)
 
+        try:
+            f = mutagen.oggtheora.OggTheora(temporary_media_path)
+            f['TITLE'] = 'Der Humpink'
+            f['ALBUM'] = 'Artikelname'
+            f['ARTIST'] = 'Ein Wissenschaftler'
+            f['COPYRIGHTS'] = 'Rights Holder'
+            f['LICENSE'] = 'Lizenz-URL'
+            f['DESCRIPTION'] = 'Beschreibung.'
+            f['DATE'] = '2012'
+            f.save()
+        except mutagen.oggtheora.OggTheoraHeaderError:
+            pass  # Most probably an encoding failure.
+
+        rename(temporary_media_path, media_refined_path)
 
 if action == 'list-articles':
     csv_writer = csv.writer(stdout)
