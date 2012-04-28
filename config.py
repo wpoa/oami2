@@ -50,7 +50,7 @@ free_license_urls = [
     'http://creativecommons.org/licenses/by-sa/2.0',
     'http://creativecommons.org/licenses/by/2.5',
     'http://creativecommons.org/licenses/by/2.5/',
-    'http://creativecommons.org/licenses/by-sa/2.5'
+    'http://creativecommons.org/licenses/by-sa/2.5',
     'http://creativecommons.org/licenses/by/3.0',
     'http://creativecommons.org/licenses/by-sa/3.0'
 ]

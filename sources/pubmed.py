@@ -187,7 +187,45 @@ license_url_equivalents = {
     'This work is licensed under a Creative Commons Attribution 3.0 License (by-nc 3.0). Licensee PAGEPress, Italy': 'http://creativecommons.org/licenses/by-nc/3.0',  # this statement is inconsistent
     'This work is licensed under a Creative Commons Attribution 3.0 License (by-nc 3.0). Licensee PAGE Press, Italy': 'http://creativecommons.org/licenses/by-nc/3.0',  # this statement is, again, inconsistent
     'This work is licensed under a Creative Commons Attr0ibution 3.0 License (by-nc 3.0). Licensee PAGE Press, Italy': 'http://creativecommons.org/licenses/by-nc/3.0',  # this statement is is inconsistent and contains a typo
-    'This work is licensed under a Creative Commons Attribution NonCommercial 3.0 License (CC BY-NC 3.0). Licensee PAGEPress, Italy': 'http://creativecommons.org/licenses/by-nc/3.0'
+    'This work is licensed under a Creative Commons Attribution NonCommercial 3.0 License (CC BY-NC 3.0). Licensee PAGEPress, Italy': 'http://creativecommons.org/licenses/by-nc/3.0',
+    'This research note is distributed under the  Creative Commons Attribution 3.0 License.': 'http://creativecommons.org/licenses/by/3.0',
+    """This research note is distributed under the  Creative Commons
+						Attribution 3.0 License.""": 'http://creativecommons.org/licenses/by/3.0',
+    """
+           This research note is distributed under the  Creative Commons Attribution 3.0 License. 
+        """: 'http://creativecommons.org/licenses/by/3.0',
+    """This is an open access article distributed under the Creative
+                                    Commons Attribution License, which permits unrestricted use,
+                                    distribution, and reproduction in any medium, provided the
+                                    original work is properly cited.""": 'http://creativecommons.org/licenses/by/3.0/',
+    """This is an open access article distributed under the 
+                        Creative Commons Attribution License, which permits unrestricted use, distribution, 
+                        and reproduction in any medium, provided the original work is properly cited.""": 'http://creativecommons.org/licenses/by/3.0/',
+    """
+                        This is an open access article distributed under the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.""": 'http://creativecommons.org/licenses/by/3.0/',
+    """This research note is distributed under the  Commons
+						Attribution-Noncommercial 3.0 License.""": 'http://creativecommons.org/licenses/by-nc/3.0/',
+    """This is an open access article distributed under 
+                        the Creative Commons Attribution License, which permits unrestricted use, 
+                        distribution, and reproduction in any medium, provided the original work is 
+                        properly cited.""": 'http://creativecommons.org/licenses/by/3.0/',
+    """This is an open access article distributed under the Creative Commons Attribution License,
+which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.""": 'http://creativecommons.org/licenses/by/3.0/',
+    """This research note is distributed under the  Creative Commons
+Attribution 3.0 License.""": 'http://creativecommons.org/licenses/by/3.0/',
+    """This is an open access article distributed under the Creative Commons Attribution 
+                        License, which permits unrestricted use, distribution, and reproduction in any medium, 
+                        provided the original work is properly cited.""": 'http://creativecommons.org/licenses/by/3.0/',
+    """This is an open access article distributed under the Creative Commons Attribution License, which
+                        permits unrestricted use, distribution, and reproduction in any medium, provided the original work 
+                        is properly cited.""": 'http://creativecommons.org/licenses/by/3.0/',
+    """This is an open access article distributed under the Creative Commons attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.""": 'http://creativecommons.org/licenses/by/3.0/',
+    """This is an open access article distributed under the Creative Commons Attribution License, which
+ permits unrestricted use, distribution, and reproduction in any medium, provided the original work 
+ is properly cited.""": 'http://creativecommons.org/licenses/by/3.0/',
+    """This is an open access article distributed under the Creative Commons Attribution License, which permits unrestricted use,
+                                    distribution, and reproduction in any medium, provided the
+                                    original work is properly cited.""": 'http://creativecommons.org/licenses/by/3.0/'
 }
 
 def _get_article_license_url(tree):
