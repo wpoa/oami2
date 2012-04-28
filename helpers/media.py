@@ -6,6 +6,8 @@ pygst.require("0.10")
 import gst
 import progressbar
 
+from sys import stderr
+
 class Media():
     def __init__(self, filename):
         self.filename = filename
@@ -24,14 +26,20 @@ class Media():
         
         bus = pipeline.get_bus()
         def on_message(bus, message):
-            if message.type == gst.MESSAGE_TAG:
+            t = message.type
+            if t == gst.MESSAGE_TAG:
                 pipeline.set_state(gst.STATE_PAUSED)
                 keys = message.structure.keys()
                 if 'audio-codec' in keys:
                     self.has_audio = True
                 if 'video-codec' in keys:
                     self.has_video = True
-            if message.type == gst.MESSAGE_ASYNC_DONE:
+            if t == gst.MESSAGE_ASYNC_DONE:
+                pipeline.set_state(gst.STATE_NULL)
+                loop.quit()
+            elif t == gst.MESSAGE_ERROR:  # error
+                err, debug = message.parse_error()
+                stderr.write('ERROR: %s\n' %str(err))
                 pipeline.set_state(gst.STATE_NULL)
                 loop.quit()
     
@@ -51,14 +59,16 @@ class Media():
 
         if self.has_video and self.has_audio:
             pipeline = gst.parse_launch("""
-                filesrc name=source ! decodebin2 name=decoder !
-                theoraenc ! oggmux name=muxer ! filesink name=sink
-                decoder. ! vorbisenc ! muxer.
+                filesrc name=source ! decodebin2 name=decoder
+                decoder. ! queue ! theoraenc ! queue ! oggmux name=muxer
+                decoder. ! queue ! audioconvert ! audioresample ! vorbisenc ! progressreport name=report ! muxer.
+                muxer. ! filesink name=sink
             """)
         elif self.has_video and not self.has_audio:
             pipeline = gst.parse_launch("""
-                filesrc name=source ! decodebin2 name=decoder !
-                theoraenc ! oggmux name=muxer ! filesink name=sink
+                filesrc name=source ! decodebin2 name=decoder
+                decoder. ! queue ! ffmpegcolorspace ! theoraenc ! progressreport name=report ! oggmux name=muxer
+                muxer. ! filesink name=sink
             """)
         else:
             raise RuntimeError, 'Unknown audio/video stream combination.'
@@ -69,6 +79,9 @@ class Media():
         sink = pipeline.get_by_name('sink')
         sink.set_property('location', outfile)
 
+        report = pipeline.get_by_name('report')
+        report.set_property('silent', True)
+
         bus = pipeline.get_bus()
         def on_message(bus, message):
             t = message.type
@@ -77,6 +90,7 @@ class Media():
                 loop.quit()
             elif t == gst.MESSAGE_ERROR:  # error
                 err, debug = message.parse_error()
+                stderr.write('ERROR: %s\n' %str(err))
                 pipeline.set_state(gst.STATE_NULL)
                 loop.quit()
 
@@ -89,17 +103,22 @@ class Media():
         try:
             duration = pipeline.query_duration(gst.FORMAT_TIME, None)[0]
             progress = progressbar.ProgressBar(maxval=duration)
-        except:
+        except gst.QueryError:
             pass
 
         def update_progress():
             try:
                 position = pipeline.query_position(gst.FORMAT_TIME, \
                     None)[0]
-                progress.update(position)
-                return True  # continue loop
             except:
                 return False  # stop loop
+            try:
+                progress.update(position)
+            except:
+                # progressbar fails on >100% progress
+                # fall back to pipeline reporting
+                report.set_property('silent', False)
+            return True  # continue loop
 
         gobject.timeout_add(100, update_progress)
         loop.run()
