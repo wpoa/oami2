@@ -57,6 +57,10 @@ if action == 'clear-media':
     media_raw_directory = config.get_media_refined_source_path(target)
     listing = listdir(media_raw_directory)
 
+    metadata_refined_directory = config.get_metadata_refined_source_path(target)
+    download_cache_path = path.join(metadata_refined_directory, 'download_cache')
+    remove(download_cache_path)
+
     for filename in listing:
         media_path = path.join(media_raw_directory, filename)
         stderr.write("Removing “%s” … " % media_path)
