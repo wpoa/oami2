@@ -102,5 +102,6 @@ if action == 'download-media':
                         else:
                             break
 
+                row.append(local_filename)
                 writer.writerow(row)
                 download_cache.flush()
