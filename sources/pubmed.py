@@ -7,6 +7,8 @@ from urllib2 import urlopen, urlparse
 from xml.etree.cElementTree import dump, ElementTree
 # the C implementation of ElementTree is 5 to 20 times faster than the Python one
 
+from hashlib import md5
+
 import tarfile
 
 # According to <ftp://ftp.ncbi.nlm.nih.gov/README.ftp>, this should be
@@ -242,8 +244,12 @@ def _get_article_license_url(tree):
         if license_text in license_url_equivalents:
             return license_url_equivalents[license_text]
         else:
-            raise RuntimeError, 'Unknown license statement:\n' + \
-                license_text
+            # FIXME: revert this to an exception some time in the future
+            filename = '/tmp/pubmed-' + md5(license_text).hexdigest()
+            with open(filename, 'w') as f:
+                f.write(license_text)
+                stderr.write("Unknown license statement:\n%s\n" % \
+                    str(license_text))
 
 def _get_article_copyright_holder(tree):
     """
