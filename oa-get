@@ -14,7 +14,7 @@ try:
     target = argv[2]
 except IndexError:  # no arguments given
     stderr.write("""
-oa-get – Open Access Importer download operations
+oa-get – Open Access Media Importer download operations
 
 usage:  oa-get download-metadata [source] |
         oa-get download-media [source]
