@@ -100,10 +100,14 @@ def _get_article_contrib_authors(tree):
         try:
             surname = contribTree.find('name/surname').text
         except AttributeError:  # author is not a natural person
-            citation_name = contribTree.find('collab').text
-            if citation_name is not None:
-                authors.append(citation_name)
-            continue
+            try:
+                citation_name = contribTree.find('collab').text
+                if citation_name is not None:
+                    authors.append(citation_name)
+                continue
+            except AttributeError:
+                dump(contribTree)
+                raise RuntimeError
 
         try:
             given_names = contribTree.find('name/given-names').text
