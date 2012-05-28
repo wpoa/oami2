@@ -156,8 +156,14 @@ def _get_article_date(tree):
         if pub_date.attrib['pub-type'] == 'epub':
             pub_date_tree = ElementTree(pub_date)
             year = int(pub_date_tree.find('year').text)
-            month = int(pub_date_tree.find('month').text)
-            day = int(pub_date_tree.find('day').text)
+            try:
+                month = int(pub_date_tree.find('month').text)
+            except AttributeError:
+                month = 1 # TODO: is this correct?
+            try:
+                day = int(pub_date_tree.find('day').text)
+            except AttributeError:
+                day = 1  # TODO: is this correct?
             return str(date(year, month, day))
     return ''
 
