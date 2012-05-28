@@ -126,11 +126,9 @@ def _get_article_title(tree):
     Given an ElementTree, returns article title.
     """
     title = ElementTree(tree).find('front/article-meta/title-group/article-title')
-    if title is not None:
-        return ' '.join(title.itertext())
-    else:
-        dump(tree)
-        raise RuntimeError, 'No article title found.'
+    if title is None:
+        title = ElementTree(tree).find('front/article-meta/article-categories/subj-group/subject')
+    return ' '.join(title.itertext())
 
 def _get_article_abstract(tree):
     """
