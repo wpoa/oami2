@@ -248,7 +248,7 @@ def _get_article_license_url(tree):
     except AttributeError:  # license statement is missing
         return ''
     except KeyError:  # license statement is in plain text
-        license_text = ' '.join(license.itertext())
+        license_text = ' '.join(license.itertext()).encode('utf-8')
         if license_text in license_url_equivalents:
             return license_url_equivalents[license_text]
         else:
