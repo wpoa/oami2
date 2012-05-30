@@ -105,9 +105,8 @@ def _get_article_contrib_authors(tree):
                 if citation_name is not None:
                     authors.append(citation_name)
                 continue
-            except AttributeError:
-                dump(contribTree)
-                raise RuntimeError
+            except AttributeError:  # name has no immediate text node
+                continue
 
         try:
             given_names = contribTree.find('name/given-names').text
