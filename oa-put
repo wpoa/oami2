@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from os import path
+from sys import argv, stderr
+
+import csv
+# csv.field_size_limit must be reset according to
+# <http://lethain.com/handling-very-large-csv-and-xml-files-in-python/>
+csv.field_size_limit(999999999)
+
+import wikitools
+
+try:
+    action = argv[1]
+    target = argv[2]
+except IndexError:  # no arguments given
+    stderr.write("""
+oa-put – Open Access Importer upload operations
+
+usage:  oa-put upload-media [source]
+
+""")
+    exit(1)
+
+try:
+    assert(action in ['upload-media'])
+except AssertionError:  # invalid action
+    stderr.write("Unknown action “%s”.\n" % action)
+    exit(2)
+
+try:
+    exec "from sources import %s as source_module" % target
+except ImportError:  # invalid source
+    stderr.write("Unknown source “%s”.\n" % target)
+    exit(3)
+
+import config
+
+if action == 'upload-media':
+    wiki = wikitools.wiki.Wiki(config.api_url)
+    wiki.login(username=config.username, password=config.password)
+
+    metadata_path = config.get_metadata_refined_source_path(target)
+    converted_cache_path = path.join(metadata_path, 'converted_cache')
+    with open(converted_cache_path, 'r') as converted_cache:
+        reader = csv.reader(converted_cache)
+        for row in reader:
+            filename = row[14]
+            wiki_filename = path.split(filename)[-1]
+            wiki_file = wikitools.wikifile.File(wiki=wiki, title=wiki_filename)
+            wiki_file.upload(
+                fileobj = open(filename, 'r'),
+                comment = 'Uploaded with the Open Access Media Importer.',
+                ignorewarnings = True
+            )
+            stderr.write("“%s” uploaded to <%s>.\n" % \
+                             (filename, config.api_url))
