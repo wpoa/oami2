@@ -1,5 +1,5 @@
 [wiki]
-api_url = "http://commons.wikimedia.org/w/api.php"
+api_url = http://commons.wikimedia.org/w/api.php
 # uncomment the following lines and fill your username and password
-# username = "username"
-# password = "password"
+# username = username
+# password = password
