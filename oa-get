@@ -5,7 +5,7 @@ import csv, progressbar
 
 from os import path
 from sys import argv, stderr
-from urllib2 import urlopen, urlparse
+from urllib2 import urlopen, urlparse, Request, HTTPError
 
 BUFSIZE = 1024000  # (1024KB)
 
@@ -72,7 +72,13 @@ if action == 'download-media':
                     continue
 
                 url = row[13]
-                remote_file = urlopen(url)
+                try:
+                    req = Request(url, None, {'User-Agent' : 'oa-get/2012-05-31'})
+                    remote_file = urlopen(req)
+                except HTTPError as e:
+                    stderr.write('When trying to download <%s>, the following error occured: “%s”.\n' % \
+                                     (url, str(e)))
+                    exit(4)
                 total = int(remote_file.headers['content-length'])
                 completed = 0
 
