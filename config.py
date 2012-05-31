@@ -4,6 +4,7 @@
 from os import makedirs, path
 from sys import stderr, exit
 from xdg import BaseDirectory
+from ConfigParser import RawConfigParser, NoSectionError, NoOptionError
 
 APPLICATION_NAME="open-access-media-importer"
 cache_path = path.join(BaseDirectory.xdg_cache_home, APPLICATION_NAME)
@@ -54,3 +55,25 @@ free_license_urls = [
     'http://creativecommons.org/licenses/by/3.0',
     'http://creativecommons.org/licenses/by-sa/3.0'
 ]
+
+USERCONFIG_FILENAME = "userconfig"
+userconfig_file = path.join(config_path, USERCONFIG_FILENAME)
+userconfig = RawConfigParser()
+userconfig.optionsxform = str  # case sensitivity
+userconfig.read(userconfig_file)
+
+def get_userconfig(section, option):
+    try:
+        return userconfig.get(section, option)
+    except NoSectionError:
+        stderr.write("“%s” does not contain a “%s” section.\n" % \
+                         (userconfig_file, section))
+        exit(127)
+    except NoOptionError:
+        stderr.write("“%s” does not contain a “%s” option.\n" % \
+                         (userconfig_file, option))
+        exit(127)
+
+api_url = get_userconfig('wiki', 'api_url')
+username = get_userconfig('wiki', 'username')
+password = get_userconfig('wiki', 'password')
