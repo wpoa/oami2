@@ -11,6 +11,8 @@ csv.field_size_limit(999999999)
 
 import wikitools
 
+from helpers import template
+
 try:
     action = argv[1]
     target = argv[2]
@@ -51,8 +53,21 @@ if action == 'upload-media':
             wiki_file = wikitools.wikifile.File(wiki=wiki, title=wiki_filename)
             wiki_file.upload(
                 fileobj = open(filename, 'r'),
-                comment = 'Uploaded with the Open Access Media Importer.',
-                ignorewarnings = True
+                comment = 'Uploaded with the Open Access Media Importer.'
             )
+            authors = row[1]
+            article_title = row[2]
+            journal_title = row[4]
+            date = row[5]
+            article_url = row[6]
+            license_url = row[7]
+            rights_holder = row[8]
+            label = row[9]
+            caption = row[10]
+            page = wikitools.Page(wiki, "File:" + wiki_filename, followRedir=True)
+            page_template = template.page(authors, article_title, journal_title, \
+                date, article_url, license_url, rights_holder, label, \
+                caption, 'PLACE PMID HERE')
+            page.edit(text=page_template)
             stderr.write("“%s” uploaded to <%s>.\n" % \
                              (filename, config.api_url))
