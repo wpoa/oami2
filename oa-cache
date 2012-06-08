@@ -51,8 +51,6 @@ except ImportError:  # invalid source
 
 import config
 
-from helpers import tar
-
 if action == 'clear-media':
     media_raw_directory = config.get_media_refined_source_path(target)
     listing = listdir(media_raw_directory)
