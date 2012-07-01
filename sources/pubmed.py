@@ -174,8 +174,11 @@ def _get_article_url(tree):
     """
     article_meta = ElementTree(tree).find('front/article-meta')
     for article_id in article_meta.iter('article-id'):
-        if article_id.attrib['pub-id-type'] == 'doi':
-            return 'http://dx.doi.org/' + article_id.text
+        try:
+            if article_id.attrib['pub-id-type'] == 'doi':
+                return 'http://dx.doi.org/' + article_id.text
+        except KeyError:
+            pass  # articles are useless without a DOI
     return ''  # FIXME: this should never, ever happen
 
 license_url_equivalents = {
