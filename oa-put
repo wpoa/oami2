@@ -50,6 +50,8 @@ if action == 'upload-media':
         for row in reader:
             filename = row[14]
             wiki_filename = path.split(filename)[-1]
+            if (path.getsize(filename) == 0):
+                continue
             wiki_file = wikitools.wikifile.File(wiki=wiki, title=wiki_filename)
             wiki_file.upload(
                 fileobj = open(filename, 'r'),
