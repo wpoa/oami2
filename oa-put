@@ -69,7 +69,7 @@ if action == 'upload-media':
             page = wikitools.Page(wiki, "File:" + wiki_filename, followRedir=True)
             page_template = template.page(authors, article_title, journal_title, \
                 date, article_url, license_url, rights_holder, label, \
-                caption, 'PLACE PMID HERE')
+                caption)
             page.edit(text=page_template)
             stderr.write("“%s” uploaded to <%s>.\n" % \
                              (filename, config.api_url))
