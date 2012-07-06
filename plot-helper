@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from sys import stdin, stderr
 from pylab import figure, suptitle, bar, barh, legend, gcf, savefig
+from matplotlib import ticker
 
 exec("stats = %s" % stdin.read())
 mimetypes = stats['mimetypes']
@@ -18,6 +19,7 @@ ax1.set_yticks(ticks)
 ax1.set_yticklabels(labels)
 
 ax1.set_xscale('log')
+ax1.xaxis.set_major_formatter(ticker.FormatStrFormatter('%d'))
 
 colors = []
 basecolor = '#babdb6'
