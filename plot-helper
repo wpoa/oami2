@@ -40,7 +40,7 @@ b1 = barh(ticks, values, color=colors, align='center')
 videobar = bar([0], [0], color=videocolor)
 audiobar = bar([0], [0], color=audiocolor)
 imagebar = bar([0], [0], color=imagecolor)
-legend([videobar, audiobar, imagebar], ['video', 'audio', 'image'])
+legend([videobar, audiobar, imagebar], ['video', 'audio', 'image'], loc=4)
 gcf().subplots_adjust(left=0.4)
 
 with open('mimetypes.png', 'w') as f:
