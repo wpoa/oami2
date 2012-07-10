@@ -137,7 +137,7 @@ def _get_article_abstract(tree):
     if abstract is not None:
         return ' '.join(abstract.itertext())
     else:
-        return ''
+        return ' '
 
 def _get_journal_title(tree):
     """
@@ -166,7 +166,7 @@ def _get_article_date(tree):
             except AttributeError:
                 day = 1  # TODO: is this correct?
             return str(date(year, month, day))
-    return ''
+    return ' '
 
 def _get_article_url(tree):
     """
@@ -179,7 +179,7 @@ def _get_article_url(tree):
                 return 'http://dx.doi.org/' + article_id.text
         except KeyError:
             pass  # articles are useless without a DOI
-    return ''  # FIXME: this should never, ever happen
+    return ' '  # FIXME: this should never, ever happen
 
 license_url_equivalents = {
     '>This work is licensed under a Creative Commons Attribution NonCommercial 3.0 License (CC BY-NC 3.0). Licensee PAGEPress, Italy': 'http://creativecommons.org/licenses/by-nc/3.0',
@@ -387,7 +387,7 @@ def _get_article_license_url(tree):
         else:
             return license_url
     except AttributeError:  # license statement is missing
-        return ''
+        return ' '
     except KeyError:  # license statement is in plain text
         license_text = ' '.join(license.itertext()).encode('utf-8')
         license_text = ' '.join(license_text.split())  # whitespace cleanup
@@ -411,7 +411,7 @@ def _get_article_copyright_holder(tree):
     try:
         return copyright_holder.text
     except AttributeError:  # no copyright_holder known
-        return ''
+        return ' '
 
 from sys import stderr
 
