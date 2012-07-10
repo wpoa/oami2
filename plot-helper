@@ -4,7 +4,7 @@ from pylab import figure, suptitle, bar, barh, legend, gcf, savefig
 from matplotlib import ticker
 
 exec("stats = %s" % stdin.read())
-mimetypes = stats['mimetypes']
+mimetypes = stats['mimetypes']['free']
 # sort the values, zip and the * operator are used here for magic
 # see <http://docs.python.org/library/functions.html#zip>
 labels, values = zip(*sorted(mimetypes.iteritems(), key=lambda x: x[1]))

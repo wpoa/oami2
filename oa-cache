@@ -260,29 +260,44 @@ if action == "stats":
     try:
         with open(success_cache_path, 'r') as success_cache:
             stderr.write('Counting records … ')
-            total = len(success_cache.readlines())  # inaccurate, but usable
-            stderr.write(str(total) + ' records found.\n')
-            p = progressbar.ProgressBar(maxval=total)
-        with open(success_cache_path, 'r') as success_cache:
-            completed = 0
             reader = csv.reader(success_cache)
-            licenses = {}
-            mimetypes = {}
+            total = sum(1 for row in reader)
+            stderr.write(str(total) + ' records found.\n')
+        with open(success_cache_path, 'r') as success_cache:
+            reader = csv.reader(success_cache)
+            p = progressbar.ProgressBar(maxval=total)
+            completed = 0
+            licenses = {
+                'free': {},
+                'non-free': {}
+            }
+            mimetypes = {
+                'free': {},
+                'non-free': {}
+            }
             for row in reader:
                 license_url = row[7]
-                if not license_url in config.free_license_urls:
-                    continue  # we are not interested in non-free content
-                try:
-                    licenses[license_url] += 1
-                except KeyError:
-                    licenses[license_url] = 1
                 mimetype = row[11]
                 mime_subtype = row[12]
                 mimetype_composite = mimetype + '/' + mime_subtype
-                try:
-                    mimetypes[mimetype_composite] += 1
-                except KeyError:
-                    mimetypes[mimetype_composite] = 1
+                if license_url in config.free_license_urls:
+                    try:
+                        licenses['free'][license_url] += 1
+                    except KeyError:
+                        licenses['free'][license_url] = 1
+                    try:
+                        mimetypes['free'][mimetype_composite] += 1
+                    except KeyError:
+                        mimetypes['free'][mimetype_composite] = 1
+                else:
+                    try:
+                        licenses['non-free'][license_url] += 1
+                    except KeyError:
+                        licenses['non-free'][license_url] = 1
+                    try:
+                        mimetypes['non-free'][mimetype_composite] += 1
+                    except KeyError:
+                        mimetypes['non-free'][mimetype_composite] = 1
                 completed += 1
                 p.update(completed)
 
