@@ -46,15 +46,17 @@ def get_media_refined_source_path(source_name):
     ensure_directory_exists(p)
     return p
 
-free_license_urls = [
+free_license_urls = []
+for license_url in [
     'http://creativecommons.org/licenses/by/2.0',
     'http://creativecommons.org/licenses/by-sa/2.0',
     'http://creativecommons.org/licenses/by/2.5',
-    'http://creativecommons.org/licenses/by/2.5/',
     'http://creativecommons.org/licenses/by-sa/2.5',
     'http://creativecommons.org/licenses/by/3.0',
     'http://creativecommons.org/licenses/by-sa/3.0'
-]
+]:
+    free_license_urls.append(license_url)
+    free_license_urls.append(license_url+'/')
 
 USERCONFIG_FILENAME = "userconfig"
 userconfig_file = path.join(config_path, USERCONFIG_FILENAME)
