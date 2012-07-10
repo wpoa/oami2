@@ -370,6 +370,10 @@ license_url_equivalents = {
     'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial No Derivatives License, which permits for noncommercial use, distribution, and reproduction in any digital medium, provided the original work is properly cited and is not altered in any way. For details, please refer to http://creativecommons.org/licenses/by-nc-nd/3.0/': 'http://creativecommons.org/licenses/by-nc-nd/3.0/'
  }
 
+license_url_fixes = {
+    'http://creativecommons.org/Licenses/by/2.0': 'http://creativecommons.org/licenses/by/2.0',
+    '(http://creativecommons.org/licenses/by/2.0)': 'http://creativecommons.org/licenses/by/2.0'
+}
 
 def _get_article_license_url(tree):
     """
@@ -377,7 +381,11 @@ def _get_article_license_url(tree):
     """
     license = ElementTree(tree).find('front/article-meta/permissions/license')
     try:
-        return license.attrib['{http://www.w3.org/1999/xlink}href']
+        license_url = license.attrib['{http://www.w3.org/1999/xlink}href']
+        if license_url in license_url_fixes:
+            return license_url_fixes[license_url]
+        else:
+            return license_url
     except AttributeError:  # license statement is missing
         return ''
     except KeyError:  # license statement is in plain text
