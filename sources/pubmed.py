@@ -409,9 +409,12 @@ def _get_article_copyright_holder(tree):
         'front/article-meta/permissions/copyright-holder'
     )
     try:
-        return copyright_holder.text
+        copyright_holder = copyright_holder.text
+        if copyright_holder is not None:
+            return copyright_holder
     except AttributeError:  # no copyright_holder known
-        return ' '
+        pass
+    return ' '
 
 from sys import stderr
 
