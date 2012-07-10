@@ -75,6 +75,7 @@ def list_articles(target_directory, supplementary_materials=False, skip=[]):
 
                     result = {}
                     result['name'] = item.name
+                    skip.append(item.name)  # guard against duplicate input
                     result['article-contrib-authors'] = _get_article_contrib_authors(tree)
                     result['article-title'] = _get_article_title(tree)
                     result['article-abstract'] = _get_article_abstract(tree)
