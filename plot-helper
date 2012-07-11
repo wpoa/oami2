@@ -5,6 +5,8 @@ from sys import stdin, stderr
 from pylab import figure, suptitle, bar, barh, legend, gcf, savefig
 from matplotlib import ticker
 
+import config
+
 exec("stats = %s" % stdin.read())
 
 def plot_mimetypes(license_type):
@@ -14,11 +16,10 @@ def plot_mimetypes(license_type):
     labels, values = zip(*sorted(mimetypes.iteritems(), key=lambda x: x[1]))
 
     fig1 = figure(figsize=(8,8))
-    suptitle('MIME types of Supplementary Materials under %s Licenses' % \
+    suptitle('MIME Types of Supplementary Materials under %s Licenses' % \
         license_type.capitalize())
     ax1 = fig1.add_subplot(1,1,1)
 
-    # places labels for mimetypes
     ticks = range(len(labels))
     ax1.set_yticks(ticks)
     ax1.set_yticklabels(labels)
@@ -31,7 +32,7 @@ def plot_mimetypes(license_type):
     videocolor = '#8ae234'
     audiocolor = '#729fcf'
     imagecolor = '#ad7fa8'
-    for l in labels: # keys are the names of the boys
+    for l in labels:
         if l.startswith('video'):
             colors.append(videocolor)
         elif l.startswith('audio'):
@@ -53,5 +54,53 @@ def plot_mimetypes(license_type):
         savefig(f, format='png')
         stderr.write('Wrote figure to “%s”.\n' % filename)
 
-plot_mimetypes('free')
-plot_mimetypes('non-free')
+def plot_licenses():
+    licenses = dict(
+        stats['licenses']['free'].items() +
+        stats['licenses']['non-free'].items()
+    )
+    labels, values = zip(*sorted(licenses.iteritems(), key=lambda x: x[1]))
+
+    fig1 = figure(figsize=(12,8))
+    suptitle('Licensing of Supplementary Materials')
+    ax1 = fig1.add_subplot(1,1,1)
+
+    ticks = range(len(labels))
+    ax1.set_yticks(ticks)
+    ax1.set_yticklabels(labels)
+
+    ax1.set_xscale('log')
+    ax1.xaxis.set_major_formatter(ticker.FormatStrFormatter('%d'))
+
+    colors = []
+    nonecolor = '#babdb6'
+    freecolor = '#729fcf'
+    nonfreecolor = '#fcaf3e'
+    for l in labels:
+        if l == None:
+            colors.append(nonecolor)
+        if l in config.free_license_urls:
+            colors.append(freecolor)
+        else:
+            colors.append(nonfreecolor)
+
+    b1 = barh(ticks, values, color=colors, align='center')
+    nonebar = bar([0], [0], color=nonecolor)
+    freebar = bar([0], [0], color=freecolor)
+    nonfreebar = bar([0], [0], color=nonfreecolor)
+    legend(
+        [nonebar, freebar, nonfreebar],
+        ['no license', 'free license', 'non-free license'],
+        loc=4
+    )
+    gcf().subplots_adjust(left=0.5)
+
+    filename = 'licenses.png'
+    with open(filename, 'w') as f:
+        savefig(f, format='png')
+        stderr.write('Wrote figure to “%s”.\n' % filename)
+
+if __name__ == '__main__':
+    plot_mimetypes('free')
+    plot_mimetypes('non-free')
+    plot_licenses()
