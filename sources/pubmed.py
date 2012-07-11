@@ -372,9 +372,14 @@ license_url_equivalents = {
  }
 
 license_url_fixes = {
-    'http://creativecommons.org/Licenses/by/2.0': 'http://creativecommons.org/licenses/by/2.0',
-    '(http://creativecommons.org/licenses/by/2.0)': 'http://creativecommons.org/licenses/by/2.0',
-    'http://(http://creativecommons.org/licenses/by/2.0)': 'http://creativecommons.org/licenses/by/2.0'
+    'http://creativecommons.org/Licenses/by/2.0': 'http://creativecommons.org/licenses/by/2.0/',
+    '(http://creativecommons.org/licenses/by/2.0)': 'http://creativecommons.org/licenses/by/2.0/',
+    'http://(http://creativecommons.org/licenses/by/2.0)': 'http://creativecommons.org/licenses/by/2.0/',
+    'http://creativecommons.org/licenses/by/2.0': 'http://creativecommons.org/licenses/by/2.0/',
+    'http://creativecommons.org/licenses/by/3.0': 'http://creativecommons.org/licenses/by/3.0/',
+    'http://creativecommons.org/licenses/by-nc-nd/3.0': 'http://creativecommons.org/licenses/by-nc-nd/3.0/',
+    'http://creativecommons.org/licenses/by-nc-sa/3.0': 'http://creativecommons.org/licenses/by-nc-sa/3.0/',
+    'http://creativecommons.org/licenses/by-nc/3.0': 'http://creativecommons.org/licenses/by-nc/3.0/'
 }
 
 def _get_article_license_url(tree):
