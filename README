@@ -25,3 +25,5 @@ To use the upload feature of oa-put, copy the userconfig.example file to
 “$HOME/config/open-access-media-importer/userconfig”.
 
 A screencast showing usage can be played back with “ttyplay screencast”.
+
+To plot mimetypes occurring in sources, install python-matplotlib and pipe the output of “oa-cache stats [source]” to the included plot-helper script.

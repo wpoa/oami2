@@ -1,0 +1,48 @@
+#!/usr/bin/env python
+from sys import stdin, stderr
+from pylab import figure, suptitle, bar, barh, legend, gcf, savefig
+from matplotlib import ticker
+
+exec("stats = %s" % stdin.read())
+mimetypes = stats['mimetypes']['free']
+# sort the values, zip and the * operator are used here for magic
+# see <http://docs.python.org/library/functions.html#zip>
+labels, values = zip(*sorted(mimetypes.iteritems(), key=lambda x: x[1]))
+
+fig1 = figure(figsize=(8,8))
+suptitle('Mimetypes of Supplementary Materials under Free Licenses')
+ax1 = fig1.add_subplot(1,1,1)
+
+# places labels for mimetypes
+ticks = range(len(labels))
+ax1.set_yticks(ticks)
+ax1.set_yticklabels(labels)
+
+ax1.set_xscale('log')
+ax1.xaxis.set_major_formatter(ticker.FormatStrFormatter('%d'))
+
+colors = []
+basecolor = '#babdb6'
+videocolor = '#8ae234'
+audiocolor = '#729fcf'
+imagecolor = '#ad7fa8'
+for l in labels: # keys are the names of the boys
+    if l.startswith('video'):
+        colors.append(videocolor)
+    elif l.startswith('audio'):
+        colors.append(audiocolor)
+    elif l.startswith('image'):
+        colors.append(imagecolor)
+    else:
+        colors.append(basecolor)
+
+b1 = barh(ticks, values, color=colors, align='center')
+videobar = bar([0], [0], color=videocolor)
+audiobar = bar([0], [0], color=audiocolor)
+imagebar = bar([0], [0], color=imagecolor)
+legend([videobar, audiobar, imagebar], ['video', 'audio', 'image'], loc=4)
+gcf().subplots_adjust(left=0.4)
+
+with open('mimetypes.png', 'w') as f:
+    savefig(f, format='png')
+    stderr.write('Wrote figure to mimetypes.png.\n')

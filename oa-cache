@@ -18,6 +18,8 @@ import progressbar
 
 import mutagen.oggtheora
 
+import pprint
+
 from helpers import media
 from model import session, setup_all, create_all, set_source, \
     Article, Journal, SupplementaryMaterial
@@ -33,14 +35,15 @@ usage:  oa-cache clear-media [source] |
         oa-cache clear-database [source] |
         oa-cache convert-media [source] |
         oa-cache find-media [source] |
-        oa-cache list-articles [source]
+        oa-cache list-articles [source] |
+        oa-cache stats [source]
 
 """)
     exit(1)
 
 try:
     assert(action in ['clear-media', 'clear-database', \
-        'convert-media', 'find-media', 'list-articles'])
+        'convert-media', 'find-media', 'list-articles', 'stats'])
 except AssertionError:  # invalid action
     stderr.write('Unknown action “%s”.\n' % action)
     exit(2)
@@ -223,3 +226,51 @@ if action == 'find-media':
                     )
             session.commit()
             stderr.write('\n')
+
+if action == "stats":
+    stderr.write('Counting supplementary materials … ')
+    materials = SupplementaryMaterial.query.all()
+    stderr.write(str(len(materials)) + ' supplementary materials found.\n')
+    p = progressbar.ProgressBar(maxval=len(materials))
+    completed = 0
+    licenses = {
+        'free': {},
+        'non-free': {}
+    }
+    mimetypes = {
+        'free': {},
+        'non-free': {}
+    }
+    for material in materials:
+        license_url = material.article.license_url
+        mimetype = material.mimetype
+        mime_subtype = material.mime_subtype
+        mimetype_composite = mimetype + '/' + mime_subtype
+        if license_url in config.free_license_urls:
+            try:
+                licenses['free'][license_url] += 1
+            except KeyError:
+                licenses['free'][license_url] = 1
+            try:
+                mimetypes['free'][mimetype_composite] += 1
+            except KeyError:
+                mimetypes['free'][mimetype_composite] = 1
+        else:
+            try:
+                licenses['non-free'][license_url] += 1
+            except KeyError:
+                licenses['non-free'][license_url] = 1
+            try:
+                mimetypes['non-free'][mimetype_composite] += 1
+            except KeyError:
+                mimetypes['non-free'][mimetype_composite] = 1
+        completed += 1
+        p.update(completed)
+
+    stderr.write('\n')
+    pp = pprint.PrettyPrinter(indent=4)
+    output = pp.pformat({
+        'licenses': licenses,
+        'mimetypes': mimetypes
+    })
+    stdout.write(output + '\n')
