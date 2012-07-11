@@ -373,7 +373,8 @@ license_url_equivalents = {
 
 license_url_fixes = {
     'http://creativecommons.org/Licenses/by/2.0': 'http://creativecommons.org/licenses/by/2.0',
-    '(http://creativecommons.org/licenses/by/2.0)': 'http://creativecommons.org/licenses/by/2.0'
+    '(http://creativecommons.org/licenses/by/2.0)': 'http://creativecommons.org/licenses/by/2.0',
+    'http://(http://creativecommons.org/licenses/by/2.0)': 'http://creativecommons.org/licenses/by/2.0'
 }
 
 def _get_article_license_url(tree):
