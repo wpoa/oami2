@@ -138,7 +138,7 @@ def _get_article_abstract(tree):
     if abstract is not None:
         return ' '.join(abstract.itertext())
     else:
-        return ''
+        return None
 
 def _get_journal_title(tree):
     """
@@ -167,7 +167,7 @@ def _get_article_date(tree):
             except AttributeError:
                 day = 1  # TODO: is this correct?
             return str(date(year, month, day))
-    return ''
+    return None
 
 def _get_article_url(tree):
     """
@@ -180,20 +180,20 @@ def _get_article_url(tree):
                 return 'http://dx.doi.org/' + article_id.text
         except KeyError:
             pass  # articles are useless without a DOI
-    return ''  # FIXME: this should never, ever happen
+    return None  # FIXME: this should never, ever happen
 
 license_url_equivalents = {
     '>This work is licensed under a Creative Commons Attribution NonCommercial 3.0 License (CC BY-NC 3.0). Licensee PAGEPress, Italy': 'http://creativecommons.org/licenses/by-nc/3.0',
-     'Available freely online through the author-supported open access option.': '',
+     'Available freely online through the author-supported open access option.': None,
      'Distributed under the Hogrefe OpenMind License [ http://dx.doi.org/10.1027/a000001]': 'http://dx.doi.org/10.1027/a000001',
-     'Freely available online through the American Journal of Tropical Medicine and Hygiene Open Access option.': '',
+     'Freely available online through the American Journal of Tropical Medicine and Hygiene Open Access option.': None,
      'License information: This is an open-access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/3.0',
-     'Open Access': '',
+     'Open Access': None,
      'Readers may use this article as long as the work is properly cited, the use is educational and not for profit, and the work is not altered. See http://creativecommons.org/licenses/by -nc-nd/3.0/ for details.': 'http://creativecommons.org/licenses/by-nc-nd/3.0/',
      'Readers may use this article as long as the work is properly cited, the use is educational and not for profit, and the work is not altered. See http://creativecommons.org/licenses/by-nc-nd/3.0/ for details.': 'http://creativecommons.org/licenses/by-nc-nd/3.0/',
      'Readers may use this article as long as the work is properly cited, the use is educational and not for profit,and the work is not altered. See http://creativecommons.org/licenses/by-nc-nd/3.0/ for details.': 'http://creativecommons.org/licenses/by-nc-nd/3.0/',
      'Readers may use this article aslong as long as the work is properly cited, the use is educational and not for profit, and the work is not altered. See http://creativecommons.org/licenses/by-nc-nd/3.0/ for details.': 'http://creativecommons.org/licenses/by-nc-nd/3.0/',
-     'The authors have paid a fee to allow immediate free access to this article.': '',
+     'The authors have paid a fee to allow immediate free access to this article.': None,
      'The online version of this article has been published under an open access model, users are entitle to use, reproduce, disseminate, or display the open access version of this article for non-commercial purposes provided that: the original authorship is properly and fully attributed; the Journal and the European Society for Medical Oncology are attributed as the original place of publication with the correct citation details given; if an article is subsequently reproduced or disseminated not in its entirety but only in part or as a derivative work this must be clearly indicated. For commercial re-use, please contact journals.permissions@oxfordjournals.org': 'mailto:journals.permissions@oxfordjournals.org',
      'The online version of this article has been published under an open access model. Users are entitled to use, reproduce, disseminate, or display the open access version of this article for non-commercial purposes provided that: the original authorship is properly and fully attributed; the Journal and Oxford University Press are attributed as the original place of publication with the correct citation details given; if an article is subsequently reproduced or disseminated not in its entirety but only in part or as a derivative work this must be clearly indicated. For commercial re-use, please contact journals.permissions@oxfordjournals.org': 'mailto:journals.permissions@oxfordjournals.org',
      'The online version of this article has been published under an open access model. Users are entitled to use, reproduce, disseminate, or display the open access version of this article for non-commercial purposes provided that: the original authorship is properly and fully attributed; the Journal and Oxford University Press are attributed as the original place of publication with the correct citation details given; if an article is subsequently reproduced or disseminated not in its entirety but only in part or as a derivative work this must be clearly indicated. For commercial re-use, please contact journals.permissions@oxfordjournals.org.': 'mailto:journals.permissions@oxfordjournals.org',
@@ -204,12 +204,12 @@ license_url_equivalents = {
      'This article is an open-access article distributed under the terms and conditions of the Creative Commons Attribution license ( http://creativecommons.org/licenses/by/3.0/ ).': 'http://creativecommons.org/licenses/by/3.0/',
      'This article is in the public domain.': 'http://creativecommons.org/licenses/publicdomain/',
      'This article, manuscript, or document is copyrighted by the American Psychological Association (APA). For non-commercial, education and research purposes, users may access, download, copy, display, and redistribute this article or manuscript as well as adapt, translate, or data and text mine the content contained in this document. For any such use of this document, appropriate attribution or bibliographic citation must be given. Users should not delete any copyright notices or disclaimers. For more information or to obtain permission beyond that granted here, visit http://www.apa.org/about/copyright.html.': 'http://www.apa.org/about/copyright.html',
-     'This document may be redistributed and reused, subject to certain conditions .': '',
+     'This document may be redistributed and reused, subject to certain conditions .': None,
      'This document may be redistributed and reused, subject to www.the-aps.org/publications/journals/funding_addendum_policy.htm .': 'http://www.the-aps.org/publications/journals/funding_addendum_policy.htm',
      'This is a free access article, distributed under terms ( http://www.nutrition.org/publications/guidelines-and-policies/license/ ) which permit unrestricted non-commercial use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://www.nutrition.org/publications/guidelines-and-policies/license/',
      'This is a free access article, distributed under terms that permit unrestricted noncommercial use, distribution, and reproduction in any medium, provided the original work is properly cited. http://www.nutrition.org/publications/guidelines-and-policies/license/ .': 'http://www.nutrition.org/publications/guidelines-and-policies/license/',
-     "This is an Open Access article distributed under the terms and of the American Society of Tropical Medicine and Hygiene's Re-use License which permits unrestricted non-commercial use, distribution, and reproduction in any medium, provided the original work is properly cited.": '',
-     "This is an Open Access article distributed under the terms of the American Society of Tropical Medicine and Hygiene's Re-use License which permits unrestricted non-commercial use, distribution, and reproduction in any medium, provided the original work is properly cited.": '',
+     "This is an Open Access article distributed under the terms and of the American Society of Tropical Medicine and Hygiene's Re-use License which permits unrestricted non-commercial use, distribution, and reproduction in any medium, provided the original work is properly cited.": None,
+     "This is an Open Access article distributed under the terms of the American Society of Tropical Medicine and Hygiene's Re-use License which permits unrestricted non-commercial use, distribution, and reproduction in any medium, provided the original work is properly cited.": None,
      'This is an Open Access article distributed under the terms of the Creative Commons Attribution License ( http://creativecommons.org/licenses/by/2.0 ), which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/2.0',
      'This is an Open Access article distributed under the terms of the Creative Commons Attribution License ( http://creativecommons.org/licenses/by/3.0 ), which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/3.0',
      'This is an Open Access article distributed under the terms of the Creative Commons Attribution License (<url>http://creativecommons.org/licenses/by/2.0</url>), which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/2.0',
@@ -231,9 +231,9 @@ license_url_equivalents = {
      'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial Share Alike License ( http://creativecommons.org/licenses/by-nc-sa/3.0 ), which permits unrestricted non-commercial use, distribution and reproduction in any medium provided that the original work is properly cited and all further distributions of the work or adaptation are subject to the same Creative Commons License terms.': 'http://creativecommons.org/licenses/by-nc-sa/3.0',
      'This is an Open Access article distributed under the terms of the Creative Commons Attribution licence which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/3.0/',
      'This is an Open Access article distributed under the terms of the Creative Commons Attribution-Noncommercial License ( http://creativecommons.org/licenses/by-nc/3.0/ ), which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited. Information for commercial entities is available online ( http://www.chestpubs.org/site/misc/reprints.xhtml ).': 'http://creativecommons.org/licenses/by-nc/3.0/',
-     'This is an Open Access article which permits unrestricted noncommercial use, provided the original work is properly cited.': '',
-     'This is an Open Access article which permits unrestricted noncommercial use, provided the original work is properly cited. Clinical Ophthalmology 2011:5 101\xe2\x80\x93108': '',
-     'This is an Open Access article: verbatim copying and redistribution of this article are permitted in all media for any purpose': '',
+     'This is an Open Access article which permits unrestricted noncommercial use, provided the original work is properly cited.': None,
+     'This is an Open Access article which permits unrestricted noncommercial use, provided the original work is properly cited. Clinical Ophthalmology 2011:5 101\xe2\x80\x93108': None,
+     'This is an Open Access article: verbatim copying and redistribution of this article are permitted in all media for any purpose': None,
      'This is an open access article distributed under the Creative Commons Attribution License, in which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/3.0',
      'This is an open access article distributed under the Creative Commons Attribution License, which permits unrestricted use, distribution and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/3.0/',
      'This is an open access article distributed under the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/3.0/',
@@ -244,7 +244,7 @@ license_url_equivalents = {
      'This is an open access article distributed under the terms of the Creative Commons Attribution License (http://creativecommons.org/licenses/by/2.0), which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/2.0',
      'This is an open access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/3.0/',
      'This is an open access article distributed under theCreative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/3.0/',
-     'This is an open access article. Unrestricted non-commercial use is permitted provided the original work is properly cited.': '',
+     'This is an open access article. Unrestricted non-commercial use is permitted provided the original work is properly cited.': None,
      'This is an open access paper distributed under the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/3.0',
      'This is an open-access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited.': 'http://creativecommons.org/licenses/by/3.0/',
      'This is an open-access article distributed under the terms of the Creative Commons Attribution Non-commercial License, which permits use, distribution, and reproduction in any medium, provided the original work is properly cited, the use is non commercial and is otherwise in compliance with the license. See: http://creativecommons.org/licenses/by-nc/2.0/ and http://creativecommons.org/licenses/by-nc/2.0/legalcode .': 'http://creativecommons.org/licenses/by-nc/2.0/',
@@ -256,41 +256,41 @@ license_url_equivalents = {
      'This work is licensed under a Creative Commons Attribution 3.0 License (by-nc 3.0). Licensee PAGEPress, Italy': 'http://creativecommons.org/licenses/by-nc/3.0',
      'This work is licensed under a Creative Commons Attribution NonCommercial 3.0 License (CC BY-NC 3.0). Licensee PAGEPress srl, Italy': 'http://creativecommons.org/licenses/by-nc/3.0',
      'This work is licensed under a Creative Commons Attribution NonCommercial 3.0 License (CC BY-NC 3.0). Licensee PAGEPress, Italy': 'http://creativecommons.org/licenses/by-nc/3.0',
-     'This work is subject to copyright. All rights are reserved, whether the whole or part of the material is concerned, specifically the rights of translation, reprinting, reuse of illustrations, recitation, broadcasting, reproduction on microfilm or in any other way, and storage in data banks. Duplication of this publication or parts thereof is permitted only under the provisions of the German Copyright Law of September 9, 1965, in its current version, and permission for use must always be obtained from Springer-Verlag. Violations are liable for prosecution under the German Copyright Law.': '',
-     'This work is subject to copyright. All rights are reserved, whether the whole or part of the material is concerned, specifically the rights of translation, reprinting, reuse of illustrations, recitation, broadcasting, reproduction on microfilm or in any other way, and storage in data banks. Duplication of this publication or parts thereof is permitted only under the provisions of the German Copyright Law of September 9, in its current version, and permission for use must always be obtained from Springer-Verlag. Violations are liable for prosecution under the German Copyright Law.': '',
+     'This work is subject to copyright. All rights are reserved, whether the whole or part of the material is concerned, specifically the rights of translation, reprinting, reuse of illustrations, recitation, broadcasting, reproduction on microfilm or in any other way, and storage in data banks. Duplication of this publication or parts thereof is permitted only under the provisions of the German Copyright Law of September 9, 1965, in its current version, and permission for use must always be obtained from Springer-Verlag. Violations are liable for prosecution under the German Copyright Law.': None,
+     'This work is subject to copyright. All rights are reserved, whether the whole or part of the material is concerned, specifically the rights of translation, reprinting, reuse of illustrations, recitation, broadcasting, reproduction on microfilm or in any other way, and storage in data banks. Duplication of this publication or parts thereof is permitted only under the provisions of the German Copyright Law of September 9, in its current version, and permission for use must always be obtained from Springer-Verlag. Violations are liable for prosecution under the German Copyright Law.': None,
      'Users may view, print, copy, download and text and data- mine the content in such documents, for the purposes of academic research, subject always to the full Conditions of use: http://www.nature.com/authors/editorial_policies/license.html#terms': 'http://www.nature.com/authors/editorial_policies/license.html#terms',
-     'creative commons': '',
-     '\xc2\xa7 The authors have paid a fee to allow immediate free access to this article.': '',
-     '\xe2\x80\x96 The authors have paid a fee to allow immediate free access to this article.': '',
-     '\xe2\x80\x96The authors have paid a fee to allow immediate free access to this article.': '',
-     '\xe2\x80\xa0 The author has paid a fee to allow immediate free access to this article.': '',
-     '\xe2\x80\xa0 The authors have paid a fee to allow immediate free access to this article.': '',
-     '\xe2\x80\xa0The authors have paid a fee to allow immediate free access to this article.': '',
-     '\xe2\x80\xa1 The authors have paid a fee to allow immediate free access to this article': '',
-     '\xe2\x80\xa1 The authors have paid a fee to allow immediate free access to this article.': '',
-     '\xe2\x80\xa1The authors have paid a fee to allow immediate free access to this article.': '',
+     'creative commons': None,
+     '\xc2\xa7 The authors have paid a fee to allow immediate free access to this article.': None,
+     '\xe2\x80\x96 The authors have paid a fee to allow immediate free access to this article.': None,
+     '\xe2\x80\x96The authors have paid a fee to allow immediate free access to this article.': None,
+     '\xe2\x80\xa0 The author has paid a fee to allow immediate free access to this article.': None,
+     '\xe2\x80\xa0 The authors have paid a fee to allow immediate free access to this article.': None,
+     '\xe2\x80\xa0The authors have paid a fee to allow immediate free access to this article.': None,
+     '\xe2\x80\xa1 The authors have paid a fee to allow immediate free access to this article': None,
+     '\xe2\x80\xa1 The authors have paid a fee to allow immediate free access to this article.': None,
+     '\xe2\x80\xa1The authors have paid a fee to allow immediate free access to this article.': None,
      "You are free to share–to copy, distribute and transmit the work, under the following conditions: Attribution :  You must attribute the work in the manner specified by the author or licensor (but not in any way that suggests that they endorse you or your use of the work). Non-commercial :  You may not use this work for commercial purposes. No derivative works :  You may not alter, transform, or build upon this work. For any reuse or distribution, you must make clear to others the license terms of this work, which can be found at http://creativecommons.org/licenses/by-nc-nd/3.0/legalcode. Any of the above conditions can be waived if you get permission from the copyright holder. Nothing in this license impairs or restricts the author's moral rights.": 'http://creativecommons.org/licenses/by-nc-nd/3.0',
      'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial License ( http://creativecommons.org/licenses/by-nc/2.5/uk/ ) which permits unrestricted non-commercial use, distribution, and reproduction in any medium, provided the original work is properly cited. This paper is available online free of all access charges (see http://jxb.oxfordjournals.org/open_access.html for further details)': 'http://creativecommons.org/licenses/by-nc/2.5/uk/',
      'Royal College of Psychiatrists, This paper accords with the Wellcome Trust Open Access policy and is governed by the licence available at http://www.rcpsych.ac.uk/pdf/Wellcome%20Trust%20licence.pdf' : 'http://www.rcpsych.ac.uk/pdf/Wellcome%20Trust%20licence.pdf',
      'This is an open access article distributed under the Creative Commons Attribution License,which permits unrestricted use,distribution,and reproduction in any medium,provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/3.0/',
      'This paper is an open-access article distributed under the terms and conditions of the Creative Commons Attribution license ( http://creativecommons.org/licenses/by/3.0/ ).': 'http://creativecommons.org/licenses/by/3.0/',
-     'This is an Open Access articlewhich permits unrestricted noncommercial use, provided the original work is properly cited.': '',
+     'This is an Open Access articlewhich permits unrestricted noncommercial use, provided the original work is properly cited.': None,
      'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-commercial License ( http://creativecommons.org/licences/by-nc/2.0/uk/ ) which permits unrestricted non-commercial use, distribution, and reproduction in any medium, provided the original work is properly cited. This paper is available online free of all access charges (see http://jxb.oxfordjournals.org/open_access.html for further details)': 'http://creativecommons.org/licences/by-nc/2.0/uk/',
      'This is an open access article distributed under the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original work are properly cited.': 'http://creativecommons.org/licenses/by/3.0/',
      'This is an Open Access article distributed under the terms of the Creative Commons Attribution License (<url>http://creativecommons.org/licenses/by/2.0</url>), which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited': 'http://creativecommons.org/licenses/by/2.0',
      'This work is licensed under a Creative Commons Attribution 3.0 License (by-nc 3.0).': 'http://creativecommons.org/licenses/by-nc/3.0',
-     'The online version of this article has been published under an open access model. Users are entitled to use, reproduce, disseminate, or display the open access version of this article for non-commercial purposes provided that: the original authorship is properly and fully attributed; the Journal and Oxford University Press are attributed as the original place of publication with the correct citation details given; if an article is subsequently reproduced or disseminated not in its entirety but only in part or as a derivative work this must be clearly indicated. For commercial re-use, please contact journals.permissions@oupjournals.org': '',
+     'The online version of this article has been published under an open access model. Users are entitled to use, reproduce, disseminate, or display the open access version of this article for non-commercial purposes provided that: the original authorship is properly and fully attributed; the Journal and Oxford University Press are attributed as the original place of publication with the correct citation details given; if an article is subsequently reproduced or disseminated not in its entirety but only in part or as a derivative work this must be clearly indicated. For commercial re-use, please contact journals.permissions@oupjournals.org': None,
      "Author's Choice - Final Version Full Access NIH Funded Research - Final Version Full Access Creative Commons Attribution Non-Commercial License applies to Author Choice Articles": 'http://creativecommons.org/licenses/by-nc/3.0',
      'The online version of this article has been published under an open access model. users are entitled to use, reproduce, disseminate, or display the open access version of this article for non-commerical purposes provided that: the original authorship is properly and fully attributed; the Journal and the Guarantors of Brain are attributed as the original place of publication with the correction citation details given; if an article is subsequently reproduced or disseminated not in its entirety but only in part or as a derivative work this must be clearly indicated. For commercial re-use, please contact journals.permissions@oxfordjournals.org.': 'mailto:journals.permissions@oxfordjournals.org',
      "You are free to share - to copy, distribute and transmit the work, under the following conditions: Attribution: You must attribute the work in the manner specified by the author or licensor (but not in any way that suggests that they endorse you or your use of the work). Non-commercial: You may not use this work for commercial purposes. No derivative works: You may not alter, transform, or build upon this work. For any reuse or distribution, you must make clear to others the license terms of this work, which can be found at http://creativecommons.org/licenses/by-nc-nd/3.0/legalcode . Any of the above conditions can be waived if you get permission from the copyright holder. Nothing in this license impairs or restricts the author's moral rights.": 'http://creativecommons.org/licenses/by-nc-nd/3.0',
-     'Open access articles can be viewed online without a subscription.': '',
-     '‡ The authors have paid a fee to allow immediate free access to this work.': '',
+     'Open access articles can be viewed online without a subscription.': None,
+     '‡ The authors have paid a fee to allow immediate free access to this work.': None,
      'Published under the CreativeCommons Attribution-NonCommercial-NoDerivs 3.0 License .': 'http://creativecommons.org/licenses/by-nc-nd/3.0',
      'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial License ( http://creativecommons.org/licenses/by-nc/2.0/uk/ ) which permits unrestricted non-commercial use distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by-nc/2.0/uk/',
      'This article is an open access article distributed under the terms and conditions of the Creative Commons Attribution license ( http://creativecommons.org/licenses/by/3.0/. )': 'http://creativecommons.org/licenses/by/3.0/',
      'This work is licensed under a Creative Commons Attribution 3.0 License (by-nc 3.0)': 'http://creativecommons.org/licenses/by-nc/3.0',
      "Author's Choice —Final version full access. NIH Funded Research - Final version full access. Creative Commons Attribution Non-Commercial License applies to Author Choice Articles": 'http://creativecommons.org/licenses/by-nc/3.0',
-     'This is an open-access article, which permits unrestricted use, distribution, and reproduction in any medium, for non-commercial purposes, provided the original author and source are credited.': '',
+     'This is an open-access article, which permits unrestricted use, distribution, and reproduction in any medium, for non-commercial purposes, provided the original author and source are credited.': None,
      'This article is an open-access article distributed under the terms and conditions of the Creative Commons Attribution license ( http://creativecommons.org/licenses/by/3.0/ )': 'http://creativecommons.org/licenses/by/3.0/',
      'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial No Derivatives License ( http://creativecommons.org/licenses/by-nc-nd/3.0/ ), which permits for noncommercial use, distribution, and reproduction in any medium, provided the original work is properly cited and is not altered in any way.': 'http://creativecommons.org/licenses/by-nc-nd/3.0/',
      'This article is an open access article distributed under the terms and conditions of the Creative Commons Attribution license http://creativecommons.org/licenses/by/3.0/ .': 'http://creativecommons.org/licenses/by/3.0/',
@@ -304,7 +304,7 @@ license_url_equivalents = {
      'The online version of this article has been published under an open access model. Users are entitled to use, reproduce, disseminate, or display the open access version of this article for noncommercial purposes provided that: the original authorship is properly and fully attributed; the Journal and Oxford University Press are attributed as the original place of publication with the correct citation details given; if an article is subsequently reproduced or disseminated not in its entirety but only in part or as a derivative work this must be clearly indicated. For commercial re-use, please contact journals.permissions@oxfordjournals.org': 'mailto:journals.permissions@oxfordjournals.org',
      'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial License ( http://creativecommons.org/licenses/byc/2.5 ), which permits unrestricted nonommercial use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by-nc/2.5/',
      'The online version of this article has been published under an open access model. Users are entitled to use, reproduce, disseminate, or display the open access version of this article for non-commercial purposes provided that: the original authorship is properly and fully attributed; the Journal and Oxford University Press and The Japanese Society for Immunology are attributed as the original place of publication with the correct citation details given; if an article is subsequently reproduced or disseminated not in its entirety but only in part or as a derivative work this must be clearly indicated. For commercial re-use, please contact journals.permissions@oxfordjournals.org': 'mailto:journals.permissions@oxfordjournals.org',
-     '# The authors have paid a fee to allow immediate free access to this paper.': '',
+     '# The authors have paid a fee to allow immediate free access to this paper.': None,
      'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial License (http://creativecommons.org/licenses/by-nc/2.0/uk/) which permits unrestricted non-commercial use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by-nc/2.0/uk/',
      'This work is licensed under a Creative Commons Attribution NonCommercial 3.0 License (CC BYNC 3.0). LicenseePAGEPress, Italy': 'http://creativecommons.org/licenses/by-nc/3.0',
      'This article is an open access article distributed under the terms and conditions of the Creative Commons Attribution license ( http://creativecommons.org/licenses/by/3.0/ ).': 'http://creativecommons.org/licenses/by/3.0/',
@@ -314,7 +314,7 @@ license_url_equivalents = {
      'This is an open access article distributed under the Creative Commons Attribution License, that permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/3.0/',
      'This article is an open access article distributed under the terms and conditions of the Creative Commons Attribution license ( http://creativecommons.org/licenses/by/3.0/ .)': 'http://creativecommons.org/licenses/by/3.0/',
      "Author's Choice —Final version full access. Creative Commons Attribution Non-Commercial License applies to Author Choice Articles": 'http://creativecommons.org/licenses/by-nc/3.0',
-     '¶ The authors have paid a fee to allow immediate free access to this article.': '',
+     '¶ The authors have paid a fee to allow immediate free access to this article.': None,
      'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial License ( http://creativecommons.org/licenses/by-nc/2.5 ), which permits unrestricted non-commercial use, distribution, and reproduction in any medium, provided the original work is properly cited. This paper is available online free of all access charges (see http://jxb.oxfordjournals.org/open_access.html for further details)': 'http://creativecommons.org/licenses/by-nc/2.5',
      'This article is distributed under the terms of an Attribution–Noncommercial–Share Alike–No Mirror Sites license for the first six months after the publication date (see http://www.jcb.org/misc/terms.shtml ). After six months it is available under a Creative Commons License (Attribution–Noncommercial–Share Alike 3.0 Unported license, as described at http://creativecommons.org/licenses/by-nc-sa/3.0/ ).': 'http://creativecommons.org/licenses/by-nc-sa/3.0/',
      '99This is an open access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/3.0/',
@@ -323,14 +323,14 @@ license_url_equivalents = {
      'Royal College of Psychiatrists, This paper accords with the NIH Public Access policy and is governed by the licence available at http://www.rcpsych.ac.uk/pdf/NIH%20licence%20agreement.pdf Royal College of Psychiatrists, This paper accords with the Wellcome Trust Open Access policy and is governed by the licence available at http://www.rcpsych.ac.uk/pdf/Wellcome%20Trust%20licence.pdf': 'http://www.rcpsych.ac.uk/pdf/NIH%20licence%20agreement.pdf',
      'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial License ( http://creativecommons.org/licenses/by-nc/2.0/uk/> ) which permits unrestricted non-commercial use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by-nc/2.0/uk/',
      'This article is an Open Access article distributed under the terms and conditions of the Creative Commons Attribution license ( http://creativecommons.org/licenses/by/3.0/ ).': 'http://creativecommons.org/licenses/by/3.0/',
-     'Available online without subscription through the open access option.': '',
+     'Available online without subscription through the open access option.': None,
      'This is an Open Access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/3.0/',
      'This article is distributed under the terms of an Attribution–Noncommercial–Share Alike–No Mirror Sites license for the first six months after the publication date (see http://www.jgp.org/misc/terms.shtml ). After six months it is available under a Creative Commons License (Attribution–Noncommercial–Share Alike 3.0 Unported license, as described at http://creativecommons.org/licenses/by-nc-sa/3.0/ ).': 'http://creativecommons.org/licenses/by-nc-sa/3.0/',
      'This is an open access article distributed under the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original paper is properly cited.': 'http://creativecommons.org/licenses/by/3.0/',
      'This is an Open Access article distributed under the terms of the Creative Commons Attribution License ( http://creativecommons.org/licenses/by/3.0/ ), which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/3.0/',
      'This article is an open access article distributed under the terms and conditions of the Creative Commons Attribution license ( http://creativecommons.org/licenses/by/3.0/': 'http://creativecommons.org/licenses/by/3.0/',
      "You are free to share - to copy, distribute and transmit the work, under the following conditions: Attribution:   You must attribute the work in the manner specified by the author or licensor (but not in any way that suggests that they endorse you or your use of the work). Non-commercial:   You may not use this work for commercial purposes. No derivative works:   You may not alter, transform, or build upon this work. For any reuse or distribution, you must make clear to others the license terms of this work, which can be found at http://creativecommons.org/licenses/by-nc-nd/3.0/legalcode. Any of the above conditions can be waived if you get permission from the copyright holder. Nothing in this license impairs or restricts the author's moral rights.": 'http://creativecommons.org/licenses/by-nc-nd/3.0/',
-    "This is an Open Access article: verbatim copying and redistribution of this article are permitted in all media for any purpose, provided this notice is preserved along with the article's original URL.": '',
+    "This is an Open Access article: verbatim copying and redistribution of this article are permitted in all media for any purpose, provided this notice is preserved along with the article's original URL.": None,
     'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial License ( http://creativecommons.org/licenses/by-nc/2.5 ) which permits unrestricted non-commercial use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by-nc/2.5',
     'This article is an open-access article distributed under the terms and conditions of the Creative Commons Attribution license http://creativecommons.org/licenses/by/3.0/ .': 'http://creativecommons.org/licenses/by/3.0/',
     'Published under the CreativeCommons Attribution NonCommercial-NoDerivs 3.0 License .': 'http://creativecommons.org/licenses/by-nc-nd/3.0/',
@@ -344,16 +344,16 @@ license_url_equivalents = {
     'Creative Commons Attribution Non-Commercial License applies to Author Choice Articles': 'http://creativecommons.org/licenses/by-nc/3.0/',
     'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial License ( http://creativecommons.org/licenses/by-nc/2.5 ) which permits unrestricted non-commercial use, distribution, and reproduction in any medium, provided the original work is properly cited. This paper is available online free of all access charges (see http://jxb.oxfordjournals.org/open_access.html for further details)': 'http://creativecommons.org/licenses/by-nc/2.5',
     'This is an open access article distributed under the terms of the creative commons attribution license, which permits unrestricteduse, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/3.0/',
-    'available online without subscription through the open access option.': '',
-    "Author's Choice": '',
-    '# The authors have paid a fee to allow immediate free access to this article.': '',
-    'Open Access articles can be viewed online without a subscription.': '',
+    'available online without subscription through the open access option.': None,
+    "Author's Choice": None,
+    '# The authors have paid a fee to allow immediate free access to this article.': None,
+    'Open Access articles can be viewed online without a subscription.': None,
     'This is an open access article distributed under the terms of the Creative Commons Attribution License (<url>http://creativecommons.org/licenses/by/2.0</url>), which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited': 'http://creativecommons.org/licenses/by/2.0',
     'This is an open-access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/3.0/',
-    "Author's Choice —Final version full access.": '',
+    "Author's Choice —Final version full access.": None,
     'This is an open-access article distributed under the terms of the Creative Commons Attribution-Noncommercial-Share Alike 3.0 Unported License, which permits unrestricted noncommercial use, distribution, and reproduction in any medium, provided the original author and source are credited.': 'http://creativecommons.org/licenses/by-nc-sa/3.0/',
     'This is an Open Access article distributed under the terms of the Creative Commons Attribution License ( http://creativecommons.org/licenses/by/2.0 ), which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited': 'http://creativecommons.org/licenses/by/2.0',
-    "Author's Choice - Final version full access. Creative Commons Attribution Non-Commercial License applies to Author Choice Articles": '',
+    "Author's Choice - Final version full access. Creative Commons Attribution Non-Commercial License applies to Author Choice Articles": None,
     'The online version of this article has been published under an open access model. Users are entitled to use, reproduce, disseminate, or display the open access version of this article for non-commercial purposes provided that: the original authorship is properly and fully attributed; the Journal and Oxford University Press are attributed as the original place of publication with the correct citation details given; if an article is subsequently reproduced or disseminated not in its entirety but only in part or as a derivative work this must be clearly indicated. For commercial re-use, please contact journals.permissions@oxfordjournals.org Published by Oxford University Press on behalf of the International Epidemiological Association.': 'mailto:journals.permissions@oxfordjournals.org',
     "You are free to share - to copy, distribute and transmit the work, under the following conditions: Attribution :  You must attribute the work in the manner specified by the author or licensor (but not in any way that suggests that they endorse you or your use of the work). Non-commercial :  You may not use this work for commercial purposes. No derivative works :  You may not alter, transform, or build upon this work. For any reuse or distribution, you must make clear to others the license terms of this work, which can be found at http://creativecommons.org/licenses/by-nc-nd/3.0/legalcode . Any of the above conditions can be waived if you get permission from the copyright holder. Nothing in this license impairs or restricts the author's moral rights.": 'http://creativecommons.org/licenses/by-nc-nd/3.0/',
     'The Author(s) This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial License ( http://creativecommons.org/licenses/by-nc/2.0/uk/ ) which permits unrestricted non-commercial use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by-nc/2.0/uk/',
@@ -391,15 +391,17 @@ def _get_article_license_url(tree):
         license_url = license.attrib['{http://www.w3.org/1999/xlink}href']
         if license_url in license_url_fixes:
             return license_url_fixes[license_url]
-        else:
-            return license_url
+        return license_url
     except AttributeError:  # license statement is missing
-        return ''
+        return None
     except KeyError:  # license statement is in plain text
         license_text = ' '.join(license.itertext()).encode('utf-8')
         license_text = ' '.join(license_text.split())  # whitespace cleanup
         if license_text in license_url_equivalents:
-            return license_url_equivalents[license_text]
+            license_url = license_url_equivalents[license_text]
+            if license_url in license_url_fixes:
+                return license_url_fixes[license_url]
+            return license_url
         else:
             # FIXME: revert this to an exception some time in the future
             filename = '/tmp/pubmed-' + md5(license_text).hexdigest()
@@ -421,7 +423,7 @@ def _get_article_copyright_holder(tree):
             return copyright_holder
     except AttributeError:  # no copyright_holder known
         pass
-    return ''
+    return None
 
 from sys import stderr
 
