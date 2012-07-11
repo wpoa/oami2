@@ -11,6 +11,9 @@ cache_path = path.join(BaseDirectory.xdg_cache_home, APPLICATION_NAME)
 config_path = path.join(BaseDirectory.xdg_config_home, APPLICATION_NAME)
 data_path = path.join(BaseDirectory.xdg_data_home, APPLICATION_NAME)
 
+def database_path(source):
+    return path.join(data_path, '%s.sqlite' % source)
+
 def ensure_directory_exists(directory):
     if not path.exists(directory):
         makedirs(directory)

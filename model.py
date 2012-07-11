@@ -1,10 +1,10 @@
 from elixir import *
 from os import path
 
-from config import cache_path
+import config
 
-metadata.bind = 'sqlite:///%s' % \
-    path.join(cache_path, 'model.sqlite')
+def set_source(source):
+    metadata.bind = 'sqlite:///%s' % config.database_path(source)
 
 class Journal(Entity):
     title = Field(UnicodeText, primary_key=True)

@@ -19,7 +19,8 @@ import progressbar
 import mutagen.oggtheora
 
 from helpers import media
-from model import session, setup_all, create_all, Article, Journal, SupplementaryMaterial
+from model import session, setup_all, create_all, set_source, \
+    Article, Journal, SupplementaryMaterial
 
 try:
     action = argv[1]
@@ -29,7 +30,7 @@ except IndexError:
 oa-cache – Open Access Media Importer local operations
 
 usage:  oa-cache clear-media [source] |
-        oa-cache clear-metadata [source] |
+        oa-cache clear-database [source] |
         oa-cache convert-media [source] |
         oa-cache find-media [source] |
         oa-cache list-articles [source]
@@ -38,7 +39,7 @@ usage:  oa-cache clear-media [source] |
     exit(1)
 
 try:
-    assert(action in ['clear-media', 'clear-metadata', \
+    assert(action in ['clear-media', 'clear-database', \
         'convert-media', 'find-media', 'list-articles'])
 except AssertionError:  # invalid action
     stderr.write('Unknown action “%s”.\n' % action)
@@ -49,6 +50,9 @@ try:
 except ImportError:  # invalid source
     stderr.write("Unknown source “%s”.\n" % target)
     exit(3)
+
+set_source(target)
+setup_all(True)
 
 import config
 
@@ -66,17 +70,14 @@ if action == 'clear-media':
         remove(media_path)
         stderr.write("done.\n")
 
-if action == 'clear-metadata':
-    metadata_refined_directory = config.get_metadata_refined_source_path(target)
-    fail_cache_path = path.join(metadata_refined_directory, 'fail_cache')
-    success_cache_path = path.join(metadata_refined_directory, 'success_cache')
-    for cache_path in [fail_cache_path, success_cache_path]:
-        stderr.write("Removing “%s” … " % cache_path)
-        try:
-            remove(cache_path)
-            stderr.write("done.\n")
-        except OSError, e:
-            stderr.write('\n%s\n' % str(e))
+if action == 'clear-database':
+    filename = config.database_path(target)
+    stderr.write("Removing “%s” … " % filename)
+    try:
+        remove(filename)
+        stderr.write("done.\n")
+    except OSError, e:
+        stderr.write('\n%s\n' % str(e))
 
 if action == 'convert-media':
     metadata_path = config.get_metadata_refined_source_path(target)
@@ -128,7 +129,6 @@ if action == 'convert-media':
                 writer.writerow(row)
 
 if action == 'list-articles':
-    setup_all(True)
     csv_writer = csv.writer(stdout)
     # categories based on:
     # “Citation Rules with Examples for Journal Articles on the Internet”
@@ -165,7 +165,6 @@ if action == 'list-articles':
                 raise
 
 if action == 'find-media':
-    setup_all(True)
     skip = [article.name for article in Article.query.all()]
     if len(skip) > 0:
         stderr.write('Skipping %s records … \n' % len(skip))
