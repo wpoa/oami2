@@ -191,7 +191,7 @@ if action == 'find-media':
                 name=result['name'],
                 title=result['article-title'],
                 contrib_authors=result['article-contrib-authors'],
-                abstrict=result['article-abstract'],
+                abstract=result['article-abstract'],
                 date=result['article-date'],
                 url=result['article-url'],
                 license_url=result['article-license-url'],
