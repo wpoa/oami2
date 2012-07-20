@@ -9,6 +9,9 @@ from urllib2 import urlopen, urlparse, Request, HTTPError
 
 BUFSIZE = 1024000  # (1024KB)
 
+from model import session, setup_all, create_all, set_source, \
+    Article, Journal, SupplementaryMaterial
+
 try:
     action = argv[1]
     target = argv[2]
@@ -34,6 +37,9 @@ except ImportError:  # invalid source
     stderr.write("Unknown source “%s”.\n" % target)
     exit(3)
 
+set_source(target)
+setup_all(True)
+
 import config
 
 if action == 'download-metadata':
@@ -48,66 +54,57 @@ if action == 'download-metadata':
         p.update(result['completed'])
 
 if action == 'download-media':
-    metadata_path = config.get_metadata_refined_source_path(target)
-    success_cache_path = path.join(metadata_path, 'success_cache')
-    download_cache_path = path.join(metadata_path, 'download_cache')
-
     media_path = config.get_media_raw_source_path(target)
-    with open(success_cache_path, 'r') as success_cache:
-        with open(download_cache_path, 'a') as download_cache:
-            reader = csv.reader(success_cache)
-            writer = csv.writer(download_cache)
-            for row in reader:
-                # see oa-cache for row definition
-                license_url = row[7]
-                if license_url == '':
-                    continue
-                if not license_url in config.free_license_urls:
-                    stderr.write('Unknown, possibly non-free license: <%s>\n' %
-                        license_url)
-                    continue
+    materials = SupplementaryMaterial.query.all()
+    for material in materials:
+        license_url = material.article.license_url
+        if license_url == '':
+            continue
+        if not license_url in config.free_license_urls:
+            stderr.write('Unknown, possibly non-free license: <%s>\n' %
+                license_url)
+            continue
 
-                mimetype = row[11]
-                if mimetype != 'video':
-                    continue
+        mimetype = mimetype = material.mimetype
+        if mimetype != 'video':
+            continue
 
-                url = row[13]
-                try:
-                    req = Request(url, None, {'User-Agent' : 'oa-get/2012-05-31'})
-                    remote_file = urlopen(req)
-                except HTTPError as e:
-                    stderr.write('When trying to download <%s>, the following error occured: “%s”.\n' % \
-                                     (url, str(e)))
-                    exit(4)
-                total = int(remote_file.headers['content-length'])
-                completed = 0
+        url = material.url
+        try:
+            req = Request(url, None, {'User-Agent' : 'oa-get/2012-07-21'})
+            remote_file = urlopen(req)
+        except HTTPError as e:
+            stderr.write('When trying to download <%s>, the following error occured: “%s”.\n' % \
+                             (url.encode('utf-8'), str(e)))
+            exit(4)
+        total = int(remote_file.headers['content-length'])
+        completed = 0
 
-                url_path = urlparse.urlsplit(url).path
-                local_filename = path.join(media_path, \
-                    url_path.split('/')[-1])
+        url_path = urlparse.urlsplit(url).path
+        local_filename = path.join(media_path, \
+            url_path.split('/')[-1])
 
-                # if local file has same size as remote file, skip download
-                try:
-                    if (path.getsize(local_filename) == total):
-                        stderr.write("Skipping <%s>.\n" % url)
-                        continue
-                except OSError:  # local file does not exist
-                    pass
+        # if local file has same size as remote file, skip download
+        try:
+            if (path.getsize(local_filename) == total):
+                stderr.write("Skipping <%s>.\n" % url.encode('utf-8'))
+                continue
+        except OSError:  # local file does not exist
+            pass
 
-                stderr.write("Downloading <%s>, saving into directory “%s” …\n" % \
-                    (url, media_path))
-                p = progressbar.ProgressBar(maxval=total)
+        stderr.write("Downloading <%s>, saving into directory “%s” …\n" % \
+            (url.encode('utf-8'), media_path))
+        p = progressbar.ProgressBar(maxval=total)
 
-                with open(local_filename,'wb') as local_file:
-                    while True:
-                        chunk = remote_file.read(BUFSIZE)
-                        if chunk != '':
-                            local_file.write(chunk)
-                            completed += len(chunk)
-                            p.update(completed)
-                        else:
-                            break
+        with open(local_filename,'wb') as local_file:
+            while True:
+                chunk = remote_file.read(BUFSIZE)
+                if chunk != '':
+                    local_file.write(chunk)
+                    completed += len(chunk)
+                    p.update(completed)
+                else:
+                    break
 
-                row.append(local_filename)
-                writer.writerow(row)
-                download_cache.flush()
+                material.downloaded = True
+                session.commit()
