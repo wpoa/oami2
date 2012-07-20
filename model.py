@@ -29,6 +29,9 @@ class SupplementaryMaterial(Entity):
     mime_subtype = Field(UnicodeText)
     url = Field(UnicodeText, primary_key=True)
     article = ManyToOne('Article')
+    downloaded = Field(Boolean, default=False)
+    converted = Field(Boolean, default=False)
+    uploaded = Field(Boolean, default=False)
     
     def __repr__(self):
         return '<SupplementaryMaterial "%s" (%d)>' % (self.title, self.year)
