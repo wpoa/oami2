@@ -368,7 +368,8 @@ license_url_equivalents = {
     'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial License ( http://creativecommons.org/licenses/by-nc/2.5 ), which permits unrestricted non-commercial use, distribution and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by-nc/2.5',
     'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial License http://creativecommons.org/licenses/by-nc/2.5/ ) which permits unrestricted non-commercial use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by-nc/2.5/',
     'This is an open access article distributed under the Creative Commons Attribution License , which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/3.0/',
-    'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial No Derivatives License, which permits for noncommercial use, distribution, and reproduction in any digital medium, provided the original work is properly cited and is not altered in any way. For details, please refer to http://creativecommons.org/licenses/by-nc-nd/3.0/': 'http://creativecommons.org/licenses/by-nc-nd/3.0/'
+    'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial No Derivatives License, which permits for noncommercial use, distribution, and reproduction in any digital medium, provided the original work is properly cited and is not altered in any way. For details, please refer to http://creativecommons.org/licenses/by-nc-nd/3.0/': 'http://creativecommons.org/licenses/by-nc-nd/3.0/',
+    'Kastberger et al. This is an open-access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited.': 'http://creativecommons.org/licenses/by/3.0/'
  }
 
 license_url_fixes = {
@@ -424,6 +425,17 @@ def _get_article_copyright_holder(tree):
             return copyright_holder
     except AttributeError:  # no copyright_holder known
         pass
+
+    copyright_statement = ElementTree(tree).find(
+        'front/article-meta/copyright-statement'
+    )
+    try:
+        copyright_statement = copyright_statement.text
+        if copyright_statement is not None:
+            return copyright_statement.split('.')[0] + '.'
+    except AttributeError:
+        pass
+
     return None
 
 from sys import stderr
