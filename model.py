@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from elixir import *
 from os import path
 
@@ -22,6 +25,9 @@ class Article(Entity):
     journal = ManyToOne('Journal')
     supplementary_materials = OneToMany('SupplementaryMaterial')
 
+    def __repr__(self):
+        return '<Article "%s">' % self.title.encode('utf-8')
+
 class SupplementaryMaterial(Entity):
     label = Field(UnicodeText)
     caption = Field(UnicodeText)
@@ -34,4 +40,5 @@ class SupplementaryMaterial(Entity):
     uploaded = Field(Boolean, default=False)
     
     def __repr__(self):
-        return '<SupplementaryMaterial "%s" (%d)>' % (self.title, self.year)
+        return '<SupplementaryMaterial “%s” of Article “%s”>' % \
+            (self.label.encode('utf-8'), self.article.title.encode('utf-8'))
