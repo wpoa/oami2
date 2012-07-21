@@ -3,6 +3,7 @@
 
 from os import listdir, path, remove, rename
 from sys import argv, stderr, stdout
+from urllib2 import urlparse
 
 import csv
 # csv.field_size_limit must be reset according to
@@ -83,53 +84,48 @@ if action == 'clear-database':
         stderr.write('\n%s\n' % str(e))
 
 if action == 'convert-media':
-    metadata_path = config.get_metadata_refined_source_path(target)
-    converted_cache_path = path.join(metadata_path, 'converted_cache')
-    download_cache_path = path.join(metadata_path, 'download_cache')
-    with open(download_cache_path, 'r') as download_cache:
-        with open(converted_cache_path, 'a') as converted_cache:
-            reader = csv.reader(download_cache)
-            writer = csv.writer(converted_cache)
-            for row in reader:
-                loop = gobject.MainLoop()
+    materials = SupplementaryMaterial.query.filter_by(downloaded=True).all()
+    for material in materials:        
+        media_refined_directory = config.get_media_refined_source_path(target)
+        media_raw_directory = config.get_media_raw_source_path(target)
+        temporary_media_path = path.join(media_refined_directory, 'current.ogv')
 
-                media_refined_directory = config.get_media_refined_source_path(target)
-                temporary_media_path = path.join(media_refined_directory, 'current.ogv')
+        url_path = urlparse.urlsplit(material.url).path
+        filename = url_path.split('/')[-1]
+        media_raw_path = path.join(media_raw_directory, filename)
+        media_refined_path = path.join(media_refined_directory, filename + '.ogv')
 
-                media_raw_path = row[14]
-                filename = path.split(media_raw_path)[-1]
-                media_refined_path = path.join(media_refined_directory, filename + '.ogv')
+        if path.isfile(media_refined_path):
+            continue
 
-                if path.isfile(media_refined_path):
-                    continue
+        stderr.write("Converting “%s”, saving into “%s” …\n" % (
+                media_raw_path.encode('utf-8'),
+                media_refined_path.encode('utf-8')
+            )
+        )
 
-                stderr.write("Converting “%s”, saving into “%s” …\n" % (
-                        media_raw_path,
-                        media_refined_path
-                    )
-                )
+        loop = gobject.MainLoop()
+        m = media.Media(media_raw_path)
+        m.find_streams()
+        m.convert(temporary_media_path)
 
-                m = media.Media(media_raw_path)
-                m.find_streams()
-                m.convert(temporary_media_path)
+        try:
+            f = mutagen.oggtheora.OggTheora(temporary_media_path)
+            f['TITLE'] = material.label
+            f['ALBUM'] = material.article.title
+            f['ARTIST'] = material.article.contrib_authors
+            f['COPYRIGHTS'] = material.article.copyright_holder
+            f['LICENSE'] = material.article.license_url
+            f['DESCRIPTION'] = material.caption
+            f['DATE'] = material.article.date
+            f.save()
+        except mutagen.oggtheora.OggTheoraHeaderError:
+            pass  # Most probably an encoding failure.
 
-                try:
-                    f = mutagen.oggtheora.OggTheora(temporary_media_path)
-                    f['TITLE'] = row[9].decode('utf-8')
-                    f['ALBUM'] = row[2].decode('utf-8')  # article title
-                    f['ARTIST'] = row[1].decode('utf-8')  # authors
-                    f['COPYRIGHTS'] = row[8].decode('utf-8')
-                    f['LICENSE'] = row[7].decode('utf-8')
-                    f['DESCRIPTION'] = row[10].decode('utf-8')
-                    f['DATE'] = row[5].decode('utf-8')
-                    f.save()
-                except mutagen.oggtheora.OggTheoraHeaderError:
-                    pass  # Most probably an encoding failure.
+        rename(temporary_media_path, media_refined_path)
 
-                rename(temporary_media_path, media_refined_path)
-
-                row[14] = media_refined_path
-                writer.writerow(row)
+        material.converted = True
+        session.commit()
 
 if action == 'list-articles':
     csv_writer = csv.writer(stdout)
