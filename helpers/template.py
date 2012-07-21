@@ -4,13 +4,13 @@
 def page(authors, article_title, journal_title, date, article_url, \
     license_url, rights_holder, label, caption):
     license_templates = {
-        'http://creativecommons.org/licenses/by/2.0': '{{cc-by-2.0}}',
-        'http://creativecommons.org/licenses/by-sa/2.0': '{{cc-by-sa-2.0}}',
-        'http://creativecommons.org/licenses/by/2.5': '{{cc-by-2.5}}',
-        'http://creativecommons.org/licenses/by/2.5/': '{{cc-by-2.5}}',
-        'http://creativecommons.org/licenses/by-sa/2.5': '{{cc-by-sa-2.5}}',
-        'http://creativecommons.org/licenses/by/3.0': '{{cc-by-3.0}}',
-        'http://creativecommons.org/licenses/by-sa/3.0': '{{cc-by-sa-3.0}}'
+        u'http://creativecommons.org/licenses/by/2.0': '{{cc-by-2.0}}',
+        u'http://creativecommons.org/licenses/by-sa/2.0': '{{cc-by-sa-2.0}}',
+        u'http://creativecommons.org/licenses/by/2.5': '{{cc-by-2.5}}',
+        u'http://creativecommons.org/licenses/by/2.5/': '{{cc-by-2.5}}',
+        u'http://creativecommons.org/licenses/by-sa/2.5': '{{cc-by-sa-2.5}}',
+        u'http://creativecommons.org/licenses/by/3.0': '{{cc-by-3.0}}',
+        u'http://creativecommons.org/licenses/by-sa/3.0': '{{cc-by-sa-3.0}}'
     }
     license_template = license_templates[license_url]
 
