@@ -64,7 +64,7 @@ if action == 'upload-media':
         wiki_file = wikitools.wikifile.File(wiki=wiki, title=filename)
         wiki_file.upload(
             fileobj = open(media_refined_path, 'r'),
-            comment = 'Uploaded with the Open Access Media Importer.'
+            comment = 'Uploaded with the Open Access Media Importer. (test edit) [[Commons:Bots/Requests#Open_Access_Media_Importer_Bot_.28talk.C2.A0.C2.B7_contribs.29|botrequest]]'
         )
         authors = material.article.contrib_authors
         article_title = material.article.title
