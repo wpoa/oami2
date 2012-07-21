@@ -90,6 +90,8 @@ if action == 'download-media':
         try:
             if (path.getsize(local_filename) == total):
                 stderr.write("Skipping <%s>.\n" % url.encode('utf-8'))
+                material.downloaded = True
+                session.commit()
                 continue
         except OSError:  # local file does not exist
             pass
