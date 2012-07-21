@@ -84,7 +84,10 @@ if action == 'clear-database':
         stderr.write('\n%s\n' % str(e))
 
 if action == 'convert-media':
-    materials = SupplementaryMaterial.query.filter_by(downloaded=True).all()
+    materials = SupplementaryMaterial.query.filter_by(
+        downloaded=True,
+        converted=False
+    ).all()
     for material in materials:        
         media_refined_directory = config.get_media_refined_source_path(target)
         media_raw_directory = config.get_media_raw_source_path(target)

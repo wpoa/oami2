@@ -3,6 +3,7 @@
 
 from os import path
 from sys import argv, stderr
+from urllib2 import urlparse
 
 import csv
 # csv.field_size_limit must be reset according to
@@ -12,6 +13,8 @@ csv.field_size_limit(999999999)
 import wikitools
 
 from helpers import template
+from model import session, setup_all, create_all, set_source, \
+    Article, Journal, SupplementaryMaterial
 
 try:
     action = argv[1]
@@ -37,39 +40,48 @@ except ImportError:  # invalid source
     stderr.write("Unknown source “%s”.\n" % target)
     exit(3)
 
+set_source(target)
+setup_all(True)
+
 import config
 
 if action == 'upload-media':
+    media_refined_directory = config.get_media_refined_source_path(target)
     wiki = wikitools.wiki.Wiki(config.api_url)
     wiki.login(username=config.username, password=config.password)
 
-    metadata_path = config.get_metadata_refined_source_path(target)
-    converted_cache_path = path.join(metadata_path, 'converted_cache')
-    with open(converted_cache_path, 'r') as converted_cache:
-        reader = csv.reader(converted_cache)
-        for row in reader:
-            filename = row[14]
-            wiki_filename = path.split(filename)[-1]
-            if (path.getsize(filename) == 0):
-                continue
-            wiki_file = wikitools.wikifile.File(wiki=wiki, title=wiki_filename)
-            wiki_file.upload(
-                fileobj = open(filename, 'r'),
-                comment = 'Uploaded with the Open Access Media Importer.'
-            )
-            authors = row[1]
-            article_title = row[2]
-            journal_title = row[4]
-            date = row[5]
-            article_url = row[6]
-            license_url = row[7]
-            rights_holder = row[8]
-            label = row[9]
-            caption = row[10]
-            page = wikitools.Page(wiki, "File:" + wiki_filename, followRedir=True)
-            page_template = template.page(authors, article_title, journal_title, \
-                date, article_url, license_url, rights_holder, label, \
-                caption)
-            page.edit(text=page_template)
-            stderr.write("“%s” uploaded to <%s>.\n" % \
-                             (filename, config.api_url))
+    materials = SupplementaryMaterial.query.filter_by(
+        converted=True,
+        uploaded=False
+    ).all()
+    for material in materials:
+        url_path = urlparse.urlsplit(material.url).path
+        filename = url_path.split('/')[-1]
+        media_refined_path = path.join(media_refined_directory, filename + '.ogv')
+
+        if (path.getsize(media_refined_path) == 0):
+            continue
+        wiki_file = wikitools.wikifile.File(wiki=wiki, title=filename)
+        wiki_file.upload(
+            fileobj = open(media_refined_path, 'r'),
+            comment = 'Uploaded with the Open Access Media Importer.'
+        )
+        authors = material.article.contrib_authors
+        article_title = material.article.title
+        journal_title = material.article.journal.title
+        date = material.article.date
+        article_url = material.article.url
+        license_url = material.article.license_url
+        rights_holder = material.article.rights_holder
+        label = material.label
+        caption = material.caption
+        page = wikitools.Page(wiki, "File:" + filename, followRedir=True)
+        page_template = template.page(authors, article_title, journal_title, \
+            date, article_url, license_url, rights_holder, label, \
+            caption)
+        page.edit(text=page_template)
+        stderr.write("“%s” uploaded to <%s>.\n" % \
+                         (media_refined_path, config.api_url))
+
+        material.uploaded = True
+        session.commit()

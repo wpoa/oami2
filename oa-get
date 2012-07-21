@@ -55,7 +55,9 @@ if action == 'download-metadata':
 
 if action == 'download-media':
     media_path = config.get_media_raw_source_path(target)
-    materials = SupplementaryMaterial.query.all()
+    materials = SupplementaryMaterial.query.filter_by(
+        downloaded=False
+    ).all()
     for material in materials:
         license_url = material.article.license_url
         if license_url == '':
