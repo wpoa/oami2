@@ -79,7 +79,7 @@ if action == 'upload-media':
         page_template = template.page(authors, article_title, journal_title, \
             date, article_url, license_url, rights_holder, label, \
             caption)
-        page.edit(text=page_template)
+        page.edit(text=page_template.encode('utf-8'))
         stderr.write("“%s” uploaded to <%s>.\n" % \
                          (media_refined_path, config.api_url))
 
