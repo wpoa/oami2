@@ -56,8 +56,8 @@ if action == 'upload-media':
     ).all()
     for material in materials:
         url_path = urlparse.urlsplit(material.url).path
-        filename = url_path.split('/')[-1]
-        media_refined_path = path.join(media_refined_directory, filename + '.ogv')
+        filename = url_path.split('/')[-1] + '.ogv'
+        media_refined_path = path.join(media_refined_directory, filename)
 
         if (path.getsize(media_refined_path) == 0):
             continue
