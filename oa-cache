@@ -99,6 +99,8 @@ if action == 'convert-media':
         media_refined_path = path.join(media_refined_directory, filename + '.ogv')
 
         if path.isfile(media_refined_path):
+            material.converted = True
+            session.commit()
             continue
 
         stderr.write("Converting “%s”, saving into “%s” …\n" % (
