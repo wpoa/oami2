@@ -80,8 +80,10 @@ if action == 'upload-media':
             date, article_url, license_url, rights_holder, label, \
             caption)
         page.edit(text=page_template.encode('utf-8'))
-        stderr.write("“%s” uploaded to <%s>.\n" % \
-                         (media_refined_path, config.api_url))
+        stderr.write("“%s” uploaded to <%s>.\n" % (
+            media_refined_path.encode('utf-8'),
+            config.api_url.encode('utf-8')
+        ))
 
         material.uploaded = True
         session.commit()
