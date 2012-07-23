@@ -17,8 +17,12 @@ def page(authors, article_title, journal_title, date, article_url, \
     text += "{{Information\n"
     text += "|Description=\n{{en|%s}}\n" % caption
     text += "|Date= %s\n" % date
-    text += "|Source= %s from %s, %s. Available from %s\n" % \
-        (label, article_title, journal_title, article_url)
+    if label:
+        text += "|Source= %s from %s, %s. Available from %s\n" % \
+            (label, article_title, journal_title, article_url)
+    else:
+        text += "|Source= %s, %s. Available from %s\n" % \
+            (article_title, journal_title, article_url)
     text += "|Author= %s\n" % authors
     text += "|Permission= %s Copyright owner: %s\n" % \
         (license_template, rights_holder)
