@@ -4,6 +4,7 @@
 from os import path
 from sys import argv, stderr
 from urllib2 import urlparse
+from time import sleep
 
 import csv
 # csv.field_size_limit must be reset according to
@@ -111,3 +112,4 @@ if action == 'upload-media':
 
         material.uploaded = True
         session.commit()
+        sleep(10)  # 6 uploads per minute
