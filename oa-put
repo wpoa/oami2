@@ -50,6 +50,24 @@ if action == 'upload-media':
     wiki = wikitools.wiki.Wiki(config.api_url)
     wiki.login(username=config.username, password=config.password)
 
+    def is_uploaded(material):
+        params = {
+            'action': 'query',
+            'list': 'search',
+            'srwhat': 'text',
+            'srnamespace': '6',  # media files
+            'srsearch': '"%s"+"%s"+"%s"' % (
+                material.article.title,
+                material.label,
+                material.caption.split('.')[0]
+            )
+        }
+        request = wikitools.api.APIRequest(wiki, params)
+        result = request.query()
+        if result[u'query'][u'searchinfo'][u'totalhits'] > 0:
+            return True
+        return False
+
     materials = SupplementaryMaterial.query.filter_by(
         converted=True,
         uploaded=False
@@ -60,7 +78,13 @@ if action == 'upload-media':
         media_refined_path = path.join(media_refined_directory, filename)
 
         if (path.getsize(media_refined_path) == 0):
+            material.converted=False
             continue
+
+        if is_uploaded(material):
+            material.uploaded=True
+            continue
+
         wiki_file = wikitools.wikifile.File(wiki=wiki, title=filename)
         wiki_file.upload(
             fileobj = open(media_refined_path, 'r'),
