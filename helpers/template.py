@@ -1,6 +1,43 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from urllib2 import urlopen, urlparse, Request, HTTPError
+from xml.etree.cElementTree import dump, ElementTree
+
+def _get_file_from_url(url):
+    req = Request(url, None, {'User-Agent' : 'oa-put/2012-08-15'})
+    try:
+        remote_file = urlopen(req)
+        return remote_file
+    except HTTPError as e:
+        stderr.write('When trying to download <%s>, the following error occured: “%s”.\n' % \
+            (url, str(e)))
+        exit(255)
+
+def _get_pmcid_from_doi(doi):
+    url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pmc&term=%s' % doi
+    xml_file = _get_file_from_url(url)
+    tree = ElementTree()
+    tree.parse(xml_file)
+    return tree.find('IdList/Id').text
+
+def _get_pmid_from_doi(doi):
+    url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=%s' % doi
+    xml_file = _get_file_from_url(url)
+    tree = ElementTree()
+    tree.parse(xml_file)
+    return tree.find('IdList/Id').text
+
+def _get_categories_from_pmid(pmid):
+    url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=%s&retmode=xml' % pmid
+    xml_file = _get_file_from_url(url)
+    tree = ElementTree()
+    tree.parse(xml_file)
+    categories = []
+    for e in tree.iterfind('PubmedArticle/MedlineCitation/MeshHeadingList/MeshHeading/DescriptorName'):
+        categories.append(e.text)
+    return categories
+
 def page(article_doi, authors, article_title, journal_title, date, article_url, \
     license_url, rights_holder, label, caption):
     license_templates = {
@@ -26,10 +63,19 @@ def page(article_doi, authors, article_title, journal_title, date, article_url, 
     text += "| title = %s\n" % article_title
     text += "| doi = %s\n" % article_doi
     text += "| journal = %s\n" % journal_title
+    pmid = _get_pmid_from_doi(article_doi)
+    if pmid:
+        text += "| pmid = %s\n" % pmid
+    pmcid = _get_pmcid_from_doi(article_doi)
+    if pmcid:
+        text += "| pmc = %s\n" % pmcid
     text += "}}\n"
     text += "|Author= %s\n" % authors
     text += "|Permission= %s Copyright owner: %s\n" % \
         (license_template, rights_holder)
     text += "}}\n\n"
+    if pmid:
+        for category in _get_categories_from_pmid(pmid):
+            text += "[[Category:%s]]\n" % category
     text += "[[Category:Uploaded with Open Access Media Importer]]"
     return text
