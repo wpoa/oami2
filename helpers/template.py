@@ -35,7 +35,13 @@ def _get_categories_from_pmid(pmid):
     tree.parse(xml_file)
     categories = []
     for e in tree.iterfind('PubmedArticle/MedlineCitation/MeshHeadingList/MeshHeading/DescriptorName'):
-        categories.append(e.text)
+        category = e.text
+        if ',' in category:
+            category_parts = category.split(',')
+            category_parts.reverse()
+            category = ' '.join(category_parts)
+        category = category.lower().capitalize()
+        categories.append(category)
     return categories
 
 def page(article_doi, authors, article_title, journal_title, date, article_url, \
