@@ -91,6 +91,7 @@ if action == 'upload-media':
             fileobj = open(media_refined_path, 'r'),
             comment = 'Uploaded with the Open Access Media Importer. (test edit) [[Commons:Bots/Requests#Open_Access_Media_Importer_Bot_.28talk.C2.A0.C2.B7_contribs.29|botrequest]]'
         )
+        article_doi = material.article.doi
         authors = material.article.contrib_authors
         article_title = material.article.title
         journal_title = material.article.journal.title
@@ -101,7 +102,7 @@ if action == 'upload-media':
         label = material.label
         caption = material.caption
         page = wikitools.Page(wiki, "File:" + filename, followRedir=True)
-        page_template = template.page(authors, article_title, journal_title, \
+        page_template = template.page(article_doi, authors, article_title, journal_title, \
             date, article_url, license_url, rights_holder, label, \
             caption)
         page.edit(text=page_template.encode('utf-8'))

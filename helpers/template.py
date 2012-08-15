@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-def page(authors, article_title, journal_title, date, article_url, \
+def page(article_doi, authors, article_title, journal_title, date, article_url, \
     license_url, rights_holder, label, caption):
     license_templates = {
         u'http://creativecommons.org/licenses/by/2.0/': '{{cc-by-2.0}}',
@@ -18,14 +18,18 @@ def page(authors, article_title, journal_title, date, article_url, \
     text += "|Description=\n{{en|%s}}\n" % caption
     text += "|Date= %s\n" % date
     if label:
-        text += "|Source= %s from %s, %s. Available from %s\n" % \
-            (label, article_title, journal_title, article_url)
+        text += "|Source= %s from " % label
     else:
-        text += "|Source= %s, %s. Available from %s\n" % \
-            (article_title, journal_title, article_url)
+        text += "|Source= "
+    text += "{{Cite journal\n"
+    text += "| author = %s\n" % authors
+    text += "| title = %s\n" % article_title
+    text += "| doi = %s\n" % article_doi
+    text += "| journal = %s\n" % journal_title
+    text += "}}\n"
     text += "|Author= %s\n" % authors
     text += "|Permission= %s Copyright owner: %s\n" % \
         (license_template, rights_holder)
     text += "}}\n\n"
-    text += "[[Category:Open Access Media Importer]]"
+    text += "[[Category:Uploaded with Open Access Media Importer]]"
     return text
