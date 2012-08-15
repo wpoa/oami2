@@ -76,6 +76,7 @@ def list_articles(target_directory, supplementary_materials=False, skip=[]):
                     result = {}
                     result['name'] = item.name
                     skip.append(item.name)  # guard against duplicate input
+                    result['doi'] = _get_article_doi(tree)
                     result['article-contrib-authors'] = _get_article_contrib_authors(tree)
                     result['article-title'] = _get_article_title(tree)
                     result['article-abstract'] = _get_article_abstract(tree)
@@ -173,14 +174,9 @@ def _get_article_url(tree):
     """
     Given an ElementTree, returns article URL.
     """
-    article_meta = ElementTree(tree).find('front/article-meta')
-    for article_id in article_meta.iter('article-id'):
-        try:
-            if article_id.attrib['pub-id-type'] == 'doi':
-                return 'http://dx.doi.org/' + article_id.text
-        except KeyError:
-            pass  # articles are useless without a DOI
-    return None  # FIXME: this should never, ever happen
+    doi = _get_article_doi(tree)
+    if doi:
+        return 'http://dx.doi.org/' + doi
 
 license_url_equivalents = {
     '>This work is licensed under a Creative Commons Attribution NonCommercial 3.0 License (CC BY-NC 3.0). Licensee PAGEPress, Italy': 'http://creativecommons.org/licenses/by-nc/3.0',
@@ -496,6 +492,15 @@ def _get_pmcid(tree):
     front = ElementTree(tree).find('front')
     for article_id in front.iter('article-id'):
         if article_id.attrib['pub-id-type'] == 'pmc':
+            return article_id.text
+
+def _get_article_doi(tree):
+    """
+    Given an ElementTree, returns DOI.
+    """
+    front = ElementTree(tree).find('front')
+    for article_id in front.iter('article-id'):
+        if article_id.attrib['pub-id-type'] == 'doi':
             return article_id.text
 
 def _get_supplementary_material_url(pmcid, href):

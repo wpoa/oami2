@@ -190,6 +190,7 @@ if action == 'find-media':
         if not article:
             article = Article(
                 name=result['name'],
+                doi=result['doi'],
                 title=result['article-title'],
                 contrib_authors=result['article-contrib-authors'],
                 abstract=result['article-abstract'],

@@ -15,6 +15,7 @@ class Journal(Entity):
 
 class Article(Entity):
     name = Field(UnicodeText)
+    doi = Field(UnicodeText)
     title = Field(UnicodeText, primary_key=True)
     contrib_authors = Field(UnicodeText, primary_key=True)
     abstract = Field(UnicodeText)
