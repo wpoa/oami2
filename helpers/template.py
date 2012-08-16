@@ -84,6 +84,6 @@ def page(article_doi, authors, article_title, journal_title, date, article_url, 
     if pmid:
         for category in _get_categories_from_pmid(pmid):
             text += "[[Category:%s]]\n" % category
-    text += "[[Category:Media from %s]]" % journal_title
+    text += "[[Category:Media from %s]]\n" % journal_title
     text += "[[Category:Uploaded with Open Access Media Importer]]"
     return text
