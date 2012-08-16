@@ -79,6 +79,7 @@ def page(article_doi, authors, article_title, journal_title, date, article_url, 
     text += "|Author= %s\n" % authors
     text += "|Permission= %s Copyright owner: %s\n" % \
         (license_template, rights_holder)
+    text += "|Other_fields={{Information field|name=Provenance|value= {{Open Access Media Importer}} }}\n"
     text += "}}\n\n"
     if pmid:
         for category in _get_categories_from_pmid(pmid):
