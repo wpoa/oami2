@@ -384,7 +384,8 @@ def _get_article_license_url(tree):
     Given an ElementTree, returns article license URL.
     """
     license = ElementTree(tree).find('front/article-meta/permissions/license') or \
-              ElementTree(tree).find('front/article-meta/copyright-statement')
+              ElementTree(tree).find('front/article-meta/copyright-statement') or \
+              ElementTree(tree).find('front/article-meta/permissions/copyright-statement')
     try:
         license_url = license.attrib['{http://www.w3.org/1999/xlink}href']
         if license_url in license_url_fixes:
