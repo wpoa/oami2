@@ -365,7 +365,7 @@ license_url_equivalents = {
     'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial License http://creativecommons.org/licenses/by-nc/2.5/ ) which permits unrestricted non-commercial use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by-nc/2.5/',
     'This is an open access article distributed under the Creative Commons Attribution License , which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/3.0/',
     'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial No Derivatives License, which permits for noncommercial use, distribution, and reproduction in any digital medium, provided the original work is properly cited and is not altered in any way. For details, please refer to http://creativecommons.org/licenses/by-nc-nd/3.0/': 'http://creativecommons.org/licenses/by-nc-nd/3.0/',
-    'Kastberger et al. This is an open-access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited.': 'http://creativecommons.org/licenses/by/3.0/'
+    'This is an open-access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited.': 'http://creativecommons.org/licenses/by/3.0/'
  }
 
 license_url_fixes = {
@@ -402,6 +402,12 @@ def _get_article_license_url(tree):
                 return license_url_fixes[license_url]
             return license_url
         else:
+            for text in license_url_equivalents.keys():
+                if license_text.endswith(text):  # could be dangerous
+                    license_url = license_url_equivalents[text]
+                    if license_url in license_url_fixes:
+                        return license_url_fixes[license_url]
+                    return license_url
             # FIXME: revert this to an exception some time in the future
             filename = '/tmp/pubmed-' + md5(license_text).hexdigest()
             with open(filename, 'w') as f:
