@@ -13,7 +13,7 @@ csv.field_size_limit(999999999)
 
 import wikitools
 
-from helpers import template
+from helpers import efetch, template
 from model import session, setup_all, create_all, set_source, \
     Article, Journal, SupplementaryMaterial
 
@@ -86,12 +86,9 @@ if action == 'upload-media':
             material.uploaded=True
             continue
 
-        wiki_file = wikitools.wikifile.File(wiki=wiki, title=filename)
-        wiki_file.upload(
-            fileobj = open(media_refined_path, 'r'),
-            comment = 'Uploaded with the Open Access Media Importer. (test edit) [[Commons:Bots/Requests#Open_Access_Media_Importer_Bot_.28talk.C2.A0.C2.B7_contribs.29|botrequest]]'
-        )
         article_doi = material.article.doi
+        article_pmid = efetch.get_pmid_from_doi(article_doi)
+        article_pmcid = efetch.get_pmcid_from_doi(article_doi)
         authors = material.article.contrib_authors
         article_title = material.article.title
         journal_title = material.article.journal.title
@@ -101,10 +98,23 @@ if action == 'upload-media':
         rights_holder = material.article.copyright_holder
         label = material.label
         caption = material.caption
-        page = wikitools.Page(wiki, "File:" + filename, followRedir=True)
-        page_template = template.page(article_doi, authors, article_title, journal_title, \
+        categories = efetch.get_categories_from_pmid(article_pmid)
+        major_category = efetch.get_major_category_from_pmid(article_pmid)
+
+        wiki_filename = filename.split('.')[0] + '.ogv'
+        if major_category is not None:
+            wiki_filename = major_category.replace(' ', '-') + '-' + wiki_filename
+
+        wiki_file = wikitools.wikifile.File(wiki=wiki, title=wiki_filename)
+        wiki_file.upload(
+            fileobj = open(media_refined_path, 'r'),
+            comment = 'Uploaded with the Open Access Media Importer. (test edit) [[Commons:Bots/Requests#Open_Access_Media_Importer_Bot_.28talk.C2.A0.C2.B7_contribs.29|botrequest]]'
+        )
+        page = wikitools.Page(wiki, "File:" + wiki_filename, followRedir=True)
+        page_template = template.page(article_doi, article_pmid, \
+            article_pmcid, authors, article_title, journal_title, \
             date, article_url, license_url, rights_holder, label, \
-            caption)
+            caption, categories)
         page.edit(text=page_template.encode('utf-8'))
         stderr.write("“%s” uploaded to <%s>.\n" % (
             media_refined_path.encode('utf-8'),
