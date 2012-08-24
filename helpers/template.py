@@ -42,5 +42,7 @@ def page(article_doi, article_pmid, article_pmcid, authors, article_title, journ
         for category in categories:
             text += "[[Category:%s]]\n" % category
     text += "[[Category:Media from %s]]\n" % journal_title
-    text += "[[Category:Uploaded with Open Access Media Importer]]"
+    text += "[[Category:Uploaded with Open Access Media Importer]]\n"
+    text += '[[Category:Uploaded with Open Access Media Importer and needing
+category review]]\n'
     return text
