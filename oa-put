@@ -104,6 +104,19 @@ if action == 'upload-media':
         wiki_filename = '.'.join(filename.split('.')[:-2]) + '.ogv'
         if major_category is not None:
             wiki_filename = major_category.replace(' ', '-') + '-' + wiki_filename
+        else:
+            dirty_prefix = article_title
+            forbidden_chars = ',;:^/!<>-'
+            for character in forbidden_chars:
+                dirty_prefix = dirty_prefix.replace(character, '')
+            # prefix is first hundred chars of title sans forbidden characters
+            prefix = '-'.join(dirty_prefix[:100].split(' '))
+            # if original title is longer than cleaned up title, remove last word
+            if len(dirty_prefix) > len(prefix):
+                prefix = '-'.join(prefix.split('-')[:-1])
+            if prefix[-1] != '-':
+               prefix += '-'
+            wiki_filename = prefix + wiki_filename
 
         wiki_file = wikitools.wikifile.File(wiki=wiki, title=wiki_filename)
         wiki_file.upload(
