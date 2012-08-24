@@ -106,7 +106,7 @@ if action == 'upload-media':
             wiki_filename = major_category.replace(' ', '-') + '-' + wiki_filename
         else:
             dirty_prefix = article_title
-            forbidden_chars = ',;:^/!<>-'
+            forbidden_chars = ',;:^/!<>'
             for character in forbidden_chars:
                 dirty_prefix = dirty_prefix.replace(character, '')
             # prefix is first hundred chars of title sans forbidden characters
