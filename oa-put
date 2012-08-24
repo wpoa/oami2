@@ -101,7 +101,7 @@ if action == 'upload-media':
         categories = efetch.get_categories_from_pmid(article_pmid)
         major_category = efetch.get_major_category_from_pmid(article_pmid)
 
-        wiki_filename = filename.split('.')[0] + '.ogv'
+        wiki_filename = '.'.join(filename.split('.')[:-2]) + '.ogv'
         if major_category is not None:
             wiki_filename = major_category.replace(' ', '-') + '-' + wiki_filename
 
