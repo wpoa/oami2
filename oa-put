@@ -136,4 +136,4 @@ if action == 'upload-media':
 
         material.uploaded = True
         session.commit()
-        sleep(10)  # 6 uploads per minute
+        sleep(20)  # 3 uploads per minute
