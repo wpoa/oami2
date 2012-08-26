@@ -101,10 +101,9 @@ if action == 'upload-media':
         categories = efetch.get_categories_from_pmid(article_pmid)
         major_category = efetch.get_major_category_from_pmid(article_pmid)
 
+        #TODO: file extension should be adapted for other file formats
         wiki_filename = '.'.join(filename.split('.')[:-2]) + '.ogv'
-        if major_category is not None:
-            wiki_filename = major_category.replace(' ', '-') + '-' + wiki_filename
-        else:
+        if article_title is not None;
             dirty_prefix = article_title
             forbidden_chars = ',;:^/!<>'
             for character in forbidden_chars:
@@ -117,6 +116,8 @@ if action == 'upload-media':
             if prefix[-1] != '-':
                prefix += '-'
             wiki_filename = prefix + wiki_filename
+        elif major_category is not None:
+            wiki_filename = major_category.replace(' ', '-') + '-' + wiki_filename
 
         wiki_file = wikitools.wikifile.File(wiki=wiki, title=wiki_filename)
         wiki_file.upload(
