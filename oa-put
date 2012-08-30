@@ -103,7 +103,7 @@ if action == 'upload-media':
 
         #TODO: file extension should be adapted for other file formats
         wiki_filename = '.'.join(filename.split('.')[:-2]) + '.ogv'
-        if article_title is not None;
+        if article_title is not None:
             dirty_prefix = article_title
             forbidden_chars = ',;:^/!<>'
             for character in forbidden_chars:
