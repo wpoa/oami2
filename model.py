@@ -39,7 +39,7 @@ class SupplementaryMaterial(Entity):
     downloaded = Field(Boolean, default=False)
     converted = Field(Boolean, default=False)
     uploaded = Field(Boolean, default=False)
-    
+
     def __repr__(self):
         return '<SupplementaryMaterial “%s” of Article “%s”>' % \
             (self.label.encode('utf-8'), self.article.title.encode('utf-8'))
