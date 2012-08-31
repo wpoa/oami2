@@ -505,8 +505,7 @@ def _get_article_copyright_holder(tree):
         pass
 
     copyright_statement = \
-        ElementTree(tree).find('front/article-meta/copyright-statement') or \
-        ElementTree(tree).find('front/article-meta/permissions/copyright-statement')
+        ElementTree(tree).find('.//*copyright-statement')
     try:
         copyright_statement = copyright_statement.text
         if copyright_statement is not None:
