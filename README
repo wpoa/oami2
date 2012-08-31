@@ -15,6 +15,7 @@ Feature-incomplete commands:
     oa-cache convert-media [dummy|pubmed]
 
 Dependencies:
+    python-colorama <http://pypi.python.org/pypi/colorama>
     python-gst0.10 <http://gstreamer.freedesktop.org/modules/gst-python.html>
     python-mutagen <http://code.google.com/p/mutagen/>
     python-progressbar <http://pypi.python.org/pypi/progressbar/2.2>

@@ -1,8 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import colorama
+colorama.init()
+
+def _emit_error(title, text):
+    error = colorama.Fore.RED + colorama.Style.BRIGHT
+    error += title + ' ' + colorama.Style.RESET_ALL
+    error += text + '\n'
+    stderr.write(error)
+
+def _emit_warning(text):
+    warning = colorama.Fore.YELLOW + colorama.Style.BRIGHT
+    warning += text + '\n' + colorama.Style.RESET_ALL
+    stderr.write(warning)
+
 from datetime import date
 from os import listdir, path
+from sys import stderr
 from urllib2 import urlopen, urlparse
 from xml.etree.cElementTree import dump, ElementTree
 # the C implementation of ElementTree is 5 to 20 times faster than the Python one
@@ -91,7 +106,6 @@ def list_articles(target_directory, supplementary_materials=False, skip=[]):
                     yield result
 
 def _get_article_contrib_authors(tree):
-    from sys import stderr
     """
     Given an ElementTree, returns article authors in a format suitable for citation.
     """
@@ -365,8 +379,50 @@ license_url_equivalents = {
     'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial License http://creativecommons.org/licenses/by-nc/2.5/ ) which permits unrestricted non-commercial use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by-nc/2.5/',
     'This is an open access article distributed under the Creative Commons Attribution License , which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/3.0/',
     'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial No Derivatives License, which permits for noncommercial use, distribution, and reproduction in any digital medium, provided the original work is properly cited and is not altered in any way. For details, please refer to http://creativecommons.org/licenses/by-nc-nd/3.0/': 'http://creativecommons.org/licenses/by-nc-nd/3.0/',
-    'This is an open-access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited.': 'http://creativecommons.org/licenses/by/3.0/'
- }
+    'This document may be redistributed and reused, subject to certain conditions .': None
+}
+
+copyright_statement_url_equivalents = {
+    'Chiropractic & Osteopathic College of Australasia': None,
+    'Copyright © 2008 by S. Karger AG, Basel': None,
+    'Copyright © 2009 by S. Karger AG, Basel': None,
+    'This is an open-access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited.': 'http://creativecommons.org/licenses/by/3.0/',
+    'This is an open-access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited': 'http://creativecommons.org/licenses/by/3.0/',
+    'This is an open-access article, free of all copyright, and may be freely reproduced, distributed, transmitted, modified, built upon, or otherwise used by anyone for any lawful purpose. The work is made available under the Creative Commons CC0 public domain dedication.': 'http://creativecommons.org/publicdomain/zero/1.0/',
+    'This is an open-access article distributed under the terms of the Creative Commons Public Domain declaration which stipulates that, once placed in the public domain, this work may be freely reproduced, distributed, transmitted, modified, built upon, or otherwise used by anyone for any lawful purpose.': 'http://creativecommons.org/publicdomain/zero/1.0/',
+    'This is an open-access article distributed under the terms of the Creative Commons Public Domain declaration, which stipulates that, once placed in the public domain, this work may be freely reproduced, distributed, transmitted, modified, built upon, or otherwise used by anyone for any lawful purpose.': 'http://creativecommons.org/publicdomain/zero/1.0/',
+    "This is an Open Access article: verbatim copying and redistribution of this article are permitted in all media for any purpose, provided this notice is preserved along with the article's original URL.": None,
+    '© Biomedical Engineering Society 2010': None,
+    '© Springer Science+Business Media, Inc. 2007': None,
+    '© Springer Science+Business Media, LLC 2007': None,
+    '© Springer Science+Business Media, LLC 2008': None,
+    '© Springer Science+Business Media, LLC 2009': None,
+    '© Springer Science+Business Media, LLC 2010': None,
+    '© Springer Science+Business Media, LLC 2011': None,
+    '© Springer Science+Business Media, LLC and the Cardiovascular and Interventional Radiological Society of Europe (CIRSE) 2010': None,
+    '© Springer Science+Business Media B.V. 2006': None,
+    '© Springer Science+Business media B.V. 2006': None,
+    '© Springer Science+Business Media B.V. 2007': None,
+    '© Springer Science + Business Media B.V. 2007': None,
+    '© Springer Science+Business Media B.V. 2008': None,
+    '© Springer Science+Business Media B.V. 2009': None,
+    '© Springer Science+Business Media B.V. 2010': None,
+    '© Springer Science+Business Media B.V. 2011': None,
+    '© Springer-Verlag 2007': None,
+    '© Springer-Verlag 2008': None,
+    '© Springer-Verlag 2009': None,
+    '© Springer-Verlag 2010': None,
+    'Copyright © 2011 Macmillan Publishers Limited': None,
+    'Copyright © 2012 Macmillan Publishers Limited': None,
+    '© 2007 The Authors Journal compilation © 2007 Blackwell Publishing Ltd': None,
+    '© 2008 Dove Medical Press Limited. All rights reserved': None,
+    '© The Author(s) 2007': None,
+    '© The Author(s) 2008': None,
+    '© The Author(s) 2009': None,
+    '© The Author(s) 2010': None,
+    '© The Author(s) 2011': None,
+    '© The Author(s) 2012': None,
+}
 
 license_url_fixes = {
     'http://creativecommons.org/Licenses/by/2.0': 'http://creativecommons.org/licenses/by/2.0/',
@@ -383,37 +439,56 @@ def _get_article_license_url(tree):
     """
     Given an ElementTree, returns article license URL.
     """
-    license = ElementTree(tree).find('front/article-meta/permissions/license') or \
-              ElementTree(tree).find('front/article-meta/copyright-statement') or \
-              ElementTree(tree).find('front/article-meta/permissions/copyright-statement')
-    try:
-        license_url = license.attrib['{http://www.w3.org/1999/xlink}href']
-        if license_url in license_url_fixes:
+    license_text = None
+    license_url = None
+    copyright_statement_text = None
+
+    license = ElementTree(tree).find('front//*license')
+    copyright_statement = ElementTree(tree).find('front//*copyright-statement')
+
+    def _get_text_from_element(element):
+        text = ' '.join(element.itertext()).encode('utf-8')  # clean encoding
+        text = ' '.join(text.split())  # clean whitespace
+        return text
+
+    if license is not None:
+        try:
+            license_url = license.attrib['{http://www.w3.org/1999/xlink}href']
+        except KeyError:  # license statement is in plain text
+            license_text = _get_text_from_element(license)
+    elif copyright_statement is not None:
+        copyright_statement_text = _get_text_from_element(copyright_statement)
+    else:
+        _emit_warning('No <license> or <copyright-statement> element found in XML.')
+        return None
+
+    if license_url is None:
+        if license_text is not None:
+           try:
+               license_url = license_url_equivalents[license_text]
+           except:
+              _emit_error('Unknown license:', license_text)
+              raise RuntimeError
+
+        elif copyright_statement_text is not None:
+            copyright_statement_found = False
+            for text in copyright_statement_url_equivalents.keys():
+                if copyright_statement_text.endswith(text):
+                    license_url = copyright_statement_url_equivalents[text]
+                    copyright_statement_found = True
+                    break
+            if not copyright_statement_found:
+                _emit_error('Unknown copyright statement:', copyright_statement_text)
+
+    def _fix_license_url(license_url):
+        if license_url in license_url_fixes.keys():
             return license_url_fixes[license_url]
         return license_url
-    except AttributeError:  # license statement is missing
+
+    if license_url is not None:
+        return _fix_license_url(license_url)
+    else:
         return None
-    except KeyError:  # license statement is in plain text
-        license_text = ' '.join(license.itertext()).encode('utf-8')
-        license_text = ' '.join(license_text.split())  # whitespace cleanup
-        if license_text in license_url_equivalents:
-            license_url = license_url_equivalents[license_text]
-            if license_url in license_url_fixes:
-                return license_url_fixes[license_url]
-            return license_url
-        else:
-            for text in license_url_equivalents.keys():
-                if license_text.endswith(text):  # could be dangerous
-                    license_url = license_url_equivalents[text]
-                    if license_url in license_url_fixes:
-                        return license_url_fixes[license_url]
-                    return license_url
-            # FIXME: revert this to an exception some time in the future
-            filename = '/tmp/pubmed-' + md5(license_text).hexdigest()
-            with open(filename, 'w') as f:
-                f.write(license_text)
-                stderr.write("Unknown license statement:\n%s\n" % \
-                    str(license_text))
 
 def _get_article_copyright_holder(tree):
     """
@@ -440,8 +515,6 @@ def _get_article_copyright_holder(tree):
         pass
 
     return None
-
-from sys import stderr
 
 def _get_supplementary_materials(tree):
     """
