@@ -178,56 +178,68 @@ if action == 'find-media':
         supplementary_materials=True,
         skip=skip
     ):
-        journal = Journal.get_by(title=result['journal-title'])
-        if not journal:
-            journal = Journal(
-                title = result['journal-title']
-            )
-        article = Article.get_by(
-            title=result['article-title'],
-            contrib_authors=result['article-contrib-authors']
-        )
-        if not article:
-            article = Article(
-                name=result['name'],
-                doi=result['doi'],
+        try:
+            journal = Journal.get_by(title=result['journal-title'])
+            if not journal:
+                journal = Journal(
+                    title = result['journal-title']
+                )
+            article = Article.get_by(
                 title=result['article-title'],
-                contrib_authors=result['article-contrib-authors'],
-                abstract=result['article-abstract'],
-                date=result['article-date'],
-                url=result['article-url'],
-                license_url=result['article-license-url'],
-                copyright_holder=result['article-copyright-holder'],
-                journal=journal
+                contrib_authors=result['article-contrib-authors']
             )
-        materials = result['supplementary-materials']
-        if materials:
-            stderr.write(
-                '%d supplementary materials in “%s”:\n\t' %
-                (
-                    len(result['supplementary-materials']),
-                    result['article-title'].encode('utf-8')
+            if not article:
+                article = Article(
+                    name=result['name'],
+                    doi=result['doi'],
+                    title=result['article-title'],
+                    contrib_authors=result['article-contrib-authors'],
+                    abstract=result['article-abstract'],
+                    date=result['article-date'],
+                    url=result['article-url'],
+                    license_url=result['article-license-url'],
+                    copyright_holder=result['article-copyright-holder'],
+                    journal=journal
                 )
-            )
-            for material in materials:
+            materials = result['supplementary-materials']
+            if materials:
                 stderr.write(
-                    '%s/%s ' % (
-                        material['mimetype'],
-                        material['mime-subtype']
+                    '%d materials in “%s”:\n\t' %
+                    (
+                        len(result['supplementary-materials']),
+                        result['article-title'].encode('utf-8')
                     )
                 )
-                supplementary_material = SupplementaryMaterial.get_by(url=material['url'])
-                if not supplementary_material:
-                    supplementary_material=SupplementaryMaterial(
-                        label=material['label'],
-                        caption=material['caption'],
-                        mimetype=material['mimetype'],
-                        mime_subtype=material['mime-subtype'],
-                        url=material['url'],
-                        article=article
-                    )
+                mimetypes = {}
+                for material in materials:
+                    mimetype = material['mimetype'] + '/' + material['mime-subtype']
+                    try:
+                        mimetypes[mimetype] += 1
+                    except KeyError:
+                        mimetypes[mimetype] = 1
+                    supplementary_material = SupplementaryMaterial.get_by(url=material['url'])
+                    if not supplementary_material:
+                        supplementary_material=SupplementaryMaterial(
+                            label=material['label'],
+                            caption=material['caption'],
+                            mimetype=material['mimetype'],
+                            mime_subtype=material['mime-subtype'],
+                            url=material['url'],
+                            article=article
+                        )
+                for mimetype in mimetypes.keys():
+                     stderr.write(
+                        '%s: %s ' % (
+                            mimetypes[mimetype],
+                            mimetype
+                            )
+                        )
+                stderr.write('\n')
+                session.commit()
+        except KeyboardInterrupt:
+            stderr.write('Saving database …\n')
             session.commit()
-            stderr.write('\n')
+            exit(0)
 
 if action == "stats":
     stderr.write('Counting supplementary materials … ')
