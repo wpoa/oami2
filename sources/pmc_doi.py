@@ -4,7 +4,7 @@
 from urllib2 import urlopen, urlparse, Request, HTTPError
 from xml.etree.cElementTree import dump, ElementTree
 from os import listdir, path
-from sys import stderr
+from sys import stdin, stderr
 
 from pubmed import _get_article_contrib_authors, _get_article_title, _get_article_abstract, \
     _get_journal_title, _get_article_date, _get_article_url, _get_article_license_url, \
@@ -44,7 +44,9 @@ def download_metadata(target_directory):
     """
     Downloads XML files for  into given directory.
     """
-    dois = raw_input('Input DOIs, delimited by whitespace: ').split()
+    stderr.write('Input DOIs, delimited by whitespace: ')
+    dois = stdin.read().split()
+
     stderr.write('Getting PubMed Central IDs for given DOIs … ')
     pmcids = _get_pmcids_from_dois(dois)
     stderr.write('found: %s\n' % ', '.join(pmcids))
