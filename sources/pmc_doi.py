@@ -39,7 +39,7 @@ def _get_file_from_pmcids(pmcids):
     url = _get_query_url_from_pmcids(pmcids)
     xml_file = _get_file_from_url(url)
     return xml_file
-    
+
 def download_metadata(target_directory):
     """
     Downloads XML files for  into given directory.
@@ -53,7 +53,7 @@ def download_metadata(target_directory):
 
     url = _get_query_url_from_pmcids(pmcids)
     yield { 'url': url, 'completed': 0, 'total': 1 }
-    
+
     url_path = urlparse.urlsplit(url).path
     local_filename = path.join(target_directory, \
         url_path.split('/')[-1])
@@ -72,7 +72,7 @@ def list_articles(target_directory, supplementary_materials=False, skip=[]):
             pmcid = _get_pmcid(tree)
             if pmcid in skip:
                 continue
-    
+
             result = {}
             result['name'] = pmcid
             result['doi'] = _get_article_doi(tree)
@@ -84,7 +84,7 @@ def list_articles(target_directory, supplementary_materials=False, skip=[]):
             result['article-url'] = _get_article_url(tree)
             result['article-license-url'] = _get_article_license_url(tree)
             result['article-copyright-holder'] = _get_article_copyright_holder(tree)
-        
+
             if supplementary_materials:
                 result['supplementary-materials'] = _get_supplementary_materials(tree)
             yield result
