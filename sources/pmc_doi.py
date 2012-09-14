@@ -6,7 +6,7 @@ from xml.etree.cElementTree import dump, ElementTree
 from os import listdir, path
 from sys import stdin, stderr
 
-from pubmed import _get_article_contrib_authors, _get_article_title, _get_article_abstract, \
+from pmc import _get_article_contrib_authors, _get_article_title, _get_article_abstract, \
     _get_journal_title, _get_article_date, _get_article_url, _get_article_license_url, \
     _get_article_copyright_holder, _get_supplementary_materials, _get_pmcid, _get_article_doi
 
