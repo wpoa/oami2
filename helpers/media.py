@@ -23,7 +23,7 @@ class Media():
 
         source = pipeline.get_by_name("source")
         source.set_property("location", self.filename)
-        
+
         bus = pipeline.get_bus()
         def on_message(bus, message):
             t = message.type
@@ -42,13 +42,13 @@ class Media():
                 stderr.write('ERROR: %s\n' %str(err))
                 pipeline.set_state(gst.STATE_NULL)
                 loop.quit()
-    
+
         bus.add_signal_watch()
         bus.connect('message', on_message)
-        
+
         pipeline.set_state(gst.STATE_PLAYING)
         pipeline.get_state()
-        
+
         loop.run()
 
     def convert(self, outfile):
