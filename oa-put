@@ -83,6 +83,10 @@ if action == 'upload-media':
             continue
 
         if is_uploaded(material):
+            stderr.write("Skipping “%s”, already exists at <%s>.\n" % (
+                media_refined_path.encode('utf-8'),
+                config.api_url.encode('utf-8')
+            ))
             material.uploaded=True
             continue
 
