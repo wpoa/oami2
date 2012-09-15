@@ -400,6 +400,7 @@ copyright_statement_url_equivalents = {
     '© Springer Science+Business Media, LLC 2009': None,
     '© Springer Science+Business Media, LLC 2010': None,
     '© Springer Science+Business Media, LLC 2011': None,
+    '© Springer Science+Business Media, LLC and the Cardiovascular and Interventional Radiological Society of Europe (CIRSE) 2009': None,
     '© Springer Science+Business Media, LLC and the Cardiovascular and Interventional Radiological Society of Europe (CIRSE) 2010': None,
     '© Springer Science+Business Media B.V. 2006': None,
     '© Springer Science+Business media B.V. 2006': None,
