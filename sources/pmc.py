@@ -379,7 +379,8 @@ license_url_equivalents = {
     'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial License http://creativecommons.org/licenses/by-nc/2.5/ ) which permits unrestricted non-commercial use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by-nc/2.5/',
     'This is an open access article distributed under the Creative Commons Attribution License , which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.': 'http://creativecommons.org/licenses/by/3.0/',
     'This is an Open Access article distributed under the terms of the Creative Commons Attribution Non-Commercial No Derivatives License, which permits for noncommercial use, distribution, and reproduction in any digital medium, provided the original work is properly cited and is not altered in any way. For details, please refer to http://creativecommons.org/licenses/by-nc-nd/3.0/': 'http://creativecommons.org/licenses/by-nc-nd/3.0/',
-    'This document may be redistributed and reused, subject to certain conditions .': None
+    'This document may be redistributed and reused, subject to certain conditions .': None,
+    'Re-use of this article is permitted in accordance with the Creative Commons Deed, Attribution 2.5, which does not permit commercial exploitation.': 'http://creativecommons.org/licenses/by-nc/2.5/'
 }
 
 copyright_statement_url_equivalents = {
