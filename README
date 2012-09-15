@@ -16,6 +16,7 @@ Commands:
 Dependencies:
     python-colorama <http://pypi.python.org/pypi/colorama>
     python-gst0.10 <http://gstreamer.freedesktop.org/modules/gst-python.html>
+    python-magic <http://www.darwinsys.com/file/>
     python-mutagen <http://code.google.com/p/mutagen/>
     python-progressbar <http://pypi.python.org/pypi/progressbar/2.2>
     python-xdg <http://freedesktop.org/wiki/Software/pyxdg>
