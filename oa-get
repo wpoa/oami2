@@ -58,6 +58,13 @@ if action == 'check-mimetypes':
         if 'Document, corrupt' in server_mimetype:  # partial MS Office document
             chunk = urlopen(request).read()
             server_mimetype = ms.buffer(chunk)
+            if server_mimetype == 'application/msword':
+                # MS Office documents are all detected as application/msword, therefore guess based on extension
+                # <http://www.mediawiki.org/wiki/Manual_talk:Mime_type_detection#Fix_for_MS_Office_File_Confusion>
+                if url.endswith('ppt') or url.endswith('PPT'):
+                    server_mimetype = 'application/vnd.ms-powerpoint'
+                elif url.endswith('xls') or url.endswith('XLS'):
+                    server_mimetype = 'application/vnd.ms-excel'
             sleep(3)
         source_mimetype = material.mimetype + '/' + material.mime_subtype
         if server_mimetype != source_mimetype:
