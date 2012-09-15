@@ -5,14 +5,13 @@ The aim of this project is to write a tool that would:
 * provide for easy extension to other CC-BY sources, beyond PubMed Central
 * (possibly) suggest Wikipedia articles for which the video might be relevant
 
-Wiki page: http://en.wikiversity.org/wiki/User:OpenScientist/Open_grant_writing/Wissenswert_2011
+Wiki page:
+    http://en.wikiversity.org/wiki/User:OpenScientist/Open_grant_writing/Wissenswert_2011
 
-Feature-complete commands:
-    oa-get [download-metadata|download-media] [dummy|pubmed]
-    oa-cache [clear-metadata|clear-media|list-articles|find-media] [dummy|pubmed]
-
-Feature-incomplete commands:
-    oa-cache convert-media [dummy|pubmed]
+Commands:
+    oa-get [download-metadata|download-media] [dummy|pmc|pmc_doi]
+    oa-cache [clear-database|clear-media|convert-media|find-media|list-articles|stats] [dummy|pmc|pmc_doi]
+    oa-put upload-media [dummy|pmc|pmc_doi]
 
 Dependencies:
     python-colorama <http://pypi.python.org/pypi/colorama>
