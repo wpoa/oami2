@@ -2,10 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import csv, progressbar
+import magic
 
 from os import path
 from sys import argv, stderr
 from urllib2 import urlopen, urlparse, Request, HTTPError
+from time import sleep
 
 BUFSIZE = 1024000  # (1024KB)
 
@@ -19,14 +21,15 @@ except IndexError:  # no arguments given
     stderr.write("""
 oa-get – Open Access Media Importer download operations
 
-usage:  oa-get download-metadata [source] |
+usage:  oa-get check-mimetypes [source] |
+        oa-get download-metadata [source] |
         oa-get download-media [source]
 
 """)
     exit(1)
 
 try:
-    assert(action in ['download-media', 'download-metadata'])
+    assert(action in ['check-mimetypes', 'download-media', 'download-metadata'])
 except AssertionError:  # invalid action
     stderr.write("Unknown action “%s”.\n" % action)
     exit(2)
@@ -41,6 +44,32 @@ set_source(target)
 setup_all(True)
 
 import config
+
+if action == 'check-mimetypes':
+    ms = magic.open(magic.MIME_TYPE)
+    ms.load()
+    materials = SupplementaryMaterial.query.all()
+    p = progressbar.ProgressBar(maxval=len(materials))
+    for material in materials:
+        url = material.url
+        request = Request(url, None, {'User-Agent' : 'oa-get/2012-09-15'})
+        chunk = urlopen(request).read(4096)
+        server_mimetype = ms.buffer(chunk)
+        if 'Document, corrupt' in server_mimetype:  # partial MS Office document
+            chunk = urlopen(request).read()
+            server_mimetype = ms.buffer(chunk)
+            sleep(3)
+        source_mimetype = material.mimetype + '/' + material.mime_subtype
+        if server_mimetype != source_mimetype:
+            stderr.write(
+                'DOI %s, %s, source claimed %s but is %s.\n' % (
+                    material.article.doi,
+                    material.url,
+                    source_mimetype,
+                    server_mimetype
+                )
+            )
+        p.update(p.currval+1)
 
 if action == 'download-metadata':
     source_path = config.get_metadata_raw_source_path(target)
