@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from os import listdir, path, remove, rename
-from sys import argv, stderr, stdout
+from sys import argv, exit, stderr, stdout
 from urllib2 import urlparse
 
 import csv
@@ -21,6 +21,8 @@ import mutagen.oggtheora
 
 import pprint
 
+import subprocess
+
 from helpers import media
 from model import session, setup_all, create_all, set_source, \
     Article, Journal, SupplementaryMaterial
@@ -32,7 +34,8 @@ except IndexError:
     stderr.write("""
 oa-cache – Open Access Media Importer local operations
 
-usage:  oa-cache clear-media [source] |
+usage:  oa-cache browse-database [source] |
+        oa-cache clear-media [source] |
         oa-cache clear-database [source] |
         oa-cache convert-media [source] |
         oa-cache find-media [source] |
@@ -43,7 +46,7 @@ usage:  oa-cache clear-media [source] |
     exit(1)
 
 try:
-    assert(action in ['clear-media', 'clear-database', \
+    assert(action in ['browse-database', 'clear-media', 'clear-database', \
         'convert-media', 'find-media', 'list-articles', 'stats'])
 except AssertionError:  # invalid action
     stderr.write('Unknown action “%s”.\n' % action)
@@ -59,6 +62,14 @@ set_source(target)
 setup_all(True)
 
 import config
+
+if action == 'browse-database':
+    filename = config.database_path(target)
+    try:
+        subprocess.call(['sqlitebrowser', filename])
+    except OSError:
+        stderr.write('Unable to start sqlitebrowser <http://sqlitebrowser.sourceforge.net/>.\n')
+        exit(4)
 
 if action == 'clear-media':
     media_raw_directory = config.get_media_refined_source_path(target)

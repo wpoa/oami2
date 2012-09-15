@@ -10,7 +10,7 @@ Wiki page:
 
 Commands:
     oa-get [download-metadata|download-media] [dummy|pmc|pmc_doi]
-    oa-cache [clear-database|clear-media|convert-media|find-media|list-articles|stats] [dummy|pmc|pmc_doi]
+    oa-cache [browse-database|clear-database|clear-media|convert-media|find-media|list-articles|stats] [dummy|pmc|pmc_doi]
     oa-put upload-media [dummy|pmc|pmc_doi]
 
 Dependencies:
@@ -20,6 +20,9 @@ Dependencies:
     python-progressbar <http://pypi.python.org/pypi/progressbar/2.2>
     python-xdg <http://freedesktop.org/wiki/Software/pyxdg>
     python-wikitools <http://code.google.com/p/python-wikitools/>
+
+Recommendations:
+    sqlitebrowser <http://sqlitebrowser.sourceforge.net/>
 
 To use the upload feature of oa-put, copy the userconfig.example file to
 “$HOME/config/open-access-media-importer/userconfig”.
