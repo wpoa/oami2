@@ -70,6 +70,12 @@ class Media():
                 decoder. ! queue ! ffmpegcolorspace ! theoraenc ! progressreport name=report ! oggmux name=muxer
                 muxer. ! filesink name=sink
             """)
+        elif not self.has_video and self.has_audio:
+            pipeline = gst.parse_launch("""
+                filesrc name=source ! decodebin2 name=decoder
+                decoder. ! queue ! audioconvert ! audioresample ! vorbisenc ! progressreport name=report ! oggmux name=muxer
+                muxer. ! filesink name=sink
+            """)
         else:
             raise RuntimeError, 'Unknown audio/video stream combination.'
 

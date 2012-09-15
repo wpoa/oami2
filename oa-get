@@ -68,7 +68,7 @@ if action == 'download-media':
             continue
 
         mimetype = mimetype = material.mimetype
-        if mimetype != 'video':
+        if mimetype not in ['audio', 'video']:
             continue
 
         url = material.url
