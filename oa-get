@@ -76,9 +76,16 @@ if action == 'update-mimetypes':
             detected_mimetype = reported_mimetype
 
         def get_mimetype(mimetype):
-            return mimetype.split('/')[0]
+            try:
+                return mimetype.split('/')[0]
+            except IndexError:
+                pass
+
         def get_mime_subtype(mimetype):
-            return mimetype.split('/')[1]
+            try:
+                return mimetype.split('/')[1]
+            except IndexError:
+                pass
 
         if detected_mimetype != reported_mimetype:
             material.mimetype = get_mimetype(detected_mimetype)
