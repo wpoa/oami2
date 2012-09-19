@@ -48,7 +48,10 @@ import config
 if action == 'update-mimetypes':
     ms = magic.open(magic.MIME_TYPE)
     ms.load()
-    materials = SupplementaryMaterial.query.all()
+    materials = SupplementaryMaterial.query.filter_by(
+        mimetype_reported=None,
+        mime_subtype_reported=None
+    ).all()
     p = progressbar.ProgressBar(maxval=len(materials))
     for material in materials:
         url = material.url
@@ -71,7 +74,17 @@ if action == 'update-mimetypes':
         reported_mimetype = material.mimetype + '/' + material.mime_subtype
         if detected_mimetype == 'application/octet-stream':  # useless
             detected_mimetype = reported_mimetype
+
+        def get_mimetype(mimetype):
+            return mimetype.split('/')[0]
+        def get_mime_subtype(mimetype):
+            return mimetype.split('/')[1]
+
         if detected_mimetype != reported_mimetype:
+            material.mimetype = get_mimetype(detected_mimetype)
+            material.mime_subtype = get_mime_subtype(detected_mimetype)
+            material.mimetype_reported = get_mimetype(reported_mimetype)
+            material.mime_subtype_reported = get_mime_subtype(reported_mimetype)
             stderr.write(
                 'DOI %s, %s, source claimed %s but is %s.\n' % (
                     material.article.doi,
@@ -80,6 +93,10 @@ if action == 'update-mimetypes':
                     detected_mimetype
                 )
             )
+        else:
+            material.mimetype_reported = get_mimetype(reported_mimetype)
+            material.mime_subtype_reported = get_mimetype(reported_mimetype)
+        session.commit()
         p.update(p.currval+1)
 
 if action == 'download-metadata':

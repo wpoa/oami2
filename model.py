@@ -34,6 +34,8 @@ class SupplementaryMaterial(Entity):
     caption = Field(UnicodeText)
     mimetype = Field(UnicodeText)
     mime_subtype = Field(UnicodeText)
+    mimetype_reported = Field(UnicodeText)
+    mime_subtype_reported = Field(UnicodeText)
     url = Field(UnicodeText, primary_key=True)
     article = ManyToOne('Article')
     downloaded = Field(Boolean, default=False)
