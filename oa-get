@@ -21,15 +21,15 @@ except IndexError:  # no arguments given
     stderr.write("""
 oa-get – Open Access Media Importer download operations
 
-usage:  oa-get check-mimetypes [source] |
-        oa-get download-metadata [source] |
-        oa-get download-media [source]
+usage:  oa-get download-metadata [source] |
+        oa-get download-media [source] |
+        oa-get update-mimetypes [source]
 
 """)
     exit(1)
 
 try:
-    assert(action in ['check-mimetypes', 'download-media', 'download-metadata'])
+    assert(action in ['download-media', 'download-metadata', 'update-mimetypes'])
 except AssertionError:  # invalid action
     stderr.write("Unknown action “%s”.\n" % action)
     exit(2)
@@ -45,35 +45,39 @@ setup_all(True)
 
 import config
 
-if action == 'check-mimetypes':
+if action == 'update-mimetypes':
     ms = magic.open(magic.MIME_TYPE)
     ms.load()
     materials = SupplementaryMaterial.query.all()
     p = progressbar.ProgressBar(maxval=len(materials))
     for material in materials:
         url = material.url
-        request = Request(url, None, {'User-Agent' : 'oa-get/2012-09-15'})
-        chunk = urlopen(request).read(4096)
-        server_mimetype = ms.buffer(chunk)
-        if 'Document, corrupt' in server_mimetype:  # partial MS Office document
+        request = Request(url, None, {'User-Agent' : 'oa-get/2012-09-19'})
+        request.headers['Range'] = 'bytes=%s-%s' % (0, 4095) # 4kB should be enough
+        chunk = urlopen(request).read()
+        detected_mimetype = ms.buffer(chunk)
+        if 'Document, corrupt' in detected_mimetype:  # partial MS Office document
+            request = Request(url, None, {'User-Agent' : 'oa-get/2012-09-19'})
             chunk = urlopen(request).read()
-            server_mimetype = ms.buffer(chunk)
-            if server_mimetype == 'application/msword':
+            detected_mimetype = ms.buffer(chunk)
+            if detected_mimetype == 'application/msword':
                 # MS Office documents are all detected as application/msword, therefore guess based on extension
                 # <http://www.mediawiki.org/wiki/Manual_talk:Mime_type_detection#Fix_for_MS_Office_File_Confusion>
                 if url.endswith('ppt') or url.endswith('PPT'):
-                    server_mimetype = 'application/vnd.ms-powerpoint'
+                    detected_mimetype = 'application/vnd.ms-powerpoint'
                 elif url.endswith('xls') or url.endswith('XLS'):
-                    server_mimetype = 'application/vnd.ms-excel'
+                    detected_mimetype = 'application/vnd.ms-excel'
             sleep(3)
-        source_mimetype = material.mimetype + '/' + material.mime_subtype
-        if server_mimetype != source_mimetype:
+        reported_mimetype = material.mimetype + '/' + material.mime_subtype
+        if detected_mimetype == 'application/octet-stream':  # useless
+            detected_mimetype = reported_mimetype
+        if detected_mimetype != reported_mimetype:
             stderr.write(
                 'DOI %s, %s, source claimed %s but is %s.\n' % (
                     material.article.doi,
                     material.url,
-                    source_mimetype,
-                    server_mimetype
+                    reported_mimetype,
+                    detected_mimetype
                 )
             )
         p.update(p.currval+1)
