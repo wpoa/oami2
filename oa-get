@@ -88,10 +88,10 @@ if action == 'update-mimetypes':
                 pass
 
         if detected_mimetype != reported_mimetype:
-            material.mimetype = get_mimetype(detected_mimetype)
-            material.mime_subtype = get_mime_subtype(detected_mimetype)
-            material.mimetype_reported = get_mimetype(reported_mimetype)
-            material.mime_subtype_reported = get_mime_subtype(reported_mimetype)
+            material.mimetype_reported = material.mimetype
+            material.mime_subtype_reported = material.mime_subtype
+            material.mimetype = get_mimetype(detected_mimetype) or material.mimetype
+            material.mime_subtype = get_mime_subtype(detected_mimetype) or material.mime_subtype
             stderr.write(
                 'DOI %s, %s, source claimed %s but is %s.\n' % (
                     material.article.doi,
