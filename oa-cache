@@ -23,7 +23,7 @@ import pprint
 
 import subprocess
 
-from helpers import media
+from helpers import media, emit_error
 from model import session, setup_all, create_all, set_source, \
     Article, Journal, SupplementaryMaterial
 
@@ -126,10 +126,8 @@ if action == 'convert-media':
             m.find_streams()
             m.convert(temporary_media_path)
         except RuntimeError, e:
-            stderr.write(
-                'Error: “%s”, skipping conversion of “%s”.\n' % \
-                    (e, temporary_media_path)
-            )
+            emit_error(e, "Skipping conversion of “%s”." % \
+                media_raw_path.encode('utf-8'))
             continue
 
         try:

@@ -39,12 +39,15 @@ class Media():
                 loop.quit()
             elif t == gst.MESSAGE_ERROR:  # error
                 err, debug = message.parse_error()
-                if str(err) == 'Your GStreamer installation is missing a plug-in.':
+                pipeline.set_state(gst.STATE_NULL)
+                loop.quit()
+                if str(err) in [
+                    'Your GStreamer installation is missing a plug-in.',
+                    'Could not demultiplex stream.'
+                ]:
                     raise RuntimeError, str(err)
                 else:
                     stderr.write('ERROR: %s\n' %str(err))
-                pipeline.set_state(gst.STATE_NULL)
-                loop.quit()
 
         bus.add_signal_watch()
         bus.connect('message', on_message)
