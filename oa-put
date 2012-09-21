@@ -65,8 +65,12 @@ if action == 'upload-media':
         }
         request = wikitools.api.APIRequest(wiki, params)
         result = request.query()
-        if result[u'query'][u'searchinfo'][u'totalhits'] > 0:
-            return True
+        try:
+            if result[u'query'][u'searchinfo'][u'totalhits'] > 0:
+                 return True
+        except KeyError:
+            if len(result[u'query'][u'search']) > 0:
+                return True
         return False
 
     materials = SupplementaryMaterial.query.filter_by(
