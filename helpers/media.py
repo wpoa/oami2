@@ -39,7 +39,10 @@ class Media():
                 loop.quit()
             elif t == gst.MESSAGE_ERROR:  # error
                 err, debug = message.parse_error()
-                stderr.write('ERROR: %s\n' %str(err))
+                if str(err) == 'Your GStreamer installation is missing a plug-in.':
+                    raise RuntimeError, str(err)
+                else:
+                    stderr.write('ERROR: %s\n' %str(err))
                 pipeline.set_state(gst.STATE_NULL)
                 loop.quit()
 

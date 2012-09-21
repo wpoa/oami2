@@ -122,8 +122,15 @@ if action == 'convert-media':
 
         loop = gobject.MainLoop()
         m = media.Media(media_raw_path)
-        m.find_streams()
-        m.convert(temporary_media_path)
+        try:
+            m.find_streams()
+            m.convert(temporary_media_path)
+        except RuntimeError, e:
+            stderr.write(
+                'Error: “%s”, skipping conversion of “%s”.\n' % \
+                    (e, temporary_media_path)
+            )
+            continue
 
         try:
             f = mutagen.oggtheora.OggTheora(temporary_media_path)
