@@ -60,14 +60,15 @@ if action == 'upload-media':
             'srsearch': '"%s"+"%s"+"%s"' % (
                 material.article.title,
                 material.label,
-                material.caption.split('.')[0]
+                # Mediawiki does not always find text containing parentheses
+                material.caption.split('.')[0].split('(')[0]
             )
         }
         request = wikitools.api.APIRequest(wiki, params)
         result = request.query()
         try:
             if result[u'query'][u'searchinfo'][u'totalhits'] > 0:
-                 return True
+                return True
         except KeyError:
             if len(result[u'query'][u'search']) > 0:
                 return True
