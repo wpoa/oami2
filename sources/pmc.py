@@ -112,6 +112,8 @@ def _get_article_contrib_authors(tree):
     authors = []
     front = ElementTree(tree).find('front')
     for contrib in front.iter('contrib'):
+        if contrib.attrib['contrib-type'] != 'author':
+            continue
         contribTree = ElementTree(contrib)
         try:
             surname = contribTree.find('name/surname').text
