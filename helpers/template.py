@@ -38,9 +38,19 @@ def page(article_doi, article_pmid, article_pmcid, authors, article_title, journ
         (license_template, rights_holder)
     text += "|Other_fields={{Information field|name=Provenance|value= {{Open Access Media Importer}} }}\n"
     text += "}}\n\n"
-    if pmid:
-        for category in categories:
-            text += "[[Category:%s]]\n" % category
+
+    def _postprocess_category(category):
+        if '(' in category:
+            category = category.split('(')[0]
+        if ',' in category:
+            category_parts = category.split(',')
+            category_parts.reverse()
+            category = ' '.join(category_parts)
+        category = category.strip().lower().capitalize()
+        return category
+
+    for category in categories:
+        text += "[[Category:%s]]\n" % _postprocess_category(category)
     text += "[[Category:Media from %s]]\n" % journal_title
     text += "[[Category:Uploaded with Open Access Media Importer]]\n"
     text += '[[Category:Uploaded with Open Access Media Importer and needing category review]]\n'

@@ -28,23 +28,21 @@ def get_pmid_from_doi(doi):
     tree.parse(xml_file)
     return tree.find('IdList/Id').text
 
-def _postprocess_category(category):
-    if ',' in category:
-       category_parts = category.split(',')
-       category_parts.reverse()
-       category = ' '.join(category_parts)
-    category = category.strip().lower().capitalize()
-    return category
-
 def get_categories_from_pmid(pmid):
+    """
+    Gets MeSH headings, returns those not deemed too broad.
+    """
     url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=%s&retmode=xml' % pmid
     xml_file = _get_file_from_url(url)
     tree = ElementTree()
     tree.parse(xml_file)
     categories = []
-    for e in tree.iterfind('PubmedArticle/MedlineCitation/MeshHeadingList/MeshHeading/DescriptorName'):
-        category = _postprocess_category(e.text)
-        categories.append(category)
+    for heading in tree.iterfind('PubmedArticle/MedlineCitation/MeshHeadingList/MeshHeading'):
+        htree = ElementTree(heading)
+        descriptor_text = htree.find('DescriptorName').text
+        if (htree.find('QualifierName') is not None) or \
+            (' ' in descriptor_text and not 'and' in descriptor_text):
+            categories.append(descriptor_text)
     return categories
 
 def get_major_category_from_pmid(pmid):

@@ -107,7 +107,7 @@ if action == 'upload-media':
         rights_holder = material.article.copyright_holder
         label = material.label
         caption = material.caption
-        categories = efetch.get_categories_from_pmid(article_pmid)
+        categories = material.article.categories + efetch.get_categories_from_pmid(article_pmid)
         major_category = efetch.get_major_category_from_pmid(article_pmid)
 
         #TODO: file extension should be adapted for other file formats
