@@ -151,11 +151,13 @@ def _get_article_abstract(tree):
     """
     Given an ElementTree, returns article abstract.
     """
-    abstract = ElementTree(tree).find('front/article-meta/abstract')
-    if abstract is not None:
-        return ' '.join(abstract.itertext())
-    else:
-        return None
+    for abstract in ElementTree(tree).iterfind('.//*abstract'):
+        if 'abstract-type' in abstract.attrib:  # toc or summary
+            print abstract.attrib['abstract-type']
+            continue
+        else:
+            return ''.join(abstract.itertext())
+    return None
 
 def _get_journal_title(tree):
     """
