@@ -72,7 +72,7 @@ if action == 'update-mimetypes':
                     detected_mimetype = 'application/vnd.ms-excel'
             sleep(3)
         reported_mimetype = material.mimetype + '/' + material.mime_subtype
-        if detected_mimetype == 'application/octet-stream':  # useless
+        if detected_mimetype == 'application/octet-stream':  # general binary MIME type, useless
             detected_mimetype = reported_mimetype
 
         def get_mimetype(mimetype):
