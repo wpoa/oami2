@@ -194,7 +194,7 @@ class File(page.Page):
 		f.close()
 		return location
 		
-	def upload(self, fileobj=None, comment='', url=None, ignorewarnings=False, watch=False):
+	def upload(self, fileobj=None, comment='', text='', url=None, ignorewarnings=False, watch=False):
 		"""Upload a file, requires the "poster" module
 		
 		fileobj - A file object opened for reading
@@ -214,6 +214,7 @@ class File(page.Page):
 		params = {'action':'upload',
 			'comment':comment,
 			'filename':self.unprefixedtitle,
+			'text':text,
 			'token':self.getToken('edit') # There's no specific "upload" token
 		}
 		if url:

@@ -127,17 +127,18 @@ if action == 'upload-media':
         elif major_category is not None:
             wiki_filename = major_category.replace(' ', '-') + '-' + wiki_filename
 
-        wiki_file = wikitools.wikifile.File(wiki=wiki, title=wiki_filename)
-        wiki_file.upload(
-            fileobj = open(media_refined_path, 'r'),
-            comment = 'Uploaded with the Open Access Media Importer. (test edit) [[Commons:Bots/Requests#Open_Access_Media_Importer_Bot_.28talk.C2.A0.C2.B7_contribs.29|botrequest]]'
-        )
-        page = wikitools.Page(wiki, "File:" + wiki_filename, followRedir=True)
         page_template = template.page(article_doi, article_pmid, \
             article_pmcid, authors, article_title, journal_title, \
             date, article_url, license_url, rights_holder, label, \
             caption, categories)
-        page.edit(text=page_template.encode('utf-8'))
+
+        wiki_file = wikitools.wikifile.File(wiki=wiki, title=wiki_filename)
+        wiki_file.upload(
+            fileobj = open(media_refined_path, 'r'),
+            text=page_template.encode('utf-8'),
+            comment = 'Uploaded with the Open Access Media Importer. (test edit) [[Commons:Bots/Requests#Open_Access_Media_Importer_Bot_.28talk.C2.A0.C2.B7_contribs.29|botrequest]]'
+        )
+
         stderr.write("“%s” uploaded to <%s>.\n" % (
             media_refined_path.encode('utf-8'),
             config.api_url.encode('utf-8')
