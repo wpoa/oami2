@@ -113,7 +113,7 @@ def _get_article_categories(tree):
     categories = []
     article_categories = ElementTree(tree).find('.//*article-categories')
     for subject_group in article_categories.iter('subj-group'):
-        if subject_group.attrib['subj-group-type'] != 'Discipline':
+        if subject_group.attrib['subj-group-type'] == 'heading':
             continue
         for subject in subject_group.iter('subject'):
             if '/' in subject.text:
