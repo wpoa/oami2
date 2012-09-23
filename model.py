@@ -13,6 +13,10 @@ class Journal(Entity):
     title = Field(UnicodeText, primary_key=True)
     articles = OneToMany('Article')
 
+class Category(Entity):
+    name = Field(UnicodeText, primary_key=True)
+    articles = ManyToMany('Article')
+
 class Article(Entity):
     name = Field(UnicodeText)
     doi = Field(UnicodeText)
@@ -25,6 +29,7 @@ class Article(Entity):
     copyright_holder = Field(UnicodeText)
     journal = ManyToOne('Journal')
     supplementary_materials = OneToMany('SupplementaryMaterial')
+    categories = ManyToMany('Category')
 
     def __repr__(self):
         return '<Article "%s">' % self.title.encode('utf-8')

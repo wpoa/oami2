@@ -100,10 +100,27 @@ def list_articles(target_directory, supplementary_materials=False, skip=[]):
                     result['article-url'] = _get_article_url(tree)
                     result['article-license-url'] = _get_article_license_url(tree)
                     result['article-copyright-holder'] = _get_article_copyright_holder(tree)
+                    result['article-categories'] = _get_article_categories(tree)
 
                     if supplementary_materials:
                         result['supplementary-materials'] = _get_supplementary_materials(tree)
                     yield result
+
+def _get_article_categories(tree):
+    """
+    Given an ElementTree, return (some) article categories.
+    """
+    categories = []
+    article_categories = ElementTree(tree).find('.//*article-categories')
+    for subject_group in article_categories.iter('subj-group'):
+        if subject_group.attrib['subj-group-type'] != 'Discipline':
+            continue
+        for subject in subject_group.iter('subject'):
+            if '/' in subject.text:
+                category_text = subject.text.split('/')[-1]
+                if ' ' in category_text and not 'and' in category_text:
+                    categories.append(category_text)
+    return categories
 
 def _get_article_contrib_authors(tree):
     """

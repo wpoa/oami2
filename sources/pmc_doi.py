@@ -8,7 +8,8 @@ from sys import stdin, stderr
 
 from pmc import _get_article_contrib_authors, _get_article_title, _get_article_abstract, \
     _get_journal_title, _get_article_date, _get_article_url, _get_article_license_url, \
-    _get_article_copyright_holder, _get_supplementary_materials, _get_pmcid, _get_article_doi
+    _get_article_copyright_holder, _get_supplementary_materials, _get_pmcid, _get_article_doi, \
+    _get_article_categories
 
 def _get_file_from_url(url):
     req = Request(url, None, {'User-Agent' : 'pmc_doi/2012-07-14'})
@@ -76,6 +77,7 @@ def list_articles(target_directory, supplementary_materials=False, skip=[]):
             result = {}
             result['name'] = pmcid
             result['doi'] = _get_article_doi(tree)
+            result['article-categories'] = _get_article_categories(tree)
             result['article-contrib-authors'] = _get_article_contrib_authors(tree)
             result['article-title'] = _get_article_title(tree)
             result['article-abstract'] = _get_article_abstract(tree)
