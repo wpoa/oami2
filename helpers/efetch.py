@@ -44,12 +44,3 @@ def get_categories_from_pmid(pmid):
             (' ' in descriptor_text and not 'and' in descriptor_text):
             categories.append(descriptor_text)
     return categories
-
-def get_major_category_from_pmid(pmid):
-    url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=%s&retmode=xml' % pmid
-    xml_file = _get_file_from_url(url)
-    tree = ElementTree()
-    tree.parse(xml_file)
-    for e in tree.iterfind('PubmedArticle/MedlineCitation/MeshHeadingList/MeshHeading/DescriptorName'):
-        if e.attrib['MajorTopicYN'] == 'Y':
-            return _postprocess_category(e.text)

@@ -108,7 +108,6 @@ if action == 'upload-media':
         label = material.label
         caption = material.caption
         categories = material.article.categories + efetch.get_categories_from_pmid(article_pmid)
-        major_category = efetch.get_major_category_from_pmid(article_pmid)
 
         #TODO: file extension should be adapted for other file formats
         wiki_filename = '.'.join(filename.split('.')[:-2]) + '.ogv'
@@ -125,8 +124,6 @@ if action == 'upload-media':
             if prefix[-1] != '-':
                prefix += '-'
             wiki_filename = prefix + wiki_filename
-        elif major_category is not None:
-            wiki_filename = major_category.replace(' ', '-') + '-' + wiki_filename
 
         page_template = template.page(article_doi, article_pmid, \
             article_pmcid, authors, article_title, journal_title, \
