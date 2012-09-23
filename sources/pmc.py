@@ -164,7 +164,9 @@ def _get_journal_title(tree):
     front = ElementTree(tree).find('front')
     for journal_meta in front.iter('journal-meta'):
         for journal_title in journal_meta.iter('journal-title'):
-            return journal_title.text.replace('PLoS', 'PLOS').replace('PloS', 'PLOS')
+            title = journal_title.text
+            title = title.replace('PLoS', 'PLOS').replace('PloS', 'PLOS')
+            return title
 
 def _get_article_date(tree):
     """
