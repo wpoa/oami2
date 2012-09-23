@@ -145,7 +145,7 @@ def _get_article_title(tree):
     title = ElementTree(tree).find('front/article-meta/title-group/article-title')
     if title is None:
         title = ElementTree(tree).find('front/article-meta/article-categories/subj-group/subject')
-    return ' '.join(title.itertext())
+    return ''.join(title.itertext())
 
 def _get_article_abstract(tree):
     """
