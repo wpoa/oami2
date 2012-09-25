@@ -23,7 +23,7 @@ import pprint
 
 import subprocess
 
-from helpers import media, emit_error
+from helpers import media, emit_error, emit_warning
 from model import session, setup_all, create_all, set_source, \
     Article, Category, Journal, SupplementaryMaterial
 
@@ -132,13 +132,20 @@ if action == 'convert-media':
 
         try:
             f = mutagen.oggtheora.OggTheora(temporary_media_path)
-            f['TITLE'] = material.label
-            f['ALBUM'] = material.article.title
-            f['ARTIST'] = material.article.contrib_authors
-            f['COPYRIGHTS'] = material.article.copyright_holder
-            f['LICENSE'] = material.article.license_url
-            f['DESCRIPTION'] = material.caption
-            f['DATE'] = material.article.date
+            for key, value in \
+                [
+                    ('TITLE', material.label),
+                    ('ALBUM', material.article.title),
+                    ('ARTIST', material.article.contrib_authors),
+                    ('COPYRIGHTS', material.article.copyright_holder),
+                    ('LICENSE', material.article.license_url),
+                    ('DESCRIPTION', material.caption),
+                    ('DATE', material.article.date)
+                ]:
+                if value is not None:
+                    f[key] = value
+                else:
+                    emit_warning('Missing metadata: %s.' % key)
             f.save()
         except mutagen.oggtheora.OggTheoraHeaderError:
             pass  # Most probably an encoding failure.
