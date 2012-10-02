@@ -106,6 +106,12 @@ def list_articles(target_directory, supplementary_materials=False, skip=[]):
                         result['supplementary-materials'] = _get_supplementary_materials(tree)
                     yield result
 
+def _strip_whitespace(text):
+    """
+    Strips leading and trailing whitespace for multiple lines.
+    """
+    return '\n'.join([line.strip() for line in text.splitlines()])
+
 def _get_article_categories(tree):
     """
     Given an ElementTree, return (some) article categories.
@@ -176,7 +182,7 @@ def _get_article_abstract(tree):
             print abstract.attrib['abstract-type']
             continue
         else:
-            return ''.join(abstract.itertext())
+            return _strip_whitespace(''.join(abstract.itertext()))
     return None
 
 def _get_journal_title(tree):
@@ -578,7 +584,7 @@ def _get_supplementary_material(tree, rid):
                 caption = sup_tree.find('caption')
                 result['caption'] = ''
                 if caption is not None:
-                    result['caption'] = ' '.join(caption.itertext())
+                    result['caption'] = _strip_whitespace(' '.join(caption.itertext()))
 
                 media = sup_tree.find('media')
                 if media is not None:
