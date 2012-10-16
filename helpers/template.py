@@ -1,6 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+def _escape(text):
+    for original, replacement in [
+        ('=', '{{=}}'),
+        ('|', '{{!}}')
+    ]:
+        text = text.replace(original, replacement)
+    return text
+
 def page(article_doi, article_pmid, article_pmcid, authors, article_title, journal_title, date, article_url, \
     license_url, rights_holder, label, caption, title, categories):
     license_templates = {
@@ -18,27 +26,27 @@ def page(article_doi, article_pmid, article_pmcid, authors, article_title, journ
 
     text = "=={{int:filedesc}}==\n\n"
     text += "{{Information\n"
-    text += "|Description=\n{{en|%s\n%s}}\n" % (title, caption)
+    text += "|Description=\n{{en|%s\n%s}}\n" % (_escape(title), _escape(caption))
     text += "|Date= %s\n" % date
     if label:
-        text += "|Source= %s from " % label
+        text += "|Source= %s from " % _escape(label)
     else:
         text += "|Source= "
     text += "{{Cite journal\n"
-    text += "| author = %s\n" % authors
-    text += "| title = %s\n" % article_title
-    text += "| doi = %s\n" % article_doi
-    text += "| journal = %s\n" % journal_title
+    text += "| author = %s\n" % _escape(authors)
+    text += "| title = %s\n" % _escape(article_title)
+    text += "| doi = %s\n" % _escape(article_doi)
+    text += "| journal = %s\n" % _escape(journal_title)
     pmid = article_pmid
     if pmid:
-        text += "| pmid = %s\n" % pmid
+        text += "| pmid = %s\n" % _escape(pmid)
     pmcid = article_pmcid
     if pmcid:
-        text += "| pmc = %s\n" % pmcid
+        text += "| pmc = %s\n" % _escape(pmcid)
     text += "}}\n"
-    text += "|Author= %s\n" % authors
+    text += "|Author= %s\n" % _escape(authors)
     text += "|Permission= %s Copyright owner: %s\n" % \
-        (license_template, rights_holder)
+        (license_template, _escape(rights_holder))
     text += "|Other_fields={{Information field|name=Provenance|value= {{Open Access Media Importer}} }}\n"
     text += "}}\n\n"
 
@@ -53,8 +61,8 @@ def page(article_doi, article_pmid, article_pmcid, authors, article_title, journ
         return category
 
     for category in categories:
-        text += "[[Category:%s]]\n" % _postprocess_category(category)
-    text += "[[Category:Media from %s]]\n" % journal_title
+        text += "[[Category:%s]]\n" % _escape(_postprocess_category(category))
+    text += "[[Category:Media from %s]]\n" % _escape(journal_title)
     text += "[[Category:Uploaded with Open Access Media Importer]]\n"
     text += '[[Category:Uploaded with Open Access Media Importer and needing category review]]\n'
     return text
