@@ -106,6 +106,7 @@ if action == 'upload-media':
         license_url = material.article.license_url
         rights_holder = material.article.copyright_holder
         label = material.label
+        title = material.title
         caption = material.caption
         categories = [category.name for category in material.article.categories] + \
             efetch.get_categories_from_pmid(article_pmid)
@@ -129,7 +130,7 @@ if action == 'upload-media':
         page_template = template.page(article_doi, article_pmid, \
             article_pmcid, authors, article_title, journal_title, \
             date, article_url, license_url, rights_holder, label, \
-            caption, categories)
+            caption, title, categories)
 
         wiki_file = wikitools.wikifile.File(wiki=wiki, title=wiki_filename)
         wiki_file.upload(

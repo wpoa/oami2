@@ -134,7 +134,7 @@ if action == 'convert-media':
             f = mutagen.oggtheora.OggTheora(temporary_media_path)
             for key, value in \
                 [
-                    ('TITLE', material.label),
+                    ('TITLE', material.title),
                     ('ALBUM', material.article.title),
                     ('ARTIST', material.article.contrib_authors),
                     ('COPYRIGHTS', material.article.copyright_holder),

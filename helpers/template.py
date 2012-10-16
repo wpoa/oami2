@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 def page(article_doi, article_pmid, article_pmcid, authors, article_title, journal_title, date, article_url, \
-    license_url, rights_holder, label, caption, categories):
+    license_url, rights_holder, label, caption, title, categories):
     license_templates = {
         u'http://creativecommons.org/licenses/by/2.0/': '{{cc-by-2.0}}',
         u'http://creativecommons.org/licenses/by-sa/2.0/': '{{cc-by-sa-2.0}}',
@@ -18,7 +18,7 @@ def page(article_doi, article_pmid, article_pmcid, authors, article_title, journ
 
     text = "=={{int:filedesc}}==\n\n"
     text += "{{Information\n"
-    text += "|Description=\n{{en|%s}}\n" % caption
+    text += "|Description=\n{{en|%s\n%s}}\n" % (title, caption)
     text += "|Date= %s\n" % date
     if label:
         text += "|Source= %s from " % label
