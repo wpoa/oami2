@@ -557,64 +557,53 @@ def _get_supplementary_materials(tree):
     Given an ElementTree, returns a list of article supplementary materials.
     """
     materials = []
-    for xref in tree.iter('xref'):
-        try:
-            if xref.attrib['ref-type'] == 'supplementary-material':
-                rid = xref.attrib['rid']
-                sup = _get_supplementary_material(tree, rid)
-                if sup:
-                    materials.append(sup)
-        except KeyError:  # xref is missing ref-type or rid
-            pass
+    for sup in tree.iter('supplementary-material'):
+        material = _get_supplementary_material(tree, sup)
+        materials.append(material)
     return materials
 
-def _get_supplementary_material(tree, rid):
+def _get_supplementary_material(tree, sup):
     """
-    Given an ElementTree and an rid, returns supplementary material as a dictionary
-    containing url, mimetype and label and caption.
+    Given an ElementTree returns supplementary materials as a
+    dictionary containing url, mimetype and label and caption.
     """
-    for sup in tree.iter('supplementary-material'):
-        try:
-            if sup.attrib['id'] == rid:  # supplementary material found
-                result = {}
-                sup_tree = ElementTree(sup)
+    result = {}
+    sup_tree = ElementTree(sup)
 
-                label = sup_tree.find('label')
-                result['label'] = ''
-                if label is not None:
-                    result['label'] = label.text
+    label = sup_tree.find('label')
+    result['label'] = ''
+    if label is not None:
+        result['label'] = label.text
 
-                title = sup_tree.find('caption/title')
-                result['title'] = ''
-                if title is not None:
-                    title = _strip_whitespace(' '.join(title.itertext()))
-                    result['title'] = title
+    title = sup_tree.find('caption/title')
+    result['title'] = ''
+    if title is not None:
+        title = _strip_whitespace(' '.join(title.itertext()))
+        result['title'] = title
 
-                caption = sup_tree.find('caption')
-                result['caption'] = ''
-                if caption is not None:
-                    caption_without_title = []
-                    for node in caption:
-                        if node.tag != 'title':
-                            caption_without_title.append(' '.join(node.itertext()))
-                    caption = _strip_whitespace('\n'.join(caption_without_title))
-                    # remove file size and type information, e.g. “(1.3 MB MPG)”
-                    lastline = caption.split('\n')[-1]
-                    if lastline.startswith('(') and lastline.endswith(')'):
-                        caption = '\n'.join(caption.split('\n')[:-1])
-                    result['caption'] = caption
+    caption = sup_tree.find('caption')
+    result['caption'] = ''
+    if caption is not None:
+        caption_without_title = []
+        for node in caption:
+            if node.tag != 'title':
+                caption_without_title.append(' '.join(node.itertext()))
+        caption = _strip_whitespace('\n'.join(caption_without_title))
+        # remove file size and type information, e.g. “(1.3 MB MPG)”
+        lastline = caption.split('\n')[-1]
+        if lastline.startswith('(') and lastline.endswith(')'):
+            caption = '\n'.join(caption.split('\n')[:-1])
+        result['caption'] = caption
 
-                media = sup_tree.find('media')
-                if media is not None:
-                    result['mimetype'] = media.attrib['mimetype']
-                    result['mime-subtype'] = media.attrib['mime-subtype']
-                    result['url'] = _get_supplementary_material_url(
-                        _get_pmcid(tree),
-                        media.attrib['{http://www.w3.org/1999/xlink}href']
-                    )
-                    return result
-        except KeyError:  # supplementary material has no ID
-            continue
+    media = sup_tree.find('media')
+    if media is not None:
+        result['mimetype'] = media.attrib['mimetype']
+        result['mime-subtype'] = media.attrib['mime-subtype']
+        result['url'] = _get_supplementary_material_url(
+            _get_pmcid(tree),
+            media.attrib['{http://www.w3.org/1999/xlink}href']
+        )
+        return result
 
 def _get_pmcid(tree):
     """
