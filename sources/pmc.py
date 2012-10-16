@@ -110,9 +110,10 @@ def _strip_whitespace(text):
     """
     Strips leading and trailing whitespace for multiple lines.
     """
-    return '\n'.join(
-        [line.strip() for line in text.splitlines() if line is not '']
+    text = '\n'.join(
+        [line.strip() for line in text.splitlines()]
     )
+    return text.strip('\n')
 
 def _get_article_categories(tree):
     """
