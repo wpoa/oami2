@@ -6,7 +6,10 @@ def _escape(text):
         ('=', '{{=}}'),
         ('|', '{{!}}')
     ]:
-        text = text.replace(original, replacement)
+        try:
+            text = text.replace(original, replacement)
+        except AttributeError:
+            pass
     return text
 
 def page(article_doi, article_pmid, article_pmcid, authors, article_title, journal_title, date, article_url, \
