@@ -584,6 +584,12 @@ def _get_supplementary_material(tree, rid):
                 if label is not None:
                     result['label'] = label.text
 
+                title = sup_tree.find('caption/title')
+                result['title'] = ''
+                if title is not None:
+                    title = _strip_whitespace(' '.join(title.itertext()))
+                    result['title'] = title
+
                 caption = sup_tree.find('caption')
                 result['caption'] = ''
                 if caption is not None:

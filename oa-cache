@@ -245,6 +245,7 @@ if action == 'find-media':
                     if not supplementary_material:
                         supplementary_material=SupplementaryMaterial(
                             label=material['label'],
+                            title=material['title'],
                             caption=material['caption'],
                             mimetype=material['mimetype'],
                             mime_subtype=material['mime-subtype'],

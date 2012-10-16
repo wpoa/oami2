@@ -36,6 +36,7 @@ class Article(Entity):
 
 class SupplementaryMaterial(Entity):
     label = Field(UnicodeText)
+    title = Field(UnicodeText)
     caption = Field(UnicodeText)
     mimetype = Field(UnicodeText)
     mime_subtype = Field(UnicodeText)
