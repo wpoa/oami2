@@ -100,7 +100,32 @@ def plot_licenses():
         savefig(f, format='png')
         stderr.write('Wrote figure to “%s”.\n' % filename)
 
+def plot_mimetypes_misreported():
+    misreported = stats['mimetypes']['misreported']
+    rows = misreported.keys()
+    cols = set()
+    for row in misreported:
+        for col in misreported[row]:
+            cols.add(col)
+
+    import csv
+    with open('mimetypes-misreported.csv', 'w') as f:
+        writer = csv.writer(f, quoting=csv.QUOTE_ALL)
+        rowdata = ['']
+        for col in cols:
+            rowdata.append(col)
+        writer.writerow(rowdata)
+        for row in rows:
+            rowdata = [row]
+            for col in cols:
+                try:
+                    rowdata.append(misreported[row][col])
+                except KeyError:
+                    rowdata.append(0)
+            writer.writerow(rowdata)
+
 if __name__ == '__main__':
-    plot_mimetypes('free')
-    plot_mimetypes('non-free')
-    plot_licenses()
+    #plot_mimetypes('free')
+    #plot_mimetypes('non-free')
+    #plot_licenses()
+    plot_mimetypes_misreported()
