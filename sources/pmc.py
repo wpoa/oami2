@@ -598,8 +598,12 @@ def _get_supplementary_material(tree, sup):
 
     media = sup_tree.find('media')
     if media is not None:
-        result['mimetype'] = media.attrib['mimetype']
-        result['mime-subtype'] = media.attrib['mime-subtype']
+        try:
+            result['mimetype'] = media.attrib['mimetype']
+            result['mime-subtype'] = media.attrib['mime-subtype']
+        except KeyError:
+            result['mimetype'] = ''
+            result['mime-subtype'] = ''
         result['url'] = _get_supplementary_material_url(
             _get_pmcid(tree),
             media.attrib['{http://www.w3.org/1999/xlink}href']
