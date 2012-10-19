@@ -559,7 +559,8 @@ def _get_supplementary_materials(tree):
     materials = []
     for sup in tree.iter('supplementary-material'):
         material = _get_supplementary_material(tree, sup)
-        materials.append(material)
+        if material is not None:
+            materials.append(material)
     return materials
 
 def _get_supplementary_material(tree, sup):
