@@ -48,8 +48,7 @@ def page(article_doi, article_pmid, article_pmcid, authors, article_title, journ
         text += "| pmc = %s\n" % _escape(pmcid)
     text += "}}\n"
     text += "|Author= %s\n" % _escape(authors)
-    text += "|Permission= %s Copyright owner: %s\n" % \
-        (license_template, _escape(rights_holder))
+    text += "|Permission= %s\n" % license_template
     text += "|Other_fields={{Information field|name=Provenance|value= {{Open Access Media Importer}} }}\n"
     text += "}}\n\n"
 
