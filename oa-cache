@@ -23,7 +23,7 @@ import pprint
 
 import subprocess
 
-from helpers import media, emit_error, emit_warning
+from helpers import media, emit_error, emit_warning, make_datestring
 from model import session, setup_all, create_all, set_source, \
     Article, Category, Journal, SupplementaryMaterial
 
@@ -140,7 +140,11 @@ if action == 'convert-media':
                     ('COPYRIGHTS', material.article.copyright_holder),
                     ('LICENSE', material.article.license_url),
                     ('DESCRIPTION', material.caption),
-                    ('DATE', material.article.date)
+                    ('DATE', make_datestring(
+                        material.article.year,
+                        material.article.month,
+                        material.article.day
+                    ))
                 ]:
                 if value is not None:
                     f[key] = value
@@ -218,7 +222,9 @@ if action == 'find-media':
                     title=result['article-title'],
                     contrib_authors=result['article-contrib-authors'],
                     abstract=result['article-abstract'],
-                    date=result['article-date'],
+                    year=result['article-year'],
+                    month=result['article-month'],
+                    day=result['article-day'],
                     url=result['article-url'],
                     license_url=result['article-license-url'],
                     copyright_holder=result['article-copyright-holder'],

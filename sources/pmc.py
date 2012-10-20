@@ -96,7 +96,9 @@ def list_articles(target_directory, supplementary_materials=False, skip=[]):
                     result['article-title'] = _get_article_title(tree)
                     result['article-abstract'] = _get_article_abstract(tree)
                     result['journal-title'] = _get_journal_title(tree)
-                    result['article-date'] = _get_article_date(tree)
+                    result['article-year'], \
+                        result['article-month'], \
+                        result['article-day'] = _get_article_date(tree)
                     result['article-url'] = _get_article_url(tree)
                     result['article-license-url'] = _get_article_license_url(tree)
                     result['article-copyright-holder'] = _get_article_copyright_holder(tree)
@@ -201,23 +203,22 @@ def _get_journal_title(tree):
 
 def _get_article_date(tree):
     """
-    Given an ElementTree, returns article date.
+    Given an ElementTree, returns article date as list of integers in
+    the format [year, month, day].
     """
-    article_meta = ElementTree(tree).find('front/article-meta')
+    article_meta = tree.find('front/article-meta')
     for pub_date in article_meta.iter('pub-date'):
-        if pub_date.attrib['pub-type'] == 'epub':
-            pub_date_tree = ElementTree(pub_date)
-            year = int(pub_date_tree.find('year').text)
-            try:
-                month = int(pub_date_tree.find('month').text)
-            except AttributeError:
-                month = 1 # TODO: is this correct?
-            try:
-                day = int(pub_date_tree.find('day').text)
-            except AttributeError:
-                day = 1  # TODO: is this correct?
-            return str(date(year, month, day))
-    return None
+        year = int(pub_date.find('year').text)
+        try:
+            month = int(pub_date.find('month').text)
+        except AttributeError:
+            return year, None, None
+        try:
+            day = int(pub_date.find('day').text)
+        except AttributeError:
+            return year, month, None
+        return year, month, day
+    raise RuntimeError, 'No date information found.'
 
 def _get_article_url(tree):
     """

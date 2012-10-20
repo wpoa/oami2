@@ -82,7 +82,9 @@ def list_articles(target_directory, supplementary_materials=False, skip=[]):
             result['article-title'] = _get_article_title(tree)
             result['article-abstract'] = _get_article_abstract(tree)
             result['journal-title'] = _get_journal_title(tree)
-            result['article-date'] = _get_article_date(tree)
+            result['article-year'], \
+                result['article-month'], \
+                result['article-day'] = _get_article_date(tree)
             result['article-url'] = _get_article_url(tree)
             result['article-license-url'] = _get_article_license_url(tree)
             result['article-copyright-holder'] = _get_article_copyright_holder(tree)

@@ -101,7 +101,9 @@ if action == 'upload-media':
         authors = material.article.contrib_authors
         article_title = material.article.title
         journal_title = material.article.journal.title
-        date = material.article.date
+        article_year = material.article.year
+        article_month = material.article.month
+        article_day = material.article.day
         article_url = material.article.url
         license_url = material.article.license_url
         rights_holder = material.article.copyright_holder
@@ -129,8 +131,8 @@ if action == 'upload-media':
 
         page_template = template.page(article_doi, article_pmid, \
             article_pmcid, authors, article_title, journal_title, \
-            date, article_url, license_url, rights_holder, label, \
-            caption, title, categories)
+            article_year, article_month, article_day, article_url, \
+            license_url, label, caption, title, categories)
 
         wiki_file = wikitools.wikifile.File(wiki=wiki, title=wiki_filename)
         wiki_file.upload(

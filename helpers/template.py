@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from . import make_datestring
+
 def _escape(text):
     for original, replacement in [
         ('=', '{{=}}'),
@@ -12,8 +14,9 @@ def _escape(text):
             pass
     return text
 
-def page(article_doi, article_pmid, article_pmcid, authors, article_title, journal_title, date, article_url, \
-    license_url, rights_holder, label, caption, title, categories):
+def page(article_doi, article_pmid, article_pmcid, authors, article_title, journal_title, \
+    article_year, article_month, article_day, article_url, license_url, label, caption, \
+    title, categories):
     license_templates = {
         u'http://creativecommons.org/licenses/by/2.0/': '{{cc-by-2.0}}',
         u'http://creativecommons.org/licenses/by-sa/2.0/': '{{cc-by-sa-2.0}}',
@@ -30,7 +33,7 @@ def page(article_doi, article_pmid, article_pmcid, authors, article_title, journ
     text = "=={{int:filedesc}}==\n\n"
     text += "{{Information\n"
     text += "|Description=\n{{en|%s\n%s}}\n" % (_escape(title), _escape(caption))
-    text += "|Date= %s\n" % date
+    text += "|Date= %s\n" % make_datestring(article_year, article_month, article_day)
     if label:
         text += "|Source= %s from " % _escape(label)
     else:

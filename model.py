@@ -23,7 +23,9 @@ class Article(Entity):
     title = Field(UnicodeText, primary_key=True)
     contrib_authors = Field(UnicodeText, primary_key=True)
     abstract = Field(UnicodeText)
-    date = Field(UnicodeText)
+    year = Field(Integer)  # should always be there
+    month = Field(Integer)  # or None
+    day = Field(Integer)  # or None
     url = Field(UnicodeText)
     license_url = Field(UnicodeText)
     copyright_holder = Field(UnicodeText)
