@@ -594,7 +594,7 @@ def _get_supplementary_material(tree, sup):
         # remove file size and type information, e.g. “(1.3 MB MPG)”
         lastline = caption.split('\n')[-1]
         if lastline.startswith('(') and lastline.endswith(')'):
-            caption = '\n'.join(caption.split('\n')[:-1])
+            caption = ' '.join(caption.split('\n')[:-1])
         result['caption'] = caption
 
     media = sup_tree.find('media')
