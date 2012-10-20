@@ -43,6 +43,7 @@ def page(article_doi, article_pmid, article_pmcid, authors, article_title, journ
     text += "| title = %s\n" % _escape(article_title)
     text += "| doi = %s\n" % _escape(article_doi)
     text += "| journal = %s\n" % _escape(journal_title)
+    text += "| year = %s\n" % _escape(article_year)
     pmid = article_pmid
     if pmid:
         text += "| pmid = %s\n" % _escape(pmid)
