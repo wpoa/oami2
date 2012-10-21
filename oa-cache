@@ -114,7 +114,7 @@ if action == 'convert-media':
             session.commit()
             continue
 
-        stderr.write("Converting “%s”, saving into “%s” …\n" % (
+        stderr.write("Converting “%s”, saving into “%s” … " % (
                 media_raw_path.encode('utf-8'),
                 media_refined_path.encode('utf-8')
             )
@@ -155,6 +155,7 @@ if action == 'convert-media':
             pass  # Most probably an encoding failure.
 
         rename(temporary_media_path, media_refined_path)
+        stderr.write("done.\n")
 
         material.converted = True
         session.commit()
