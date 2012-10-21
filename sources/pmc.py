@@ -589,7 +589,7 @@ def _get_supplementary_material(tree, sup):
         caption_without_title = []
         for node in caption:
             if node.tag != 'title':
-                caption_without_title.append(' '.join(node.itertext()))
+                caption_without_title.append(''.join(node.itertext()))
         caption = _strip_whitespace('\n'.join(caption_without_title))
         # remove file size and type information, e.g. “(1.3 MB MPG)”
         lastline = caption.split('\n')[-1]
