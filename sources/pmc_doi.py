@@ -47,9 +47,13 @@ def download_metadata(target_directory):
     """
     stderr.write('Input DOIs, delimited by whitespace: ')
     dois = stdin.read().split()
+    if len(dois) == 0:
+        raise RuntimeError, 'No DOIs found.'
 
     stderr.write('Getting PubMed Central IDs for given DOIs … ')
     pmcids = _get_pmcids_from_dois(dois)
+    if len(pmcids) == 0:
+        raise RuntimeError, 'No PubMed Central IDs for given DOIs found.'
     stderr.write('found: %s\n' % ', '.join(pmcids))
 
     url = _get_query_url_from_pmcids(pmcids)
