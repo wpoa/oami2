@@ -52,6 +52,7 @@ if action == 'update-mimetypes':
         mimetype_reported=None,
         mime_subtype_reported=None
     ).all()
+    stderr.write('Checking MIME types …\n')
     p = progressbar.ProgressBar(maxval=len(materials))
     for material in materials:
         url = material.url
