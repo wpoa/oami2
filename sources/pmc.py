@@ -562,6 +562,10 @@ def _get_supplementary_materials(tree):
         material = _get_supplementary_material(tree, sup)
         if material is not None:
             materials.append(material)
+    for fig in tree.iter('fig'):
+        material = _get_supplementary_material(tree, fig)
+        if material is not None:
+            materials.append(material)
     return materials
 
 def _get_supplementary_material(tree, sup):
