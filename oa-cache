@@ -283,15 +283,33 @@ if action == "stats":
     completed = 0
     licenses = {
         'free': {},
-        'non-free': {}
+        'non-free': {},
+    }
+    licensing_publishers = {
+        'url': {},
+        'url-from-text': {},
+        'text': {},
+        'none': {}
     }
     mimetypes = {
         'free': {},
         'non-free': {},
         'misreported': {}
     }
+    mimetypes_publishers = {
+        'correct': {},
+        'incorrect': {},
+        'unknown': {}
+    }
     for material in materials:
         license_url = material.article.license_url
+        license_text = material.article.license_text
+        copyright_statement = material.article.copyright_statement
+        doi = material.article.doi
+        if doi is not None:
+            doi_prefix = doi.split('/')[0]
+        else:
+            doi_prefix = u'None'
         mimetype_composite = material.mimetype + '/' + material.mime_subtype
         try:
             mimetype_composite_reported = material.mimetype_reported + '/' + material.mime_subtype_reported
@@ -305,8 +323,20 @@ if action == "stats":
                         mimetypes['misreported'][mimetype_composite] = {
                             mimetype_composite_reported: 1
                             }
+                try:
+                    mimetypes_publishers['incorrect'][doi_prefix] += 1
+                except KeyError:
+                    mimetypes_publishers['incorrect'][doi_prefix] = 1
+            else:  # mimetype is correct
+                try:
+                    mimetypes_publishers['correct'][doi_prefix] += 1
+                except KeyError:
+                    mimetypes_publishers['correct'][doi_prefix] = 1
         except TypeError:  # oa-get update-mimetypes was not run
-            pass
+            try:
+                mimetypes_publishers['unknown'][doi_prefix] += 1
+            except KeyError:
+                mimetypes_publishers['unknown'][doi_prefix] = 1
         if license_url in config.free_license_urls:
             try:
                 licenses['free'][license_url] += 1
@@ -325,6 +355,30 @@ if action == "stats":
                 mimetypes['non-free'][mimetype_composite] += 1
             except KeyError:
                 mimetypes['non-free'][mimetype_composite] = 1
+        if license_url is not None:
+            if license_text is not None or \
+                copyright_statement is not None:
+                try:
+                    licensing_publishers['url-from-text'][doi_prefix] += 1
+                except KeyError:
+                    licensing_publishers['url-from-text'][doi_prefix] = 1
+            else:  # URL was given, no text lookup necessary
+                try:
+                    licensing_publishers['url'][doi_prefix] += 1
+                except KeyError:
+                    licensing_publishers['url'][doi_prefix] = 1
+        else:
+            if license_text is not None or \
+                copyright_statement is not None:
+                try:
+                    licensing_publishers['text'][doi_prefix] += 1
+                except KeyError:
+                    licensing_publishers['text'][doi_prefix] = 1
+            else:  # no licensing information at all
+                try:
+                    licensing_publishers['none'][doi_prefix] += 1
+                except KeyError:
+                    licensing_publishers['none'][doi_prefix] = 1
         completed += 1
         p.update(completed)
 
@@ -332,6 +386,8 @@ if action == "stats":
     pp = pprint.PrettyPrinter(indent=4)
     output = pp.pformat({
         'licenses': licenses,
-        'mimetypes': mimetypes
+        'licensing_publishers': licensing_publishers,
+        'mimetypes': mimetypes,
+        'mimetypes_publishers': mimetypes_publishers
     })
     stdout.write(output + '\n')
