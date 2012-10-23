@@ -132,6 +132,8 @@ def _get_article_categories(tree):
         except KeyError:  # no attribute “subj-group-type”
             pass
         for subject in subject_group.iter('subject'):
+            if subject.text is None:
+                continue
             if '/' in subject.text:
                 category_text = subject.text.split('/')[-1]
                 if ' ' in category_text and not 'and' in category_text:
