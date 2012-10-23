@@ -126,8 +126,37 @@ def csv_mimetypes_misreported():
             writer.writerow(rowdata)
     stderr.write('Wrote CSV data fo “%s”.\n' % filename)
 
+def plot_mimetypes_by_publisher(license_type, mime_type):
+    mimetypes = stats['mimetypes_prefix_publishers'][license_type][mime_type]
+    labels, values = zip(*sorted(mimetypes.iteritems(), key=lambda x: x[1]))
+
+    fig1 = figure(figsize=(8,8))
+    suptitle('%s Supplementary Materials under %s Licenses by DOI Prefix' % \
+        (mime_type.capitalize(), license_type.capitalize()))
+    ax1 = fig1.add_subplot(1,1,1)
+
+    ticks = range(len(labels))
+    ax1.set_yticks(ticks)
+    ax1.set_yticklabels(labels)
+
+    ax1.set_xscale('log')
+    ax1.xaxis.set_major_formatter(ticker.FormatStrFormatter('%d'))
+
+    b1 = barh(ticks, values, color='#babdb6', align='center')
+
+    filename = 'mimetypes-%s-%s.png' % (license_type, mime_type)
+    with open(filename, 'w') as f:
+        savefig(f, format='png')
+        stderr.write('Wrote figure to “%s”.\n' % filename)
+
 if __name__ == '__main__':
     #plot_mimetypes('free')
-    #plot_mimetypes('non-free')
+    #plot_mimetypes('non-free'))
     #plot_licenses()
-    csv_mimetypes_misreported()
+    #csv_mimetypes_misreported()
+    plot_mimetypes_by_publisher('free', 'audio')
+    plot_mimetypes_by_publisher('free', 'video')
+    plot_mimetypes_by_publisher('free', 'image')
+    plot_mimetypes_by_publisher('non-free', 'audio')
+    plot_mimetypes_by_publisher('non-free', 'video')
+    plot_mimetypes_by_publisher('non-free', 'image')
