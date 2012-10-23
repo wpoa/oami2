@@ -525,6 +525,9 @@ def _get_article_licensing(tree):
             return license_url_fixes[license_url]
         return license_url
 
+    if license_text is not None:
+        license_text = license_text.decode('utf-8')
+
     if copyright_statement_text is not None:
         copyright_statement_text = copyright_statement_text.decode('utf-8')
 
