@@ -4,6 +4,7 @@
 from sys import stdin, stderr
 from pylab import figure, suptitle, bar, barh, legend, gcf, savefig
 from matplotlib import ticker
+from numpy import arange
 
 import config
 
@@ -149,11 +150,63 @@ def plot_mimetypes_by_publisher(license_type, mime_type):
         savefig(f, format='png')
         stderr.write('Wrote figure to “%s”.\n' % filename)
 
+def plot_mimetypes_misreported_by_publisher():
+    mimetypes_correct = stats['mimetypes_publishers']['correct']
+    mimetypes_incorrect = stats['mimetypes_publishers']['incorrect']
+    mimetypes_unknown = stats['mimetypes_publishers']['unknown']
+
+    for m in mimetypes_correct:
+        try:
+            mimetypes_incorrect[m]
+        except KeyError:
+            mimetypes_incorrect[m] = 0
+
+    for m in mimetypes_incorrect:
+        try:
+            mimetypes_correct[m]
+        except KeyError:
+            mimetypes_correct[m] = 0
+
+    labels_correct, values_correct = zip(*sorted(mimetypes_correct.iteritems(), key=lambda x: x[0]))
+    labels_incorrect, values_incorrect = zip(*sorted(mimetypes_incorrect.iteritems(), key=lambda x: x[0]))
+    assert(labels_correct == labels_incorrect)
+
+    fig1 = figure(figsize=(8,8))
+
+    n_correct= sum(v for v in mimetypes_correct.values())
+    n_incorrect = sum(v for v in mimetypes_incorrect.values())
+    suptitle(
+        'Supplementary Materials with misreported MIME type by DOI Prefix\n' + \
+        '%s total: %s incorrect, approx %.1f %%' % (
+                n_correct+n_incorrect,
+                n_incorrect,
+                float(n_incorrect)/n_correct*100
+        )
+    )
+
+    ax1 = fig1.add_subplot(1,1,1)
+
+    ticks = arange(len(labels_correct)) * 1.5
+    ax1.set_yticks(ticks)
+    ax1.set_yticklabels(labels_correct)
+
+    #ax1.set_xscale('log')
+    ax1.xaxis.set_major_formatter(ticker.FormatStrFormatter('%d'))
+
+    bar_correct = barh(ticks, values_correct, color='#8ae234', align='center')
+    bar_incorrect = barh(ticks+0.5, values_incorrect, color='#ef2929', align='center')
+
+    filename = 'mimetypes-misreported-by-publisher.png'
+    with open(filename, 'w') as f:
+        savefig(f, format='png')
+        stderr.write('Wrote figure to “%s”.\n' % filename)
+
 if __name__ == '__main__':
     #plot_mimetypes('free')
     #plot_mimetypes('non-free'))
     #plot_licenses()
     #csv_mimetypes_misreported()
+    plot_mimetypes_misreported_by_publisher()
     plot_mimetypes_by_publisher('free', 'audio')
     plot_mimetypes_by_publisher('free', 'video')
     plot_mimetypes_by_publisher('free', 'image')
