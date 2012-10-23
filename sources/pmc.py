@@ -188,7 +188,6 @@ def _get_article_abstract(tree):
     """
     for abstract in ElementTree(tree).iterfind('.//*abstract'):
         if 'abstract-type' in abstract.attrib:  # toc or summary
-            print abstract.attrib['abstract-type']
             continue
         else:
             return _strip_whitespace(''.join(abstract.itertext()))
