@@ -100,7 +100,9 @@ def list_articles(target_directory, supplementary_materials=False, skip=[]):
                         result['article-month'], \
                         result['article-day'] = _get_article_date(tree)
                     result['article-url'] = _get_article_url(tree)
-                    result['article-license-url'] = _get_article_license_url(tree)
+                    result['article-license-url'], \
+                        result['article-license-text'], \
+                        result['article-copyright-statement'] = _get_article_licensing(tree)
                     result['article-copyright-holder'] = _get_article_copyright_holder(tree)
                     result['article-categories'] = _get_article_categories(tree)
 
@@ -473,7 +475,7 @@ license_url_fixes = {
     'http://creativecommons.org/licenses/by-nc/3.0': 'http://creativecommons.org/licenses/by-nc/3.0/'
 }
 
-def _get_article_license_url(tree):
+def _get_article_licensing(tree):
     """
     Given an ElementTree, returns article license URL.
     """
@@ -481,8 +483,8 @@ def _get_article_license_url(tree):
     license_url = None
     copyright_statement_text = None
 
-    license = ElementTree(tree).find('front//*license')
-    copyright_statement = ElementTree(tree).find('front//*copyright-statement')
+    license = tree.find('front//*license')
+    copyright_statement = tree.find('front//*copyright-statement')
 
     def _get_text_from_element(element):
         text = ' '.join(element.itertext()).encode('utf-8')  # clean encoding
@@ -498,7 +500,7 @@ def _get_article_license_url(tree):
         copyright_statement_text = _get_text_from_element(copyright_statement)
     else:
         _emit_warning('No <license> or <copyright-statement> element found in XML.')
-        return None
+        return None, None, None
 
     if license_url is None:
         if license_text is not None:
@@ -523,16 +525,19 @@ def _get_article_license_url(tree):
             return license_url_fixes[license_url]
         return license_url
 
+    if copyright_statement_text is not None:
+        copyright_statement_text = copyright_statement_text.decode('utf-8')
+
     if license_url is not None:
-        return _fix_license_url(license_url)
+        return _fix_license_url(license_url), license_text, copyright_statement_text
     else:
-        return None
+        return None, license_text, copyright_statement_text
 
 def _get_article_copyright_holder(tree):
     """
     Given an ElementTree, returns article copyright holder.
     """
-    copyright_holder = ElementTree(tree).find(
+    copyright_holder = tree.find(
         'front/article-meta/permissions/copyright-holder'
     )
     try:
@@ -542,8 +547,7 @@ def _get_article_copyright_holder(tree):
     except AttributeError:  # no copyright_holder known
         pass
 
-    copyright_statement = \
-        ElementTree(tree).find('.//*copyright-statement')
+    copyright_statement = tree.find('.//*copyright-statement')
     try:
         copyright_statement = copyright_statement.text
         if copyright_statement is not None:

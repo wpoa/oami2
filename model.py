@@ -28,6 +28,8 @@ class Article(Entity):
     day = Field(Integer)  # or None
     url = Field(UnicodeText)
     license_url = Field(UnicodeText)
+    license_text = Field(UnicodeText)
+    copyright_statement = Field(UnicodeText)
     copyright_holder = Field(UnicodeText)
     journal = ManyToOne('Journal')
     supplementary_materials = OneToMany('SupplementaryMaterial')

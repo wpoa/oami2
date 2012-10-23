@@ -228,6 +228,8 @@ if action == 'find-media':
                     day=result['article-day'],
                     url=result['article-url'],
                     license_url=result['article-license-url'],
+                    license_text=result['article-license-text'],
+                    copyright_statement=result['article-copyright-statement'],
                     copyright_holder=result['article-copyright-holder'],
                     journal=journal
                 )
