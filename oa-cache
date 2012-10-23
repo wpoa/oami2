@@ -301,6 +301,10 @@ if action == "stats":
         'incorrect': {},
         'unknown': {}
     }
+    mimetypes_prefix_publishers = {
+        'free': {},
+        'non-free': {}
+    }
     for material in materials:
         license_url = material.article.license_url
         license_text = material.article.license_text
@@ -310,7 +314,8 @@ if action == "stats":
             doi_prefix = doi.split('/')[0]
         else:
             doi_prefix = u'None'
-        mimetype_composite = material.mimetype + '/' + material.mime_subtype
+        mimetype = material.mimetype
+        mimetype_composite = mimetype + '/' + material.mime_subtype
         try:
             mimetype_composite_reported = material.mimetype_reported + '/' + material.mime_subtype_reported
             if mimetype_composite != mimetype_composite_reported:
@@ -346,6 +351,14 @@ if action == "stats":
                 mimetypes['free'][mimetype_composite] += 1
             except KeyError:
                 mimetypes['free'][mimetype_composite] = 1
+            try:
+                mimetypes_prefix_publishers['free'][mimetype]
+            except KeyError:
+                mimetypes_prefix_publishers['free'][mimetype] = {}
+            try:
+                mimetypes_prefix_publishers['free'][mimetype][doi_prefix] += 1
+            except KeyError:
+                mimetypes_prefix_publishers['free'][mimetype][doi_prefix] = 1
         else:
             try:
                 licenses['non-free'][license_url] += 1
@@ -355,6 +368,14 @@ if action == "stats":
                 mimetypes['non-free'][mimetype_composite] += 1
             except KeyError:
                 mimetypes['non-free'][mimetype_composite] = 1
+            try:
+                mimetypes_prefix_publishers['non-free'][mimetype]
+            except KeyError:
+                mimetypes_prefix_publishers['non-free'][mimetype] = {}
+            try:
+                mimetypes_prefix_publishers['non-free'][mimetype][doi_prefix] += 1
+            except KeyError:
+                mimetypes_prefix_publishers['non-free'][mimetype][doi_prefix] = 1
         if license_url is not None:
             if license_text is not None or \
                 copyright_statement is not None:
@@ -388,6 +409,7 @@ if action == "stats":
         'licenses': licenses,
         'licensing_publishers': licensing_publishers,
         'mimetypes': mimetypes,
-        'mimetypes_publishers': mimetypes_publishers
+        'mimetypes_publishers': mimetypes_publishers,
+        'mimetypes_prefix_publishers': mimetypes_prefix_publishers
     })
     stdout.write(output + '\n')
