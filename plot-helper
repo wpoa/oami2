@@ -176,8 +176,8 @@ def plot_mimetypes_misreported_by_publisher():
     n_correct= sum(v for v in mimetypes_correct.values())
     n_incorrect = sum(v for v in mimetypes_incorrect.values())
     suptitle(
-        'Supplementary Materials with misreported MIME type by DOI Prefix\n' + \
-        '%s total: %s incorrect, approx %.1f %%' % (
+        'Supplementary Materials with wrong MIME type by DOI Prefix\n' + \
+        '(sample size %s: %s incorrect, approx %.1f %%)' % (
                 n_correct+n_incorrect,
                 n_incorrect,
                 float(n_incorrect)/n_correct*100
@@ -190,13 +190,131 @@ def plot_mimetypes_misreported_by_publisher():
     ax1.set_yticks(ticks)
     ax1.set_yticklabels(labels_correct)
 
-    #ax1.set_xscale('log')
+    ax1.set_xscale('log')
     ax1.xaxis.set_major_formatter(ticker.FormatStrFormatter('%d'))
 
-    bar_correct = barh(ticks, values_correct, color='#8ae234', align='center')
-    bar_incorrect = barh(ticks+0.5, values_incorrect, color='#ef2929', align='center')
+    correct_color = '#8ae234'
+    incorrect_color = '#ef2929'
+
+    bar_correct = barh(ticks, values_correct, color=correct_color, align='center')
+    bar_incorrect = barh(ticks+0.5, values_incorrect, color=incorrect_color, align='center')
+
+    correct_bar = bar([0], [0], color=correct_color)
+    incorrect_bar = bar([0], [0], color=incorrect_color)
+    legend(
+        [correct_bar, incorrect_bar],
+        ['correct MIME type', 'incorrect MIME type'],
+        loc=4
+    )
 
     filename = 'mimetypes-misreported-by-publisher.png'
+    with open(filename, 'w') as f:
+        savefig(f, format='png')
+        stderr.write('Wrote figure to “%s”.\n' % filename)
+
+def plot_licensing_by_publisher():
+    licensing_none = stats['licensing_publishers']['none']
+    licensing_text = stats['licensing_publishers']['text']
+    licensing_url = stats['licensing_publishers']['url']
+    licensing_url_from_text = stats['licensing_publishers']['url-from-text']
+
+#    for l in licensing_none:
+#        try:
+#            licensing_text[l]
+#        except KeyError:
+#            licensing_text[l] = 0
+#        try:
+#            licensing_url[l]
+#        except KeyError:
+#            licensing_url[l] = 0
+#        try:
+#            licensing_url_from_text[l]
+#        except KeyError:
+#            licensing_url_from_text[l] = 0
+
+    for l in licensing_text:
+    #    try:
+    #        licensing_none[l]
+    #    except KeyError:
+    #        licensing_none[l] = 0
+        try:
+            licensing_url[l]
+        except KeyError:
+            licensing_url[l] = 0
+        try:
+            licensing_url_from_text[l]
+        except KeyError:
+            licensing_url_from_text[l] = 0
+
+    for l in licensing_url:
+    #    try:
+    #        licensing_none[l]
+    #    except KeyError:
+    #        licensing_none[l] = 0
+        try:
+            licensing_text[l]
+        except KeyError:
+            licensing_text[l] = 0
+        try:
+            licensing_url_from_text[l]
+        except KeyError:
+            licensing_url_from_text[l] = 0
+
+    for l in licensing_url_from_text:
+    #    try:
+    #        licensing_none[l]
+    #    except KeyError:
+    #        licensing_none[l] = 0
+        try:
+            licensing_text[l]
+        except KeyError:
+            licensing_text[l] = 0
+        try:
+            licensing_url[l]
+        except KeyError:
+            licensing_url[l] = 0
+
+    #labels_none, values_none = zip(*sorted(licensing_none.iteritems(), key=lambda x: x[0]))
+    labels_text, values_text = zip(*sorted(licensing_text.iteritems(), key=lambda x: x[0]))
+    labels_url, values_url = zip(*sorted(licensing_url.iteritems(), key=lambda x: x[0]))
+    labels_url_from_text, values_url_from_text = zip(*sorted(licensing_url_from_text.iteritems(), key=lambda x: x[0]))
+    assert(labels_text == labels_url == labels_url_from_text)
+
+    fig1 = figure(figsize=(8,40))
+
+    #n_none= sum(v for v in licensing_none.values())
+    n_text = sum(v for v in licensing_text.values())
+    n_url = sum(v for v in licensing_url.values())
+    n_url_from_text = sum(v for v in licensing_url_from_text.values())
+    suptitle('Licensing information in PumMed Central XML by DOI Prefix (%s Materials)' % (n_text + n_url + n_url_from_text))
+    ax1 = fig1.add_subplot(1,1,1)
+
+    ticks = arange(len(labels_url)) * 2
+    ax1.set_yticks(ticks)
+    ax1.set_yticklabels(labels_url)
+
+    ax1.set_xscale('log')
+    ax1.xaxis.set_major_formatter(ticker.FormatStrFormatter('%d'))
+
+    url_color = '#8ae234'
+    url_from_text_color = '#fce940'
+    text_color = '#ef2929'
+
+    bar_url = barh(ticks, values_url, color=url_color, align='center')
+    bar_url_from_text = barh(ticks+0.5, values_url_from_text, color=url_from_text_color, align='center')
+    bar_text = barh(ticks+1, values_text, color=text_color, align='center')
+    #bar_none = barh(ticks+3, values_none, color='#ef2929', align='center')
+
+    url_bar = bar([0], [0], color=url_color)
+    url_from_text_bar = bar([0], [0], color=url_from_text_color)
+    text_bar = bar([0], [0], color=text_color)
+    legend(
+        [url_bar, url_from_text_bar, text_bar],
+        ['URL', 'text recognized by OAMI', 'text not recognized by OAMI'],
+        loc=4
+    )
+
+    filename = 'mimetypes-licensing-by-publisher.png'
     with open(filename, 'w') as f:
         savefig(f, format='png')
         stderr.write('Wrote figure to “%s”.\n' % filename)
@@ -205,6 +323,7 @@ if __name__ == '__main__':
     #plot_mimetypes('free')
     #plot_mimetypes('non-free'))
     #plot_licenses()
+    plot_licensing_by_publisher()
     #csv_mimetypes_misreported()
     plot_mimetypes_misreported_by_publisher()
     plot_mimetypes_by_publisher('free', 'audio')
