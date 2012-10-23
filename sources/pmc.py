@@ -510,7 +510,6 @@ def _get_article_licensing(tree):
                license_url = license_url_equivalents[license_text]
            except:
               _emit_error('Unknown license:', license_text)
-              raise RuntimeError
 
         elif copyright_statement_text is not None:
             copyright_statement_found = False
