@@ -637,8 +637,11 @@ def _get_article_doi(tree):
     """
     front = ElementTree(tree).find('front')
     for article_id in front.iter('article-id'):
-        if article_id.attrib['pub-id-type'] == 'doi':
-            return article_id.text
+        try:
+            if article_id.attrib['pub-id-type'] == 'doi':
+                return article_id.text
+        except KeyError:
+            pass
 
 def _get_supplementary_material_url(pmcid, href):
     """
