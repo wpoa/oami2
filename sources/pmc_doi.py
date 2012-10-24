@@ -7,7 +7,7 @@ from os import listdir, path
 from sys import stdin, stderr
 
 from pmc import _get_article_contrib_authors, _get_article_title, _get_article_abstract, \
-    _get_journal_title, _get_article_date, _get_article_url, _get_article_license_url, \
+    _get_journal_title, _get_article_date, _get_article_url, _get_article_licensing, \
     _get_article_copyright_holder, _get_supplementary_materials, _get_pmcid, _get_article_doi, \
     _get_article_categories
 
@@ -90,7 +90,9 @@ def list_articles(target_directory, supplementary_materials=False, skip=[]):
                 result['article-month'], \
                 result['article-day'] = _get_article_date(tree)
             result['article-url'] = _get_article_url(tree)
-            result['article-license-url'] = _get_article_license_url(tree)
+            result['article-license-url'], \
+                result['article-license-text'], \
+                result['article-copyright-statement'] = _get_article_licensing(tree)
             result['article-copyright-holder'] = _get_article_copyright_holder(tree)
 
             if supplementary_materials:
