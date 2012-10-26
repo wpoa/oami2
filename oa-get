@@ -56,9 +56,14 @@ if action == 'update-mimetypes':
     p = progressbar.ProgressBar(maxval=len(materials))
     for material in materials:
         url = material.url
-        request = Request(url, None, {'User-Agent' : 'oa-get/2012-09-19'})
+        request = Request(url, None, {'User-Agent' : 'oa-get/2012-10-26'})
         request.headers['Range'] = 'bytes=%s-%s' % (0, 4095) # 4kB should be enough
-        chunk = urlopen(request).read()
+        try:
+            chunk = urlopen(request).read()
+        except HTTPError, e:
+            stderr.write('When trying to download <%s>, the following error occured: “%s”.\n' % \
+                             (url.encode('utf-8'), str(e)))
+            continue
         detected_mimetype = ms.buffer(chunk)
         if 'Document, corrupt' in detected_mimetype:  # partial MS Office document
             request = Request(url, None, {'User-Agent' : 'oa-get/2012-09-19'})
