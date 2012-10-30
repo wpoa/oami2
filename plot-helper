@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from csv import reader
 from sys import stdin, stderr
 from pylab import figure, suptitle, bar, barh, legend, gcf, savefig
 from matplotlib import ticker
@@ -127,6 +128,34 @@ def csv_mimetypes_misreported():
             writer.writerow(rowdata)
     stderr.write('Wrote CSV data fo “%s”.\n' % filename)
 
+doi_prefix_mapping = {}
+
+def _get_publisher(doi):
+    try:
+        return doi_prefix_mapping[doi]
+    except KeyError:
+        return ''
+
+doi_pref_filename = 'doi_pref.tsv'
+with open(doi_pref_filename) as f:
+    prefreader = reader(f)
+    for i, row in enumerate(f):
+        rowparts = row.strip().split('\t')
+        try:
+            publisher = rowparts[0]
+            doi_prefix = rowparts[1]
+            if len(publisher) > 32:
+                publisher = publisher[:30] + u' …'
+        except IndexError:
+            stderr.write(
+                'No prefix found in row %d of %s:\n\t„%s“.\n' % (
+                    i,
+                    doi_pref_filename,
+                    row.strip()
+                )
+            )
+        doi_prefix_mapping[doi_prefix] = publisher
+
 def plot_mimetypes_by_publisher(license_type, mime_type):
     mimetypes = stats['mimetypes_prefix_publishers'][license_type][mime_type]
     labels, values = zip(*sorted(mimetypes.iteritems(), key=lambda x: x[1]))
@@ -188,7 +217,9 @@ def plot_mimetypes_misreported_by_publisher():
 
     ticks = arange(len(labels_correct)) * 1.5
     ax1.set_yticks(ticks)
-    ax1.set_yticklabels(labels_correct)
+    ax1.set_yticklabels(
+        [_get_publisher(l) + ' ' + l for l in labels_correct]
+    )
 
     ax1.set_xscale('log')
     ax1.xaxis.set_major_formatter(ticker.FormatStrFormatter('%d'))
@@ -204,8 +235,10 @@ def plot_mimetypes_misreported_by_publisher():
     legend(
         [correct_bar, incorrect_bar],
         ['correct MIME type', 'incorrect MIME type'],
-        loc=4
+        loc='upper center',
+        bbox_to_anchor=(0.5, -0.05),
     )
+    gcf().subplots_adjust(left=0.5, bottom=0.15)
 
     filename = 'mimetypes-misreported-by-publisher.png'
     with open(filename, 'w') as f:
@@ -286,12 +319,14 @@ def plot_licensing_by_publisher():
     n_text = sum(v for v in licensing_text.values())
     n_url = sum(v for v in licensing_url.values())
     n_url_from_text = sum(v for v in licensing_url_from_text.values())
-    suptitle('Licensing information in PumMed Central XML by DOI Prefix (%s Materials)' % (n_text + n_url + n_url_from_text))
+    suptitle('Licensing information in PubMed Central XML by DOI Prefix (%s Materials)' % (n_text + n_url + n_url_from_text))
     ax1 = fig1.add_subplot(1,1,1)
 
-    ticks = arange(len(labels_url)) * 2
+    ticks = arange(len(labels_url)) * 3
     ax1.set_yticks(ticks)
-    ax1.set_yticklabels(labels_url)
+    ax1.set_yticklabels(
+       [_get_publisher(l) + ' ' + l for l in labels_url]
+    )
 
     ax1.set_xscale('log')
     ax1.xaxis.set_major_formatter(ticker.FormatStrFormatter('%d'))
@@ -301,7 +336,7 @@ def plot_licensing_by_publisher():
     text_color = '#ef2929'
 
     bar_url = barh(ticks, values_url, color=url_color, align='center')
-    bar_url_from_text = barh(ticks+0.5, values_url_from_text, color=url_from_text_color, align='center')
+    bar_url_from_text = barh(ticks+0.33, values_url_from_text, color=url_from_text_color, align='center')
     bar_text = barh(ticks+1, values_text, color=text_color, align='center')
     #bar_none = barh(ticks+3, values_none, color='#ef2929', align='center')
 
@@ -311,8 +346,10 @@ def plot_licensing_by_publisher():
     legend(
         [url_bar, url_from_text_bar, text_bar],
         ['URL', 'text recognized by OAMI', 'text not recognized by OAMI'],
-        loc=4
+        loc='upper center',
+        bbox_to_anchor=(0.5, -0.05),
     )
+    gcf().subplots_adjust(left=0.5, bottom=0.15)
 
     filename = 'mimetypes-licensing-by-publisher.png'
     with open(filename, 'w') as f:
@@ -326,9 +363,9 @@ if __name__ == '__main__':
     plot_licensing_by_publisher()
     #csv_mimetypes_misreported()
     plot_mimetypes_misreported_by_publisher()
-    plot_mimetypes_by_publisher('free', 'audio')
-    plot_mimetypes_by_publisher('free', 'video')
-    plot_mimetypes_by_publisher('free', 'image')
-    plot_mimetypes_by_publisher('non-free', 'audio')
-    plot_mimetypes_by_publisher('non-free', 'video')
-    plot_mimetypes_by_publisher('non-free', 'image')
+    #plot_mimetypes_by_publisher('free', 'audio')
+    #plot_mimetypes_by_publisher('free', 'video')
+    #plot_mimetypes_by_publisher('free', 'image')
+    #plot_mimetypes_by_publisher('non-free', 'audio')
+    #plot_mimetypes_by_publisher('non-free', 'video')
+    #plot_mimetypes_by_publisher('non-free', 'image')
