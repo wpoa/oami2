@@ -136,8 +136,11 @@ def _get_article_categories(tree):
                 continue
             if '/' in subject.text:
                 category_text = subject.text.split('/')[-1]
-                if ' ' in category_text and not 'and' in category_text:
-                    categories.append(category_text)
+            else:
+                category_text = subject.text
+            if ' ' in category_text and not 'and' in category_text and \
+                category_text not in categories:
+                categories.append(category_text)
     return categories
 
 def _get_article_contrib_authors(tree):
