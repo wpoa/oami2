@@ -70,8 +70,15 @@ def page(article_doi, article_pmid, article_pmcid, authors, article_title, journ
             category_parts = category.split(',')
             category_parts.reverse()
             category = ' '.join(category_parts)
-        category = category.strip().lower().capitalize()
-        return category
+        processed_category = []
+        for i, word in enumerate(category.strip().split()):
+            if word[1:] == word[1:].lower():
+            # lower only words that do no have capital letters inside
+                word = word.lower()
+                if i == 0:  # capitalize first word
+                    word = word.capitalize()
+            processed_category.append(word)
+        return ' '.join(processed_category)
 
     for category in categories:
         text += "[[Category:%s]]\n" % _escape(_postprocess_category(category))
