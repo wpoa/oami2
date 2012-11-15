@@ -39,7 +39,7 @@ def page(article_doi, article_pmid, article_pmcid, authors, article_title, journ
         description = _escape(caption)  # title useless, not using it
     else:
         description = "%s %s" % (_escape(title), _escape(caption))
-    text += "|Description=\n{{en|%s}}\n" % description
+    text += "|Description=\n{{en|1=%s}}\n" % description
     text += "|Date= %s\n" % make_datestring(article_year, article_month, article_day)
     if label:
         text += "|Source= %s from " % _escape(label)
