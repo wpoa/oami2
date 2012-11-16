@@ -6,13 +6,15 @@ pygst.require("0.10")
 import gst
 import progressbar
 
-from sys import stderr
+from sys import exit, stderr
 
 class Media():
     def __init__(self, filename):
         self.filename = filename
         self.has_audio = False
         self.has_video = False
+        self.position = 0
+        self.lastposition = 0
 
     def find_streams(self):
         """
@@ -120,17 +122,26 @@ class Media():
 
         def update_progress():
             try:
-                position = pipeline.query_position(gst.FORMAT_TIME, \
+                self.position = pipeline.query_position(gst.FORMAT_TIME, \
                     None)[0]
             except:
                 return False  # stop loop
             try:
-                progress.update(position)
+                progress.update(self.position)
             except:
                 # progressbar fails on >100% progress
                 # fall back to pipeline reporting
                 report.set_property('silent', False)
             return True  # continue loop
 
+        def abort_on_stall():
+            if self.position == self.lastposition:
+                stderr.write('Conversion of <%s> stalled, aborting …\n' % \
+                    self.filename.encode('utf-8'))
+                exit(1)
+            self.lastposition = self.position
+            return True
+
         gobject.timeout_add(100, update_progress)
+        gobject.timeout_add(10000, abort_on_stall)
         loop.run()
