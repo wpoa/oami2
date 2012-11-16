@@ -64,6 +64,8 @@ def page(article_doi, article_pmid, article_pmcid, authors, article_title, journ
     text += "}}\n\n"
 
     def _capitalize_properly(word):
+        if len(word) == 1: # single letters should pass through unchanged
+            return word
         if word[1:] == word[1:].lower():  # word has no capital letters inside
             return word.lower()
         else:  # words like 'DNA' or 'HeLa' should not be touched
