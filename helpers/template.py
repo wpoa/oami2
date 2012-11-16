@@ -63,6 +63,12 @@ def page(article_doi, article_pmid, article_pmcid, authors, article_title, journ
     text += "|Other_fields={{Information field|name=Provenance|value= {{Open Access Media Importer}} }}\n"
     text += "}}\n\n"
 
+    def _capitalize_properly(word):
+        if word[1:] == word[1:].lower():  # word has no capital letters inside
+            return word.lower()
+        else:  # words like 'DNA' or 'HeLa' should not be touched
+            return word
+
     def _postprocess_category(category):
         if '(' in category:
             category = category.split('(')[0]
@@ -71,14 +77,13 @@ def page(article_doi, article_pmid, article_pmcid, authors, article_title, journ
             category_parts.reverse()
             category = ' '.join(category_parts)
         processed_category = []
-        for i, word in enumerate(category.strip().split()):
-            if word[1:] == word[1:].lower():
-            # lower only words that do no have capital letters inside
-                word = word.lower()
-                if i == 0:  # capitalize first word
-                    word = word.capitalize()
-            processed_category.append(word)
-        return ' '.join(processed_category)
+        for word in category.strip().split(' '):
+            wordparts = []
+            for part in word.split('-'):
+                wordparts.append(_capitalize_properly(part))
+            processed_category.append('-'.join(wordparts))
+        category = ' '.join(processed_category)
+        return category[0].capitalize() + category[1:]
 
     for category in categories:
         text += "[[Category:%s]]\n" % _escape(_postprocess_category(category))
