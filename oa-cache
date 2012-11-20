@@ -50,7 +50,8 @@ usage:  oa-cache browse-database [source] |
 
 try:
     assert(action in ['browse-database', 'clear-media', 'clear-database', \
-        'convert-media', 'find-media', 'list-articles', 'stats'])
+        'convert-media', 'find-media', 'forget-converted', \
+        'forget-downloaded', 'forget-uploaded', 'list-articles', 'stats'])
 except AssertionError:  # invalid action
     stderr.write('Unknown action “%s”.\n' % action)
     exit(2)
