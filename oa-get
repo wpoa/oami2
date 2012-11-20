@@ -159,7 +159,7 @@ if action == 'download-media':
         # if local file has same size as remote file, skip download
         try:
             if (path.getsize(local_filename) == total):
-                stderr.write("Skipping <%s>.\n" % url.encode('utf-8'))
+                stderr.write("Skipping download of <%s>.\n" % url.encode('utf-8'))
                 material.downloaded = True
                 session.commit()
                 continue
