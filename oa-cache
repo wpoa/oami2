@@ -39,6 +39,9 @@ usage:  oa-cache browse-database [source] |
         oa-cache clear-database [source] |
         oa-cache convert-media [source] |
         oa-cache find-media [source] |
+        oa-cache forget-converted [source] |
+        oa-cache forget-downloaded [source] |
+        oa-cache forget-uploaded [source] |
         oa-cache list-articles [source] |
         oa-cache stats [source]
 
@@ -159,6 +162,36 @@ if action == 'convert-media':
 
         material.converted = True
         session.commit()
+
+if action == 'forget-converted':
+    materials = SupplementaryMaterial.query.filter_by(
+        converted=True
+    ).all()
+    stderr.write("Forgetting conversion of %s materials … " % len(materials))
+    for material in materials:
+        material.converted = False
+    session.commit()
+    stderr.write("done.\n")
+
+if action == 'forget-downloaded':
+    materials = SupplementaryMaterial.query.filter_by(
+        downloaded=True
+    ).all()
+    stderr.write("Forgetting download of %s materials … " % len(materials))
+    for material in materials:
+        material.downloaded = False
+    session.commit()
+    stderr.write("done.\n")
+
+if action == 'forget-uploaded':
+    materials = SupplementaryMaterial.query.filter_by(
+        uploaded=True
+    ).all()
+    stderr.write("Forgetting upload of %s materials … " % len(materials))
+    for material in materials:
+        material.uploaded = False
+    session.commit()
+    stderr.write("done.\n")
 
 if action == 'list-articles':
     csv_writer = csv.writer(stdout)
