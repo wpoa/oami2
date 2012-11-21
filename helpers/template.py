@@ -88,7 +88,9 @@ def page(article_doi, article_pmid, article_pmcid, authors, article_title, journ
         return category[0].capitalize() + category[1:]
 
     for category in categories:
-        text += "[[Category:%s]]\n" % _escape(_postprocess_category(category))
+        category = _postprocess_category(category)
+        if len(category.split()) > 1:  # no single-word categories
+            text += "[[Category:%s]]\n" % _escape(category)
     text += "[[Category:Media from %s]]\n" % _escape(journal_title)
     text += "[[Category:Uploaded with Open Access Media Importer]]\n"
     text += '[[Category:Uploaded with Open Access Media Importer and needing category review]]\n'
