@@ -143,5 +143,5 @@ class Media():
             return True
 
         gobject.timeout_add(100, update_progress)
-        gobject.timeout_add(10000, abort_on_stall)
+        gobject.timeout_add(60000, abort_on_stall)
         loop.run()
