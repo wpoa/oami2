@@ -43,7 +43,7 @@ def _get_file_from_pmcids(pmcids):
 
 def download_metadata(target_directory):
     """
-    Downloads XML files for  into given directory.
+    Downloads XML files for DOIs on stdin into given directory.
     """
     stderr.write('Input DOIs, delimited by whitespace: ')
     dois = stdin.read().split()

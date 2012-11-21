@@ -204,6 +204,8 @@ def _get_journal_title(tree):
     for journal_meta in front.iter('journal-meta'):
         for journal_title in journal_meta.iter('journal-title'):
             title = journal_title.text
+            # take only the part before the colon, strip whitespace
+            title = title.split(':')[0].strip()
             title = title.replace('PLoS', 'PLOS').replace('PloS', 'PLOS')
             return title
 
