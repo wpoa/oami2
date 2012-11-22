@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# clear database to get rid of old data
+./oa-cache clear-database pmc_pmcid
+
+# normal workflow for OAMI
+./oa-get download-metadata pmc_pmcid && \
+    ./oa-cache find-media pmc_pmcid && \
+    ./oa-get update-mimetypes pmc_pmcid && \
+    ./oa-get download-media pmc_pmcid && \
+    ./oa-cache convert-media pmc_pmcid && \
+    ./oa-put upload-media pmc_pmcid
