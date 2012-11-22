@@ -43,7 +43,7 @@ except ImportError:  # invalid source
 set_source(target)
 setup_all(True)
 
-from helpers import config
+from helpers import config, mediawiki
 
 if action == 'update-mimetypes':
     ms = magic.open(magic.MIME_TYPE)
@@ -129,6 +129,14 @@ if action == 'download-media':
         downloaded=False
     ).all()
     for material in materials:
+        if mediawiki.is_uploaded(material):
+            stderr.write("Skipping <%s>, already exists at <%s>.\n" % (
+                material.url,
+                config.api_url.encode('utf-8')
+            ))
+            material.uploaded=True
+            continue
+
         license_url = material.article.license_url
         if license_url == '':
             continue
