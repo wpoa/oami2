@@ -4,7 +4,7 @@
 from elixir import *
 from os import path
 
-import config
+from helpers import config
 
 def set_source(source):
     metadata.bind = 'sqlite:///%s' % config.database_path(source)

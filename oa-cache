@@ -65,7 +65,7 @@ except ImportError:  # invalid source
 set_source(target)
 setup_all(True)
 
-import config
+from helpers import config
 
 if action == 'browse-database':
     filename = config.database_path(target)

@@ -11,9 +11,7 @@ import csv
 # <http://lethain.com/handling-very-large-csv-and-xml-files-in-python/>
 csv.field_size_limit(999999999)
 
-import wikitools
-
-from helpers import efetch, template
+from helpers import config, efetch, mediawiki, template
 from model import session, setup_all, create_all, set_source, \
     Article, Journal, SupplementaryMaterial
 
@@ -44,35 +42,8 @@ except ImportError:  # invalid source
 set_source(target)
 setup_all(True)
 
-import config
-
 if action == 'upload-media':
     media_refined_directory = config.get_media_refined_source_path(target)
-    wiki = wikitools.wiki.Wiki(config.api_url)
-    wiki.login(username=config.username, password=config.password)
-
-    def is_uploaded(material):
-        params = {
-            'action': 'query',
-            'list': 'search',
-            'srwhat': 'text',
-            'srnamespace': '6',  # media files
-            'srsearch': '"%s"+"%s"+"%s"' % (
-                material.article.title,
-                material.label,
-                # Mediawiki does not always find text containing parentheses
-                material.caption.split('.')[0].split('(')[0]
-            )
-        }
-        request = wikitools.api.APIRequest(wiki, params)
-        result = request.query()
-        try:
-            if result[u'query'][u'searchinfo'][u'totalhits'] > 0:
-                return True
-        except KeyError:
-            if len(result[u'query'][u'search']) > 0:
-                return True
-        return False
 
     materials = SupplementaryMaterial.query.filter_by(
         converted=True,
@@ -87,7 +58,7 @@ if action == 'upload-media':
             material.converted=False
             continue
 
-        if is_uploaded(material):
+        if mediawiki.is_uploaded(material):
             stderr.write("Skipping “%s”, already exists at <%s>.\n" % (
                 media_refined_path.encode('utf-8'),
                 config.api_url.encode('utf-8')
@@ -134,12 +105,7 @@ if action == 'upload-media':
             article_year, article_month, article_day, article_url, \
             license_url, label, caption, title, categories)
 
-        wiki_file = wikitools.wikifile.File(wiki=wiki, title=wiki_filename)
-        wiki_file.upload(
-            fileobj = open(media_refined_path, 'r'),
-            text=page_template.encode('utf-8'),
-            comment = 'Automatically uploaded media file from [[:en:Open access|Open Access]] source. Please report problems or suggestions [[User talk:Open Access Media Importer Bot|here]].'
-        )
+        mediawiki.upload(media_refined_path, wiki_filename, page_template)
 
         stderr.write("“%s” uploaded to <%s>.\n" % (
             media_refined_path.encode('utf-8'),

@@ -43,7 +43,7 @@ except ImportError:  # invalid source
 set_source(target)
 setup_all(True)
 
-import config
+from helpers import config
 
 if action == 'update-mimetypes':
     ms = magic.open(magic.MIME_TYPE)
