@@ -4,6 +4,13 @@ import wikitools
 wiki = wikitools.wiki.Wiki(config.api_url)
 wiki.login(username=config.username, password=config.password)
 
+def _query(request):
+    try:
+        return request.query()
+    except wikitools.api.APIError:
+        stderr.write('Mediawiki API request failed, retrying.\n')
+        return _query(request)
+
 def is_uploaded(material):
     params = {
         'action': 'query',
@@ -18,7 +25,7 @@ def is_uploaded(material):
         )
     }
     request = wikitools.api.APIRequest(wiki, params)
-    result = request.query()
+    result = _query(request)
     try:
         if result[u'query'][u'searchinfo'][u'totalhits'] > 0:
             return True
