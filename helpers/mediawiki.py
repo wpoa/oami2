@@ -1,6 +1,8 @@
 import config
 import wikitools
 
+from sys import stderr
+
 wiki = wikitools.wiki.Wiki(config.api_url)
 wiki.login(username=config.username, password=config.password)
 
