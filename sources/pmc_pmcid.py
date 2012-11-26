@@ -56,6 +56,13 @@ def list_articles(target_directory, supplementary_materials=False, skip=[]):
                 result['article-month'], \
                 result['article-day'] = _get_article_date(tree)
             result['article-url'] = _get_article_url(tree)
+            stderr.write(
+                '%s %s\n\t%s\n' % (
+                    result['journal-title'],
+                    result['article-year'],
+                    result['article-title']
+                    )
+            )
             result['article-license-url'], \
                 result['article-license-text'], \
                 result['article-copyright-statement'] = _get_article_licensing(tree)
