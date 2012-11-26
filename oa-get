@@ -53,7 +53,11 @@ if action == 'update-mimetypes':
         mime_subtype_reported=None
     ).all()
     stderr.write('Checking MIME types …\n')
-    p = progressbar.ProgressBar(maxval=len(materials))
+    try:
+        p = progressbar.ProgressBar(maxval=len(materials))
+    except AssertionError:
+        stderr.write('No materials found.\n')
+        exit(5)
     for material in materials:
         url = material.url
         request = Request(url, None, {'User-Agent' : 'oa-get/2012-10-26'})
