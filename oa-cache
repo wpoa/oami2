@@ -114,6 +114,12 @@ if action == 'convert-media':
         media_refined_path = path.join(media_refined_directory, filename + '.ogv')
 
         if path.isfile(media_refined_path):
+            stderr.write("Skipping conversion of “%s”, exists at “%s”.\n" %
+                (
+                    media_raw_path.encode('utf-8'),
+                    media_refined_path.encode('utf-8')
+                )
+            )
             material.converted = True
             session.commit()
             continue
