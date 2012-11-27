@@ -88,7 +88,9 @@ if action == 'upload-media':
         wiki_filename = '.'.join(filename.split('.')[:-2]) + '.ogv'
         if article_title is not None:
             dirty_prefix = article_title
-            forbidden_chars = ',;:^/!<>"'
+            dirty_prefix = dirty_prefix.replace('\n', '')
+            dirty_prefix = ' '.join(dirty_prefix.split()) # remove multiple spaces
+            forbidden_chars = u"""?,;:^/!<>"`'±"""
             for character in forbidden_chars:
                 dirty_prefix = dirty_prefix.replace(character, '')
             # prefix is first hundred chars of title sans forbidden characters
