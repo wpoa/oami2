@@ -7,7 +7,7 @@ from pylab import figure, suptitle, bar, barh, legend, gcf, savefig
 from matplotlib import ticker
 from numpy import arange
 
-import config
+from helpers import config
 
 exec("stats = %s" % stdin.read())
 
