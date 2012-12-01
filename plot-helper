@@ -167,12 +167,16 @@ def plot_mimetypes_by_publisher(license_type, mime_type):
 
     ticks = range(len(labels))
     ax1.set_yticks(ticks)
-    ax1.set_yticklabels(labels)
+    ax1.set_yticklabels(
+        [_get_publisher(l) + ' ' + l for l in labels]
+    )
 
     ax1.set_xscale('log')
     ax1.xaxis.set_major_formatter(ticker.FormatStrFormatter('%d'))
 
     b1 = barh(ticks, values, color='#babdb6', align='center')
+
+    gcf().subplots_adjust(left=0.5, bottom=0.15)
 
     filename = 'mimetypes-%s-%s.png' % (license_type, mime_type)
     with open(filename, 'w') as f:
