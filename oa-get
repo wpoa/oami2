@@ -133,14 +133,6 @@ if action == 'download-media':
         downloaded=False
     ).all()
     for material in materials:
-        if mediawiki.is_uploaded(material):
-            stderr.write("Skipping <%s>, already exists at <%s>.\n" % (
-                material.url,
-                config.api_url.encode('utf-8')
-            ))
-            material.uploaded=True
-            continue
-
         license_url = material.article.license_url
         if license_url == '':
             continue
@@ -151,6 +143,14 @@ if action == 'download-media':
 
         mimetype = mimetype = material.mimetype
         if mimetype not in ['audio', 'video']:
+            continue
+
+        if mediawiki.is_uploaded(material):
+            stderr.write("Skipping <%s>, already exists at <%s>.\n" % (
+                material.url,
+                config.api_url.encode('utf-8')
+            ))
+            material.uploaded=True
             continue
 
         url = material.url
