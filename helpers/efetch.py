@@ -15,6 +15,8 @@ def _get_file_from_url(url):
         exit(255)
 
 def get_pmcid_from_doi(doi):
+    if not type(doi) == unicode:
+        raise TypeError, "Cannot get PMCID for DOI %s of type %s." % (doi, type(doi))
     url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pmc&term=%s' % doi
     xml_file = _get_file_from_url(url)
     tree = ElementTree()
@@ -22,6 +24,8 @@ def get_pmcid_from_doi(doi):
     return tree.find('IdList/Id').text
 
 def get_pmid_from_doi(doi):
+    if not type(doi) == unicode:
+        raise TypeError, "Cannot get PMID for DOI %s of type %s." % (doi, type(doi))
     url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=%s' % doi
     xml_file = _get_file_from_url(url)
     tree = ElementTree()
