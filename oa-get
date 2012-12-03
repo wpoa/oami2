@@ -57,7 +57,7 @@ if action == 'update-mimetypes':
         p = progressbar.ProgressBar(maxval=len(materials))
     except AssertionError:
         stderr.write('No materials found.\n')
-        exit(5)
+        exit(0)
     for material in materials:
         url = material.url
         request = Request(url, None, {'User-Agent' : 'oa-get/2012-10-26'})
