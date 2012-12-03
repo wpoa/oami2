@@ -134,14 +134,5 @@ class Media():
                 report.set_property('silent', False)
             return True  # continue loop
 
-        def abort_on_stall():
-            if self.position == self.lastposition:
-                stderr.write('Conversion of <%s> stalled, aborting …\n' % \
-                    self.filename.encode('utf-8'))
-                exit(1)
-            self.lastposition = self.position
-            return True
-
         gobject.timeout_add(100, update_progress)
-        gobject.timeout_add(60000, abort_on_stall)
         loop.run()
