@@ -56,7 +56,7 @@ if action == 'update-mimetypes':
     try:
         p = progressbar.ProgressBar(maxval=len(materials))
     except AssertionError:
-        stderr.write('No materials found.\n')
+        stderr.write('No materials found where MIME type has to be checked.\n')
         exit(0)
     for material in materials:
         url = material.url
