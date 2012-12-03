@@ -49,6 +49,7 @@ class SupplementaryMaterial(Entity):
     url = Field(UnicodeText, primary_key=True)
     article = ManyToOne('Article')
     downloaded = Field(Boolean, default=False)
+    converting = Field(Boolean, default=False)
     converted = Field(Boolean, default=False)
     uploaded = Field(Boolean, default=False)
 

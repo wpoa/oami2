@@ -113,6 +113,10 @@ if action == 'convert-media':
         media_raw_path = path.join(media_raw_directory, filename)
         media_refined_path = path.join(media_refined_directory, filename + '.ogv')
 
+        if material.converting:
+            stderr.write("Skipping conversion of “%s”, earlier attempt failed.\n")
+            continue
+
         if path.isfile(media_refined_path):
             stderr.write("Skipping conversion of “%s”, exists at “%s”.\n" %
                 (
@@ -124,13 +128,17 @@ if action == 'convert-media':
             session.commit()
             continue
 
+        material.converting = True
+        session.commit()
         stderr.write("Converting “%s”, saving into “%s” … " % (
                 media_raw_path.encode('utf-8'),
                 media_refined_path.encode('utf-8')
             )
         )
+        material.converting = False
+        session.commit()
 
-        loop = gobject.MainLoop()
+        #loop = gobject.MainLoop()
         m = media.Media(media_raw_path)
         try:
             m.find_streams()
