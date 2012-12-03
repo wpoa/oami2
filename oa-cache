@@ -135,8 +135,6 @@ if action == 'convert-media':
                 media_refined_path.encode('utf-8')
             )
         )
-        material.converting = False
-        session.commit()
 
         #loop = gobject.MainLoop()
         m = media.Media(media_raw_path)
@@ -175,6 +173,7 @@ if action == 'convert-media':
         rename(temporary_media_path, media_refined_path)
         stderr.write("done.\n")
 
+        material.converting = False
         material.converted = True
         session.commit()
 
