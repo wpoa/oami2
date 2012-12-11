@@ -3,6 +3,7 @@
 
 from urllib2 import urlopen, urlparse, Request, HTTPError
 from xml.etree.cElementTree import dump, ElementTree
+from sys import stderr
 
 def _get_file_from_url(url):
     req = Request(url, None, {'User-Agent' : 'oa-put/2012-08-15'})
