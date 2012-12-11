@@ -80,3 +80,4 @@ def get_userconfig(section, option):
 api_url = get_userconfig('wiki', 'api_url')
 username = get_userconfig('wiki', 'username')
 password = get_userconfig('wiki', 'password')
+whitelist_doi = get_userconfig('whitelist', 'doi').split()
