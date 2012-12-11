@@ -22,7 +22,10 @@ def get_pmcid_from_doi(doi):
     xml_file = _get_file_from_url(url)
     tree = ElementTree()
     tree.parse(xml_file)
-    return tree.find('IdList/Id').text
+    try:
+        return tree.find('IdList/Id').text
+    except AttributeError:
+        return None
 
 def get_pmid_from_doi(doi):
     if not type(doi) == unicode:
@@ -31,7 +34,10 @@ def get_pmid_from_doi(doi):
     xml_file = _get_file_from_url(url)
     tree = ElementTree()
     tree.parse(xml_file)
-    return tree.find('IdList/Id').text
+    try:
+        return tree.find('IdList/Id').text
+    except AttributeError:
+        return None
 
 def get_categories_from_pmid(pmid):
     """
