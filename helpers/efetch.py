@@ -43,6 +43,8 @@ def get_categories_from_pmid(pmid):
     """
     Gets MeSH headings, returns those not deemed too broad.
     """
+    if not type(pmid) == unicode:
+        raise TypeError, "Cannot get Categories for PMID %s of type %s." % (pmid, type(pmid))
     url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=%s&retmode=xml' % pmid
     xml_file = _get_file_from_url(url)
     tree = ElementTree()

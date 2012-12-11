@@ -81,8 +81,9 @@ if action == 'upload-media':
         label = material.label
         title = material.title
         caption = material.caption
-        categories = [category.name for category in material.article.categories] + \
-            efetch.get_categories_from_pmid(article_pmid)
+        categories = [category.name for category in material.article.categories]
+        if article_pmid is not None:
+            categories += efetch.get_categories_from_pmid(article_pmid)
 
         #TODO: file extension should be adapted for other file formats
         wiki_filename = '.'.join(filename.split('.')[:-2]) + '.ogv'
