@@ -73,8 +73,8 @@ def get_userconfig(section, option):
                          (userconfig_file, section))
         exit(127)
     except NoOptionError:
-        stderr.write("“%s” does not contain a “%s” option.\n" % \
-                         (userconfig_file, option))
+        stderr.write("“%s” does not contain a “%s” option in the “%s” section.\n" % \
+                         (userconfig_file, option, section))
         exit(127)
 
 api_url = get_userconfig('wiki', 'api_url')
