@@ -11,8 +11,7 @@ from helpers import mediawiki
 
 uploads = mediawiki.get_uploads()
 
-pylab.figure(figsize=(16.0, 12.0))
-pylab.suptitle('Timeline of Open Access Media Importer Contributions')
+pylab.figure(figsize=(20.0, 12.0))
 
 uploads_per_month = {}
 uploads_per_day = {}
@@ -56,10 +55,20 @@ pylab.scatter(
    edgecolor='black'
 )
 
+pylab.suptitle(
+    'Timeline of Open Access Media Importer Contributions ' + \
+    'for %s between %s and %s' % (
+            mediawiki.get_wiki_name(),
+            min(days),
+            max(days)
+    )
+)
+
 pylab.xlabel("Time (UTC)")
 pylab.ylabel("Edits")
 
 pylab.colorbar().set_ticks(range(0, max(daycount), 5))
+pylab.grid(True)
 
 filename = 'plot-uploads.png'
 with open(filename, 'w') as f:

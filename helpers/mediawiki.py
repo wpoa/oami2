@@ -7,7 +7,8 @@ from sys import stderr
 wiki = wikitools.wiki.Wiki(config.api_url)
 wiki.login(username=config.username, password=config.password)
 
-def _query(request):
+def query(params):
+    request = wikitools.api.APIRequest(wiki, params)
     try:
         return request.query()
     except wikitools.api.APIError:
@@ -20,13 +21,21 @@ def get_uploads():
         'list': 'usercontribs',
         'ucuser': config.username
         }
-    request = wikitools.api.APIRequest(wiki, params)
-    result = _query(request)
+    result = query(params)
     return [
         (parser.parse(uc[u'timestamp']), uc[u'title']) \
             for uc in result[u'query'][u'usercontribs'] \
             if uc[u'ns'] == 6
     ]
+
+def get_wiki_name():
+    params = {
+        'action': 'query',
+        'meta': 'siteinfo',
+        'siprop': 'general'
+    }
+    request = query(params)
+    return request[u'query'][u'general'][u'sitename']
 
 def is_uploaded(material):
     params = {
@@ -41,8 +50,7 @@ def is_uploaded(material):
             material.caption.split('.')[0].split('(')[0]
         )
     }
-    request = wikitools.api.APIRequest(wiki, params)
-    result = _query(request)
+    result = query(params)
     try:
         if result[u'query'][u'searchinfo'][u'totalhits'] > 0:
             return True
