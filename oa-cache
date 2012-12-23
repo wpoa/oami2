@@ -42,7 +42,6 @@ usage:  oa-cache browse-database [source] |
         oa-cache forget-converted [source] |
         oa-cache forget-downloaded [source] |
         oa-cache forget-uploaded [source] |
-        oa-cache list-articles [source] |
         oa-cache stats [source]
 
 """)
@@ -51,7 +50,7 @@ usage:  oa-cache browse-database [source] |
 try:
     assert(action in ['browse-database', 'clear-media', 'clear-database', \
         'convert-media', 'find-media', 'forget-converted', \
-        'forget-downloaded', 'forget-uploaded', 'list-articles', 'stats'])
+        'forget-downloaded', 'forget-uploaded', 'stats'])
 except AssertionError:  # invalid action
     stderr.write('Unknown action “%s”.\n' % action)
     exit(2)
@@ -207,42 +206,6 @@ if action == 'forget-uploaded':
         material.uploaded = False
     session.commit()
     stderr.write("done.\n")
-
-if action == 'list-articles':
-    csv_writer = csv.writer(stdout)
-    # categories based on:
-    # “Citation Rules with Examples for Journal Articles on the Internet”
-    # <http://www.ncbi.nlm.nih.gov/books/NBK7281/#A55596>
-    csv_writer.writerow([
-        'Authors',
-        'Article Title',
-        'Article Abstract',  # not part of citation rules, but useful
-        'Journal Title',
-        'Date of Publication',
-        'Available from',
-        'License',  # also not part of citation rules
-        'Copyright Holder'  # same here
-    ])
-    for article in Article.query.all():
-        dataset = [item.encode('utf-8') for item in
-            [
-                article.contrib_authors,
-                article.title,
-                article.abstract,
-                article.journal.title,
-                article.date,
-                article.url,
-                article.license_url,
-                article.copyright_holder
-            ] if 'encode' in dir(item)
-        ]
-        try:
-            csv_writer.writerow(dataset)
-        except IOError, e:
-            if e.errno == errno.EPIPE:
-                exit(0)  # broken pipe, exit normally
-            else:
-                raise
 
 if action == 'find-media':
     skip = [article.name for article in Article.query.all()]
