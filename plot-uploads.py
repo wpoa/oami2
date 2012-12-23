@@ -67,7 +67,7 @@ pylab.suptitle(
 pylab.xlabel("Time (UTC)")
 pylab.ylabel("Edits")
 
-pylab.colorbar().set_ticks(range(0, max(daycount), 5))
+pylab.colorbar()
 pylab.grid(True)
 
 filename = 'plot-uploads.png'
