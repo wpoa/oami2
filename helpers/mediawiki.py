@@ -1,6 +1,7 @@
 import config
 import wikitools
 
+from dateutil import parser
 from sys import stderr
 
 wiki = wikitools.wiki.Wiki(config.api_url)
@@ -12,6 +13,20 @@ def _query(request):
     except wikitools.api.APIError:
         stderr.write('Mediawiki API request failed, retrying.\n')
         return _query(request)
+
+def get_uploads():
+    params = {
+        'action': 'query',
+        'list': 'usercontribs',
+        'ucuser': config.username
+        }
+    request = wikitools.api.APIRequest(wiki, params)
+    result = _query(request)
+    return [
+        (parser.parse(uc[u'timestamp']), uc[u'title']) \
+            for uc in result[u'query'][u'usercontribs'] \
+            if uc[u'ns'] == 6
+    ]
 
 def is_uploaded(material):
     params = {
