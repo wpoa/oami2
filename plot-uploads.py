@@ -5,9 +5,14 @@ import pylab
 
 from datetime import date
 from math import sqrt
+from sys import stderr
+
 from helpers import mediawiki
 
 uploads = mediawiki.get_uploads()
+
+pylab.figure(figsize=(16.0, 12.0))
+pylab.suptitle('Timeline of Open Access Media Importer Contributions')
 
 uploads_per_month = {}
 uploads_per_day = {}
@@ -51,9 +56,12 @@ pylab.scatter(
    edgecolor='black'
 )
 
-pylab.title("Contributions using Open Access Media Importer")
 pylab.xlabel("Time (UTC)")
 pylab.ylabel("Edits")
 
 pylab.colorbar().set_ticks(range(0, max(daycount), 5))
-pylab.show()
+
+filename = 'plot-uploads.png'
+with open(filename, 'w') as f:
+    pylab.savefig(f, format='png', bb_inches='tight', pad_inches=0)
+    stderr.write('Wrote figure to “%s”.\n' % filename)
