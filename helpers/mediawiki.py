@@ -25,7 +25,7 @@ def get_uploads():
     return [
         (parser.parse(uc[u'timestamp']), uc[u'title']) \
             for uc in result[u'query'][u'usercontribs'] \
-            if uc[u'ns'] == 6
+            if uc[u'ns'] == 6 and u'new' in uc.keys()
     ]
 
 def get_wiki_name():
