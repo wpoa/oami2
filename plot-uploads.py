@@ -68,7 +68,7 @@ pylab.suptitle(
 )
 
 pylab.xlabel("Time (UTC)")
-pylab.ylabel("Edits")
+pylab.ylabel("Pages")
 
 pylab.colorbar()
 pylab.grid(True)
