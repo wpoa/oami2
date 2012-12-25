@@ -91,7 +91,7 @@ if action == 'upload-media':
             dirty_prefix = article_title
             dirty_prefix = dirty_prefix.replace('\n', '')
             dirty_prefix = ' '.join(dirty_prefix.split()) # remove multiple spaces
-            forbidden_chars = u"""?,;:^/!<>"`'±#[]|{}"""
+            forbidden_chars = u"""?,;:^/!<>"`'±#[]|{}ʻʾʿ᾿῾‘’“”"""
             for character in forbidden_chars:
                 dirty_prefix = dirty_prefix.replace(character, '')
             # prefix is first hundred chars of title sans forbidden characters
