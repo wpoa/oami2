@@ -230,7 +230,14 @@ if action == 'find-media':
             if not article:
                 # if there is a whitelist, skip non-whitelisted content
                 doi = result['doi']
-                doi_prefix = doi.split('/')[0]
+                try:
+                    doi_prefix = doi.split('/')[0]
+                except AttributeError:
+                    stderr.write(
+                        "Skipping Article “%s”, as it has no DOI." % \
+                            result['name']
+                    )
+                    continue
                 if config.whitelist_doi and \
                     doi_prefix not in config.whitelist_doi:
                     stderr.write(
