@@ -13,7 +13,7 @@ def query(params):
         return request.query()
     except wikitools.api.APIError:
         stderr.write('Mediawiki API request failed, retrying.\n')
-        return _query(request)
+        return query(request)
 
 def get_uploads():
     params = {
