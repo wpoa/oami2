@@ -14,6 +14,9 @@ def _escape(text):
             pass
     return text
 
+def _trim(text):
+    return ' '.join(text.split())
+
 def page(article_doi, article_pmid, article_pmcid, authors, article_title, journal_title, \
     article_year, article_month, article_day, article_url, license_url, label, caption, \
     title, categories):
@@ -47,7 +50,7 @@ def page(article_doi, article_pmid, article_pmcid, authors, article_title, journ
         text += "|Source= "
     text += "{{Cite journal\n"
     text += "| author = %s\n" % _escape(authors)
-    text += "| title = %s\n" % _escape(article_title)
+    text += "| title = %s\n" % _escape(_trim(article_title))
     text += "| doi = %s\n" % _escape(article_doi)
     text += "| journal = %s\n" % _escape(journal_title)
     text += "| year = %s\n" % _escape(article_year)
