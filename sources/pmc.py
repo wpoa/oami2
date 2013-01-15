@@ -1,18 +1,31 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import colorama
-colorama.init()
+try:
+    import colorama
+    colorama.init()
+    color=True
+except:
+    color=False
+
 
 def _emit_error(title, text):
-    error = colorama.Fore.RED + colorama.Style.BRIGHT
-    error += title + ' ' + colorama.Style.RESET_ALL
+    error = ""
+    if color:
+        error += colorama.Fore.RED + colorama.Style.BRIGHT
+    error += title + ' ' 
+    if color:
+        error += colorama.Style.RESET_ALL
     error += text + '\n'
     stderr.write(error)
 
 def _emit_warning(text):
-    warning = colorama.Fore.YELLOW + colorama.Style.BRIGHT
-    warning += text + '\n' + colorama.Style.RESET_ALL
+    warning = ""
+    if color:
+        warning += colorama.Fore.YELLOW + colorama.Style.BRIGHT
+    warning += text + '\n' 
+    if color:
+        warning += colorama.Style.RESET_ALL
     stderr.write(warning)
 
 from datetime import date
