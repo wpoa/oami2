@@ -16,6 +16,7 @@ Commands:
 Dependencies:
     python-colorama <http://pypi.python.org/pypi/colorama>
     python-dateutil <http://pypi.python.org/pypi/python-dateutil>
+    python-elixir <http://elixir.ematia.de/trac/wiki>
     python-gst0.10 <http://gstreamer.freedesktop.org/modules/gst-python.html>
     python-magic <http://www.darwinsys.com/file/>
     python-mutagen <http://code.google.com/p/mutagen/>
