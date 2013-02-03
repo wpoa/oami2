@@ -14,7 +14,7 @@ Commands:
     oa-put upload-media [dummy|pmc|pmc_doi]
 
 Dependencies:
-    python-colorama <http://pypi.python.org/pypi/colorama>
+    python-colorama <http://pypi.python.org/pypi/colorama> (optional)
     python-dateutil <http://pypi.python.org/pypi/python-dateutil>
     python-elixir <http://elixir.ematia.de/trac/wiki>
     python-gst0.10 <http://gstreamer.freedesktop.org/modules/gst-python.html>
