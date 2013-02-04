@@ -1,33 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-try:
-    import colorama
-    colorama.init()
-    color=True
-except:
-    color=False
-
-
-def _emit_error(title, text):
-    error = ""
-    if color:
-        error += colorama.Fore.RED + colorama.Style.BRIGHT
-    error += title + ' ' 
-    if color:
-        error += colorama.Style.RESET_ALL
-    error += text + '\n'
-    stderr.write(error)
-
-def _emit_warning(text):
-    warning = ""
-    if color:
-        warning += colorama.Fore.YELLOW + colorama.Style.BRIGHT
-    warning += text + '\n' 
-    if color:
-        warning += colorama.Style.RESET_ALL
-    stderr.write(warning)
-
 from datetime import date
 from os import listdir, path
 from sys import stderr
@@ -38,6 +11,7 @@ from xml.etree.cElementTree import dump, ElementTree
 from hashlib import md5
 
 import tarfile
+import logging
 
 # According to <ftp://ftp.ncbi.nlm.nih.gov/README.ftp>, this should be
 # 33554432 (32MiB) for best performance. Note that on slow connections,
@@ -518,7 +492,7 @@ def _get_article_licensing(tree):
     elif copyright_statement is not None:
         copyright_statement_text = _get_text_from_element(copyright_statement)
     else:
-        _emit_warning('No <license> or <copyright-statement> element found in XML.')
+        logging.error('No <license> or <copyright-statement> element found in XML.')
         return None, None, None
 
     if license_url is None:
@@ -526,7 +500,7 @@ def _get_article_licensing(tree):
            try:
                license_url = license_url_equivalents[license_text]
            except:
-              _emit_error('Unknown license:', license_text)
+             logging.error('Unknown license: %s', license_text)
 
         elif copyright_statement_text is not None:
             copyright_statement_found = False
@@ -536,7 +510,7 @@ def _get_article_licensing(tree):
                     copyright_statement_found = True
                     break
             if not copyright_statement_found:
-                _emit_error('Unknown copyright statement:', copyright_statement_text)
+                logging.error('Unknown copyright statement: %s', copyright_statement_text)
 
     def _fix_license_url(license_url):
         if license_url in license_url_fixes.keys():

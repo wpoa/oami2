@@ -15,6 +15,7 @@ import gobject, pygst
 pygst.require("0.10")
 
 import gst
+import logging
 import progressbar
 
 import mutagen.oggtheora
@@ -23,7 +24,7 @@ import pprint
 
 import subprocess
 
-from helpers import media, emit_error, emit_warning, make_datestring
+from helpers import media, make_datestring
 from model import session, setup_all, create_all, set_source, \
     Article, Category, Journal, SupplementaryMaterial
 
@@ -142,8 +143,8 @@ if action == 'convert-media':
             m.find_streams()
             m.convert(temporary_media_path)
         except RuntimeError, e:
-            emit_error(e, "Skipping conversion of “%s”." % \
-                media_raw_path.encode('utf-8'))
+            logging.error("%s: Skipping conversion of “%s”.", \
+                e, media_raw_path.encode('utf-8'))
             continue
 
         try:
@@ -165,7 +166,7 @@ if action == 'convert-media':
                 if value is not None:
                     f[key] = value
                 else:
-                    emit_warning('Missing metadata: %s.' % key)
+                    logging.warning('Missing metadata: %s.', key)
             f.save()
         except mutagen.oggtheora.OggTheoraHeaderError:
             pass  # Most probably an encoding failure.
