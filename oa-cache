@@ -5,11 +5,6 @@ from os import listdir, path, remove, rename
 from sys import argv, exit, stderr, stdout
 from urllib2 import urlparse
 
-import csv
-# csv.field_size_limit must be reset according to
-# <http://lethain.com/handling-very-large-csv-and-xml-files-in-python/>
-csv.field_size_limit(999999999)
-
 import errno
 import gobject, pygst
 pygst.require("0.10")
