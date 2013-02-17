@@ -230,7 +230,7 @@ if action == 'find-media':
                     doi_prefix = doi.split('/')[0]
                 except AttributeError:
                     stderr.write(
-                        "Skipping Article “%s”, as it has no DOI." % \
+                        "Skipping Article “%s”, as it has no DOI.\n" % \
                             result['name']
                     )
                     continue
