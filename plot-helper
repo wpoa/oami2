@@ -200,20 +200,33 @@ def plot_mimetypes_misreported_by_publisher():
         except KeyError:
             mimetypes_correct[m] = 0
 
-    labels_correct, values_correct = zip(*sorted(mimetypes_correct.iteritems(), key=lambda x: x[0]))
-    labels_incorrect, values_incorrect = zip(*sorted(mimetypes_incorrect.iteritems(), key=lambda x: x[0]))
+    try:
+        labels_correct, values_correct = zip(*sorted(mimetypes_correct.iteritems(), key=lambda x: x[0]))
+    except ValueError:
+        stderr.write('No correct MIME types found. Was “oa-get update-mimetypes” run?\n')
+        labels_correct, values_correct = [], []
+    try:
+        labels_incorrect, values_incorrect = zip(*sorted(mimetypes_incorrect.iteritems(), key=lambda x: x[0]))
+    except ValueError:
+        stderr.write('No incorrect MIME types found. Was “oa-get update-mimetypes” run?\n')
+        labels_incorrect, values_incorrect = [], []
     assert(labels_correct == labels_incorrect)
 
     fig1 = figure(figsize=(8,8))
 
     n_correct= sum(v for v in mimetypes_correct.values())
     n_incorrect = sum(v for v in mimetypes_incorrect.values())
+    try:
+        percentage = float(n_incorrect)/(n_correct+n_incorrect)*100
+    except ZeroDivisionError:
+        stderr.write('Division by Zero when calculating percentage of incorrect MIME types.\n')
+        percentage = 0
     suptitle(
         'Supplementary Materials with wrong MIME type by DOI Prefix\n' + \
         '(sample size %s: %s incorrect, approx %.1f %%)' % (
                 n_correct+n_incorrect,
                 n_incorrect,
-                float(n_incorrect)/n_correct*100
+                percentage
         )
     )
 
@@ -231,8 +244,14 @@ def plot_mimetypes_misreported_by_publisher():
     correct_color = '#8ae234'
     incorrect_color = '#ef2929'
 
-    bar_correct = barh(ticks, values_correct, color=correct_color, align='center')
-    bar_incorrect = barh(ticks+0.5, values_incorrect, color=incorrect_color, align='center')
+    try:
+        bar_correct = barh(ticks, values_correct, color=correct_color, align='center')
+    except ValueError:  # most likely zero correct values
+        stderr.write('Cannot plot correct MIME types.\n')
+    try:
+        bar_incorrect = barh(ticks+0.5, values_incorrect, color=incorrect_color, align='center')
+    except ValueError:  # most likely zero incorrect values
+        stderr.write('Cannot plot incorrect MIME types.\n')
 
     correct_bar = bar([0], [0], color=correct_color)
     incorrect_bar = bar([0], [0], color=incorrect_color)
