@@ -19,7 +19,7 @@ import pprint
 
 import subprocess
 
-from helpers import media, make_datestring
+from helpers import autovividict, media, make_datestring
 from model import session, setup_all, create_all, set_source, \
     Article, Category, Journal, SupplementaryMaterial
 
@@ -306,28 +306,28 @@ if action == "stats":
     p = progressbar.ProgressBar(maxval=len(materials))
     completed = 0
     licenses = {
-        'free': {},
-        'non-free': {},
+        'free': autovividict(),
+        'non-free': autovividict(),
     }
     licensing_publishers = {
-        'url': {},
-        'url-from-text': {},
-        'text': {},
-        'none': {}
+        'url': autovividict(),
+        'url-from-text': autovividict(),
+        'text': autovividict(),
+        'none': autovividict()
     }
     mimetypes = {
-        'free': {},
-        'non-free': {},
-        'misreported': {}
+        'free': autovividict(),
+        'non-free': autovividict(),
+        'misreported': autovividict()
     }
     mimetypes_publishers = {
-        'correct': {},
-        'incorrect': {},
-        'unknown': {}
+        'correct': autovividict(),
+        'incorrect': autovividict(),
+        'unknown': autovividict()
     }
     mimetypes_prefix_publishers = {
-        'free': {},
-        'non-free': {}
+        'free': autovividict(),
+        'non-free': autovividict()
     }
     for material in materials:
         license_url = material.article.license_url
@@ -343,87 +343,32 @@ if action == "stats":
         try:
             mimetype_composite_reported = material.mimetype_reported + '/' + material.mime_subtype_reported
             if mimetype_composite != mimetype_composite_reported:
-                try:
-                    mimetypes['misreported'][mimetype_composite][mimetype_composite_reported] += 1
-                except KeyError:
-                    try:
-                        mimetypes['misreported'][mimetype_composite][mimetype_composite_reported] = 1
-                    except KeyError:
-                        mimetypes['misreported'][mimetype_composite] = {
-                            mimetype_composite_reported: 1
-                            }
-                try:
-                    mimetypes_publishers['incorrect'][doi_prefix] += 1
-                except KeyError:
-                    mimetypes_publishers['incorrect'][doi_prefix] = 1
+                mimetypes['misreported'][mimetype_composite][mimetype_composite_reported] += 1
+                mimetypes_publishers['incorrect'][doi_prefix] += 1
             else:  # mimetype is correct
-                try:
-                    mimetypes_publishers['correct'][doi_prefix] += 1
-                except KeyError:
-                    mimetypes_publishers['correct'][doi_prefix] = 1
+                mimetypes_publishers['correct'][doi_prefix] += 1
         except TypeError:  # oa-get update-mimetypes was not run
-            try:
-                mimetypes_publishers['unknown'][doi_prefix] += 1
-            except KeyError:
-                mimetypes_publishers['unknown'][doi_prefix] = 1
+            mimetypes_publishers['unknown'][doi_prefix] += 1
         if license_url in config.free_license_urls:
-            try:
-                licenses['free'][license_url] += 1
-            except KeyError:
-                licenses['free'][license_url] = 1
-            try:
-                mimetypes['free'][mimetype_composite] += 1
-            except KeyError:
-                mimetypes['free'][mimetype_composite] = 1
-            try:
-                mimetypes_prefix_publishers['free'][mimetype]
-            except KeyError:
-                mimetypes_prefix_publishers['free'][mimetype] = {}
-            try:
-                mimetypes_prefix_publishers['free'][mimetype][doi_prefix] += 1
-            except KeyError:
-                mimetypes_prefix_publishers['free'][mimetype][doi_prefix] = 1
+            licenses['free'][license_url] += 1
+            mimetypes['free'][mimetype_composite] += 1
+            mimetypes_prefix_publishers['free'][mimetype][doi_prefix] += 1
         else:
-            try:
-                licenses['non-free'][license_url] += 1
-            except KeyError:
-                licenses['non-free'][license_url] = 1
-            try:
-                mimetypes['non-free'][mimetype_composite] += 1
-            except KeyError:
-                mimetypes['non-free'][mimetype_composite] = 1
-            try:
-                mimetypes_prefix_publishers['non-free'][mimetype]
-            except KeyError:
-                mimetypes_prefix_publishers['non-free'][mimetype] = {}
-            try:
-                mimetypes_prefix_publishers['non-free'][mimetype][doi_prefix] += 1
-            except KeyError:
-                mimetypes_prefix_publishers['non-free'][mimetype][doi_prefix] = 1
+            licenses['non-free'][license_url] += 1
+            mimetypes['non-free'][mimetype_composite] += 1
+            mimetypes_prefix_publishers['non-free'][mimetype][doi_prefix] += 1
         if license_url is not None:
             if license_text is not None or \
                 copyright_statement is not None:
-                try:
-                    licensing_publishers['url-from-text'][doi_prefix] += 1
-                except KeyError:
-                    licensing_publishers['url-from-text'][doi_prefix] = 1
+                licensing_publishers['url-from-text'][doi_prefix] += 1
             else:  # URL was given, no text lookup necessary
-                try:
-                    licensing_publishers['url'][doi_prefix] += 1
-                except KeyError:
-                    licensing_publishers['url'][doi_prefix] = 1
+                licensing_publishers['url'][doi_prefix] += 1
         else:
             if license_text is not None or \
                 copyright_statement is not None:
-                try:
-                    licensing_publishers['text'][doi_prefix] += 1
-                except KeyError:
-                    licensing_publishers['text'][doi_prefix] = 1
+                licensing_publishers['text'][doi_prefix] += 1
             else:  # no licensing information at all
-                try:
-                    licensing_publishers['none'][doi_prefix] += 1
-                except KeyError:
-                    licensing_publishers['none'][doi_prefix] = 1
+                licensing_publishers['none'][doi_prefix] += 1
         completed += 1
         p.update(completed)
 

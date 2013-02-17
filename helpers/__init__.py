@@ -1,7 +1,4 @@
-#!/usr/local/bin/python
-# -*- coding: utf-8 -*
-
-from sys import stderr
+from autovividict import autovividict
 
 def make_datestring(year, month, day):
     datestring = "%04d" % year  # YYYY
@@ -10,4 +7,3 @@ def make_datestring(year, month, day):
     if day is not None:
         datestring += "-%02d" % day  # YYYY-MM-DD
     return datestring
-
