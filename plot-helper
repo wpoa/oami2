@@ -157,7 +157,11 @@ with open(doi_pref_filename) as f:
         doi_prefix_mapping[doi_prefix] = publisher
 
 def plot_mimetypes_by_publisher(license_type, mime_type):
-    mimetypes = stats['mimetypes_prefix_publishers'][license_type][mime_type]
+    try:
+        mimetypes = stats['mimetypes_prefix_publishers'][license_type][mime_type]
+    except KeyError:
+        stderr.write('No MIME type listing by publishers found for %s materials.\n' % mime_type)
+        return
     labels, values = zip(*sorted(mimetypes.iteritems(), key=lambda x: x[1]))
 
     fig1 = figure(figsize=(8,8))
