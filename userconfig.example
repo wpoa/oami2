@@ -3,3 +3,7 @@ api_url = http://commons.wikimedia.org/w/api.php
 # uncomment the following lines and fill your username and password
 # username = username
 # password = password
+
+[whitelist]
+doi =
+#doi = 10.1155 10.1186 10.1371 10.3389 10.3897 10.7554
