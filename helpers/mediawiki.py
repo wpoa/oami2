@@ -3,6 +3,8 @@ import wikitools
 
 from dateutil import parser
 from sys import stderr
+from werkzeug.contrib.cache import SimpleCache
+is_uploaded_cache = SimpleCache()
 
 stderr.write('Authenticating with <%s>.\n' % config.api_url)
 wiki = wikitools.wiki.Wiki(config.api_url)
@@ -44,18 +46,21 @@ def is_uploaded(material):
 
     First, queries MediaWiki API by article DOI, then filters results.
     """
-    params = {
-        'action': 'query',
-        'list': 'search',
-        'srwhat': 'text',
-        'srlimit': '50',
-        'srredirects': '1',
-        # TODO: redirect listing for search results does not work, see
-        # <https://bugzilla.wikimedia.org/show_bug.cgi?id=18017>
-        'srnamespace': '6',  # media files
-        'srsearch': material.article.doi
-    }
-    result = query(params)  # TODO: cache results for DOI
+    result = is_uploaded_cache.get(material.article.doi)
+    if result is None:
+        params = {
+            'action': 'query',
+            'list': 'search',
+            'srwhat': 'text',
+            'srlimit': '50',
+            'srredirects': '1',
+            # TODO: redirect listing for search results does not work.
+            # <https://bugzilla.wikimedia.org/show_bug.cgi?id=18017>
+            'srnamespace': '6',  # media files
+            'srsearch': material.article.doi
+            }
+        result = query(params)  # TODO: cache results for DOI
+        is_uploaded_cache.set(material.article.doi, result)
     try:
         # If the MediaWiki API gives no search results for the article
         # DOI, the material has not been uploaded.
