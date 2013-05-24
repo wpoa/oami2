@@ -6,9 +6,7 @@ from sys import stderr
 from werkzeug.contrib.cache import SimpleCache
 is_uploaded_cache = SimpleCache()
 
-stderr.write('Authenticating with <%s>.\n' % config.api_url)
 wiki = wikitools.wiki.Wiki(config.api_url)
-wiki.login(username=config.username, password=config.password)
 
 def query(params):
     request = wikitools.api.APIRequest(wiki, params)
@@ -83,6 +81,8 @@ def upload(filename, wiki_filename, page_template):
     """
     Uploades a file to a mediawiki site.
     """
+    stderr.write('Authenticating with <%s>.\n' % config.api_url)
+    wiki.login(username=config.username, password=config.password)
     wiki_file = wikitools.wikifile.File(wiki=wiki, title=wiki_filename)
     wiki_file.upload(
         fileobj = open(filename, 'r'),
