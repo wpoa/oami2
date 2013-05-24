@@ -76,14 +76,26 @@ if action == 'update-mimetypes':
     ).all()
     stderr.write('Checking MIME types …\n')
     try:
-        p = progressbar.ProgressBar(maxval=len(materials))
+        widgets = [
+            progressbar.SimpleProgress(),
+            progressbar.Percentage(),
+            progressbar.Bar(),
+            progressbar.ETA()
+            ]
+        p = progressbar.ProgressBar(
+            maxval=len(materials),
+            widgets=widgets
+            ).start()
     except AssertionError:
         stderr.write('No materials found where MIME type has to be checked.\n')
         exit(0)
     for material in materials:
         url = material.url
         request = Request(url, None, {'User-Agent' : 'oa-get/2012-10-26'})
-        request.headers['Range'] = 'bytes=%s-%s' % (0, 4095) # 4kB should be enough
+        request.headers['Range'] = 'bytes=%s-%s' % (0, 11)
+        # 12 bytes should be enough to detect audio or video resources
+        # <http://mimesniff.spec.whatwg.org/#matching-an-audio-or-video-type-pattern>
+        p.update(p.currval+1)
         try:
             chunk = urlopen(request).read()
         except HTTPError, e:
@@ -92,8 +104,8 @@ if action == 'update-mimetypes':
             continue
         detected_mimetype = ms.buffer(chunk)
         if 'Document, corrupt' in detected_mimetype:  # partial MS Office document
-            request = Request(url, None, {'User-Agent' : 'oa-get/2012-09-19'})
-            chunk = urlopen(request).read()
+            request = Request(url, None, {'User-Agent' : 'oa-get/2013-05-24'})
+            chunk = urlopen(request, timeout=5).read()
             detected_mimetype = ms.buffer(chunk)
             if detected_mimetype == 'application/msword':
                 # MS Office documents are all detected as application/msword, therefore guess based on extension
@@ -136,7 +148,6 @@ if action == 'update-mimetypes':
             material.mimetype_reported = get_mimetype(reported_mimetype)
             material.mime_subtype_reported = get_mime_subtype(reported_mimetype)
         session.commit()
-        p.update(p.currval+1)
 
 if action == 'download-metadata':
     source_path = config.get_metadata_raw_source_path(target)
