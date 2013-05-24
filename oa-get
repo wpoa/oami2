@@ -29,7 +29,7 @@ usage:  oa-get download-metadata [source] |
     exit(1)
 
 try:
-    assert(action in ['download-media', 'download-metadata', 'update-mimetypes'])
+    assert(action in ['detect-duplicates', 'download-media', 'download-metadata', 'update-mimetypes'])
 except AssertionError:  # invalid action
     stderr.write("Unknown action “%s”.\n" % action)
     exit(2)
@@ -44,6 +44,28 @@ set_source(target)
 setup_all(True)
 
 from helpers import config, mediawiki
+
+if action == 'detect-duplicates':
+    materials = SupplementaryMaterial.query.filter(
+        (SupplementaryMaterial.mimetype_reported=='audio') |
+        (SupplementaryMaterial.mimetype_reported=='video')
+        ).all()
+    if len(materials) == 0:
+        stderr.write('No audio or video materials found.\n')
+        exit(5)
+    for material in materials:
+        if mediawiki.is_uploaded(material):
+            stderr.write('[X] %s %s %s\n' % (
+                    material.article.doi,
+                    material.title,
+                    material.label
+                    ))
+        else:
+            stderr.write('[ ] %s %s %s\n' % (
+                material.article.doi,
+                material.title,
+                material.label
+                ))
 
 if action == 'update-mimetypes':
     ms = magic.open(magic.MIME_TYPE)
