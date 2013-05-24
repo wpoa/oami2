@@ -105,7 +105,7 @@ if action == 'update-mimetypes':
         detected_mimetype = ms.buffer(chunk)
         if 'Document, corrupt' in detected_mimetype:  # partial MS Office document
             request = Request(url, None, {'User-Agent' : 'oa-get/2013-05-24'})
-            chunk = urlopen(request, timeout=5).read()
+            chunk = urlopen(request, timeout=15).read()
             detected_mimetype = ms.buffer(chunk)
             if detected_mimetype == 'application/msword':
                 # MS Office documents are all detected as application/msword, therefore guess based on extension
