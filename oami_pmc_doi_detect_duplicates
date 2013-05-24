@@ -1,0 +1,6 @@
+#!/bin/sh
+
+./oa-get download-metadata pmc_doi && \
+    ./oa-cache find-media pmc_doi && \
+    ./oa-get update-mimetypes pmc_doi && \
+    ./oa-get detect-duplicates pmc_doi
