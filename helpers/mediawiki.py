@@ -39,26 +39,40 @@ def get_wiki_name():
     return request[u'query'][u'general'][u'sitename']
 
 def is_uploaded(material):
+    """
+    Determines if supplementary material is already uploaded.
+
+    First, queries MediaWiki API by article DOI, then filters results.
+    """
     params = {
         'action': 'query',
         'list': 'search',
         'srwhat': 'text',
+        'srlimit': '50',
+        'srredirects': '1',
+        # TODO: redirect listing for search results does not work, see
+        # <https://bugzilla.wikimedia.org/show_bug.cgi?id=18017>
         'srnamespace': '6',  # media files
-        'srsearch': '"%s"+"%s"+"%s"' % (
-            material.article.title,
-            material.label,
-            # Mediawiki does not always find text containing parentheses
-            material.caption.split('.')[0].split('(')[0]
-        )
+        'srsearch': material.article.doi
     }
-    result = query(params)
+    result = query(params)  # TODO: cache results for DOI
     try:
-        if result[u'query'][u'searchinfo'][u'totalhits'] > 0:
-            return True
+        # If the MediaWiki API gives no search results for the article
+        # DOI, the material has not been uploaded.
+        if result[u'query'][u'searchinfo'][u'totalhits'] == 0:
+            return False
     except KeyError:
-        if len(result[u'query'][u'search']) > 0:
+        if len(result[u'query'][u'search']) == 0:
+            return False
+    # If none of the filenames do include a part of the original
+    # filename, assume the file was not uploaded.
+    filename_fragment = \
+        '.'.join(material.url.split('/')[-1].split('.')[:-1])
+    for page in result[u'query'][u'search']:
+        if filename_fragment in page[u'title']:
             return True
-    return False
+    return False  # Caveat: This is almost certainly wrong if
+                  # redirects do not show up in search results.
 
 def upload(filename, wiki_filename, page_template):
     """
