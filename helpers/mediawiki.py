@@ -4,6 +4,7 @@ import wikitools
 from dateutil import parser
 from sys import stderr
 
+stderr.write('Authenticating with <%s>.\n' % config.api_url)
 wiki = wikitools.wiki.Wiki(config.api_url)
 wiki.login(username=config.username, password=config.password)
 
