@@ -77,9 +77,9 @@ if action == 'update-mimetypes':
     stderr.write('Checking MIME types …\n')
     try:
         widgets = [
-            progressbar.SimpleProgress(),
-            progressbar.Percentage(),
-            progressbar.Bar(),
+            progressbar.SimpleProgress(), ' ',
+            progressbar.Percentage(), ' ',
+            progressbar.Bar(), ' ',
             progressbar.ETA()
             ]
         p = progressbar.ProgressBar(
