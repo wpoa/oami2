@@ -74,8 +74,34 @@ def is_uploaded(material):
     for page in result[u'query'][u'search']:
         if filename_fragment in page[u'title']:
             return True
-    return False  # Caveat: This is almost certainly wrong if
-                  # redirects do not show up in search results.
+    # Search for the DOI and the first sentence of the caption. If
+    # there is exactly one match, that might be our candidate.
+    first_sentence_of_caption = material.caption.split('.')[0]
+    assert len(first_sentence_of_caption) > 0
+    query_string = '%s "%s"' % (material.article.doi,
+                                  first_sentence_of_caption)
+    result = is_uploaded_cache.get(query_string)
+    if result is None:
+        params = {
+            'action': 'query',
+            'list': 'search',
+            'srwhat': 'text',
+            'srnamespace': 6,
+            'srsearch': query_string
+            }
+        result = query(params)
+        is_uploaded_cache.set(query_string, result)
+    try:
+        # Assumption: If the MediaWiki API gives exactly one search
+        # result for the article DOI and the first sentence of the
+        # caption, the material has been uploaded.
+        if result[u'query'][u'searchinfo'][u'totalhits'] == 1:
+            return True
+    except KeyError:
+        if len(result[u'query'][u'search']) == 1:
+            return True
+    return False  # Caveat: This might be wrong if redirects do not
+                  # show up in search results.
 
 def upload(filename, wiki_filename, page_template):
     """
