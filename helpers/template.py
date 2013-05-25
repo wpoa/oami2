@@ -29,7 +29,10 @@ def page(article_doi, article_pmid, article_pmcid, authors, article_title, journ
         u'http://creativecommons.org/licenses/by-sa/3.0/': '{{cc-by-sa-3.0}}'
     }
     if 'PLOS' in journal_title:
-        license_template = '{{PLOS}}'
+        if license_url == u'http://creativecommons.org/publicdomain/zero/1.0/':
+            license_template = '{{PLOS|CC0}}'
+        else:
+            license_template = '{{PLOS}}'
     else:
         license_template = license_templates[license_url]
 
