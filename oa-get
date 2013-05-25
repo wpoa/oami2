@@ -74,6 +74,12 @@ if action == 'update-mimetypes':
         mimetype_reported=None,
         mime_subtype_reported=None
     ).all()
+    free_materials = [
+        material for material in materials \
+            if material.article.license_url in config.free_license_urls
+        ]
+    materials = free_materials  # Checking MIME types of non-free
+                                # supplementary materials costs time.
     stderr.write('Checking MIME types …\n')
     try:
         widgets = [
