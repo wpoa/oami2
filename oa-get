@@ -62,10 +62,10 @@ if action == 'detect-duplicates':
                     ))
         else:
             stderr.write('[ ] %s %s %s\n' % (
-                material.article.doi,
-                material.title,
-                material.label
-                ))
+                    material.article.doi,
+                    material.title,
+                    material.label
+                    ))
 
 if action == 'update-mimetypes':
     ms = magic.open(magic.MIME_TYPE)
