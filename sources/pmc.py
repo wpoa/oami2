@@ -224,6 +224,7 @@ def _get_article_url(tree):
         return 'http://dx.doi.org/' + doi
 
 license_url_equivalents = {
+    'This is an open-access article, free of all copyright, and may be freely reproduced, distributed, transmitted, modified, built upon, or otherwise used by anyone for any lawful purpose. The work is made available under the Creative Commons CC0 public domain dedication.': 'http://creativecommons.org/publicdomain/zero/1.0/',
     '>This work is licensed under a Creative Commons Attribution NonCommercial 3.0 License (CC BY-NC 3.0). Licensee PAGEPress, Italy': 'http://creativecommons.org/licenses/by-nc/3.0',
      'Available freely online through the author-supported open access option.': None,
      'Distributed under the Hogrefe OpenMind License [ http://dx.doi.org/10.1027/a000001]': 'http://dx.doi.org/10.1027/a000001',
