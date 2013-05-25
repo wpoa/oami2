@@ -57,7 +57,7 @@ def is_uploaded(material):
             'srnamespace': '6',  # media files
             'srsearch': material.article.doi
             }
-        result = query(params)  # TODO: cache results for DOI
+        result = query(params)
         is_uploaded_cache.set(material.article.doi, result)
     try:
         # If the MediaWiki API gives no search results for the article
