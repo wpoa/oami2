@@ -21,6 +21,7 @@ Dependencies:
     python-mutagen <http://code.google.com/p/mutagen/>
     python-progressbar <http://pypi.python.org/pypi/progressbar/2.2>
     python-xdg <http://freedesktop.org/wiki/Software/pyxdg>
+    python-werkzeug <http://werkzeug.pocoo.org/>
     python-wikitools <http://code.google.com/p/python-wikitools/> (python-wikitools was imported into our tree and patched to ease deployment)
 
 Recommendations:
