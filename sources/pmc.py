@@ -587,7 +587,7 @@ def _get_supplementary_material(tree, sup):
         title = _strip_whitespace(' '.join(title.itertext()))
         result['title'] = title
 
-    caption = sup_tree.find('caption')
+    caption = sup_tree.find('*//caption')
     result['caption'] = ''
     if caption is not None:
         caption_without_title = []
