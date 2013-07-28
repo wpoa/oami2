@@ -600,6 +600,7 @@ def _get_supplementary_material(tree, sup):
         lastline = caption.split('\n')[-1]
         if lastline.startswith('(') and lastline.endswith(')'):
             caption = ' '.join(caption.split('\n')[:-1])
+        assert 'Click here' not in caption
         result['caption'] = caption
 
     media = sup_tree.find('media')
