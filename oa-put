@@ -80,6 +80,7 @@ if action == 'upload-media':
         label = material.label
         title = material.title
         caption = material.caption
+        mimetype = material.mimetype
         categories = [category.name for category in material.article.categories]
         if article_pmid is not None:
             categories += efetch.get_categories_from_pmid(article_pmid)
@@ -107,7 +108,7 @@ if action == 'upload-media':
         page_template = template.page(article_doi, article_pmid, \
             article_pmcid, authors, article_title, journal_title, \
             article_year, article_month, article_day, article_url, \
-            license_url, label, caption, title, categories)
+            license_url, label, caption, title, categories, mimetype)
 
         mediawiki.upload(media_refined_path, wiki_filename, page_template)
 

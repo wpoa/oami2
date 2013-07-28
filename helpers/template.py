@@ -19,7 +19,7 @@ def _trim(text):
 
 def page(article_doi, article_pmid, article_pmcid, authors, article_title, journal_title, \
     article_year, article_month, article_day, article_url, license_url, label, caption, \
-    title, categories):
+    title, categories, mimetype):
     license_templates = {
         u'http://creativecommons.org/licenses/by/2.0/': '{{cc-by-2.0}}',
         u'http://creativecommons.org/licenses/by-sa/2.0/': '{{cc-by-sa-2.0}}',
@@ -101,4 +101,8 @@ def page(article_doi, article_pmid, article_pmcid, authors, article_title, journ
     text += "[[Category:Media from %s]]\n" % _escape(journal_title)
     text += "[[Category:Uploaded with Open Access Media Importer]]\n"
     text += '[[Category:Uploaded with Open Access Media Importer and needing category review]]\n'
+    if mimetype == 'audio':
+        text += '[[Category:Audio files from open-access scholarly articles]]'
+    if mimetype == 'video':
+        text += '[[Category:Videos from open-access scholarly articles]]'
     return text
