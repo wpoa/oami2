@@ -3,7 +3,6 @@
 
 from os import listdir, path, remove, rename
 from sys import argv, exit, stderr, stdout
-from urllib2 import urlparse
 
 import errno
 import gobject, pygst
@@ -19,7 +18,7 @@ import pprint
 
 import subprocess
 
-from helpers import autovividict, media, make_datestring
+from helpers import autovividict, filename_from_url, media, make_datestring
 from model import session, setup_all, create_all, set_source, \
     Article, Category, Journal, SupplementaryMaterial
 
@@ -101,12 +100,11 @@ if action == 'convert-media':
     for material in materials:
         media_refined_directory = config.get_media_refined_source_path(target)
         media_raw_directory = config.get_media_raw_source_path(target)
-        temporary_media_path = path.join(media_refined_directory, 'current.ogv')
+        temporary_media_path = path.join(media_refined_directory, 'current.ogg')
 
-        url_path = urlparse.urlsplit(material.url).path
-        filename = url_path.split('/')[-1]
+        filename = filename_from_url(material.url)
         media_raw_path = path.join(media_raw_directory, filename)
-        media_refined_path = path.join(media_refined_directory, filename + '.ogv')
+        media_refined_path = path.join(media_refined_directory, filename + '.ogg')
 
         if material.converting:
             stderr.write("Skipping conversion of “%s”, earlier attempt failed.\n" % \

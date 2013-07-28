@@ -6,7 +6,7 @@ import magic
 
 from os import path
 from sys import argv, stderr
-from urllib2 import urlopen, urlparse, Request, HTTPError
+from urllib2 import urlopen, Request, HTTPError
 from time import sleep
 
 BUFSIZE = 1024000  # (1024KB)
@@ -43,7 +43,7 @@ except ImportError:  # invalid source
 set_source(target)
 setup_all(True)
 
-from helpers import config, mediawiki
+from helpers import config, mediawiki, filename_from_url
 
 if action == 'detect-duplicates':
     materials = SupplementaryMaterial.query.filter(
@@ -203,9 +203,7 @@ if action == 'download-media':
         total = int(remote_file.headers['content-length'])
         completed = 0
 
-        url_path = urlparse.urlsplit(url).path
-        local_filename = path.join(media_path, \
-            url_path.split('/')[-1])
+        local_filename = path.join(media_path, filename_from_url(url))
 
         # if local file has same size as remote file, skip download
         try:
@@ -217,8 +215,8 @@ if action == 'download-media':
         except OSError:  # local file does not exist
             pass
 
-        stderr.write("Downloading <%s>, saving into directory “%s” …\n" % \
-            (url.encode('utf-8'), media_path))
+        stderr.write("Downloading <%s>, saving as “%s” …\n" % \
+            (url.encode('utf-8'), local_filename.encode('utf-8')))
         p = progressbar.ProgressBar(maxval=total)
 
         with open(local_filename,'wb') as local_file:
