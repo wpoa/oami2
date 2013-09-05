@@ -1,17 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from argparse import ArgumentParser
 from datetime import datetime
 from requests import get
 from sys import argv, stdout
 from xml.etree.cElementTree import dump, fromstring
 
+parser = ArgumentParser(
+    description='List PMC IDs for articles in the PubMed Central Open Access subset.',
+    epilog='Caveat: All dates are given in local time in Bethesda, Maryland: either EST (-05:00) or EDT (-04:00), depending on the time of year.'
+)
+parser.add_argument('--from', help='Only list articles updated on or after the specified date (YYYY-MM-DD).', type=str)
+parser.add_argument('--until', help='Only list articles updated before the specified date (YYYY-MM-DD).', type=str)
+args = parser.parse_args()
+
 def parse_date(text):
     return datetime.strptime(text, '%Y-%m-%d').date()
 
-date_from = parse_date(argv[1])
-url = 'http://www.pubmedcentral.nih.gov/utils/oa/oa.fcgi?from=%s' % \
-    date_from.isoformat()
+date_from = parse_date(args.__getattribute__('from'))  # reserved word
+date_until = parse_date(args.until)
+url = 'http://www.pubmedcentral.nih.gov/utils/oa/oa.fcgi?from=%s&until=%s' \
+    % (date_from.isoformat(), date_until.isoformat())
 request = get(url)
 
 tree = fromstring(request.text)
