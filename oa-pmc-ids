@@ -1,0 +1,17 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from isodate import parse_date
+from requests import get
+from sys import argv, stdout
+from xml.etree.cElementTree import dump, fromstring
+
+date = parse_date(argv[1])
+url = 'http://www.pubmedcentral.nih.gov/utils/oa/oa.fcgi?from=%s' % \
+    date.isoformat()
+request = get(url)
+
+tree = fromstring(request.text)
+for record in tree.iterfind('*//record'):
+    stdout.write(record.attrib['id'])
+    stdout.write(' ')
