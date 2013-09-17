@@ -1,7 +1,5 @@
 from autovividict import autovividict
-from base64 import b64encode
-from urllib2 import urlparse
-from os import path
+from urllib2 import quote
 
 def make_datestring(year, month, day):
     datestring = "%04d" % year  # YYYY
@@ -12,6 +10,4 @@ def make_datestring(year, month, day):
     return datestring
 
 def filename_from_url(url):
-    url_path = urlparse.urlsplit(url).path
-    extension = path.splitext(url_path)[1]
-    return b64encode(url) + extension
+    return quote(url, safe='')
