@@ -4,7 +4,7 @@
 from argparse import ArgumentParser
 from datetime import datetime
 from requests import get
-from sys import argv, stdout
+from sys import argv, stderr, stdout
 from xml.etree.cElementTree import dump, fromstring
 
 parser = ArgumentParser(
@@ -13,7 +13,9 @@ parser = ArgumentParser(
 )
 parser.add_argument('--from', help='Only list articles updated on or after the specified date (YYYY-MM-DD).', type=str)
 parser.add_argument('--until', help='Only list articles updated before the specified date (YYYY-MM-DD).', type=str)
+parser.add_argument('--verbose', help='Output a dot to stderr for each successful HTTP request.', dest='verbose', action='store_true')
 args = parser.parse_args()
+verbose = args.verbose
 
 def parse_date(text):
     return datetime.strptime(text, '%Y-%m-%d').date()
@@ -22,6 +24,7 @@ def get_records(url):
     request = get(url)
     assert(request.ok)
     assert(request.text != u'')
+    if verbose: stderr.write('.')
     tree = fromstring(request.text)
     for record in tree.iterfind('*//record'):
         yield record
