@@ -88,7 +88,12 @@ if action == 'upload-media':
         #TODO: file extension should be adapted for other file formats
         url_path = urlparse.urlsplit(material.url).path
         source_filename = url_path.split('/')[-1]
-        wiki_filename = path.splitext(source_filename)[0] + '.ogv'
+        assert(mimetype in ('audio', 'video'))
+        if mimetype == 'audio':
+            extension = 'oga'
+        elif mimetype == 'video':
+            extension = 'ogv'
+        wiki_filename = path.splitext(source_filename)[0] + '.' + extension
         if article_title is not None:
             dirty_prefix = article_title
             dirty_prefix = dirty_prefix.replace('\n', '')
