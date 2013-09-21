@@ -197,12 +197,30 @@ def plot_mimetypes_misreported_by_publisher():
             mimetypes_incorrect[m]
         except KeyError:
             mimetypes_incorrect[m] = 0
+        try:
+            mimetypes_unknown[m]
+        except KeyError:
+            mimetypes_unknown[m] = 0
 
     for m in mimetypes_incorrect:
         try:
             mimetypes_correct[m]
         except KeyError:
             mimetypes_correct[m] = 0
+        try:
+            mimetypes_unknown[m]
+        except KeyError:
+            mimetypes_unknown[m] = 0
+
+    for m in mimetypes_unknown:
+        try:
+            mimetypes_correct[m]
+        except KeyError:
+            mimetypes_correct[m] = 0
+        try:
+            mimetypes_incorrect[m]
+        except KeyError:
+            mimetypes_incorrect[m] = 0
 
     try:
         labels_correct, values_correct = zip(*sorted(mimetypes_correct.iteritems(), key=lambda x: x[0]))
@@ -214,29 +232,43 @@ def plot_mimetypes_misreported_by_publisher():
     except ValueError:
         stderr.write('No incorrect MIME types found. Was “oa-get update-mimetypes” run?\n')
         labels_incorrect, values_incorrect = [], []
-    assert(labels_correct == labels_incorrect)
+    try:
+        labels_unknown, values_unknown = zip(*sorted(mimetypes_unknown.iteritems(), key=lambda x: x[0]))
+    except ValueError:
+        stderr.write('No unknown MIME types found.')
+        labels_unknown, values_unknown = [], []
+    assert(labels_correct == labels_incorrect == labels_unknown)
 
-    fig1 = figure(figsize=(8,8))
+    fig1 = figure(figsize=(8,12))
 
     n_correct= sum(v for v in mimetypes_correct.values())
     n_incorrect = sum(v for v in mimetypes_incorrect.values())
+    n_unknown = sum(v for v in mimetypes_unknown.values())
     try:
-        percentage = float(n_incorrect)/(n_correct+n_incorrect)*100
+        percentage_incorrect = float(n_incorrect)/(n_correct+n_incorrect+n_unknown)*100
     except ZeroDivisionError:
         stderr.write('Division by Zero when calculating percentage of incorrect MIME types.\n')
-        percentage = 0
+        percentage_incorrect = 0
+    try:
+        percentage_unknown = float(n_unknown)/(n_correct+n_incorrect+n_unknown)*100
+    except ZeroDivisionError:
+        stderr.write('Division by Zero when calculating percentage of unknown MIME types.\n')
+        percentage_unknown = 0
     suptitle(
         'Supplementary Materials with wrong MIME type by DOI Prefix\n' + \
-        '(sample size %s: %s incorrect, approx %.1f %%)' % (
-                n_correct+n_incorrect,
+        '(sample size %s: \
+%s incorrect, approx %.1f %%; %s unknown, approx %.1f %%)' % (
+                n_correct+n_incorrect+n_unknown,
                 n_incorrect,
-                percentage
+                percentage_incorrect,
+                n_unknown,
+                percentage_unknown
         )
     )
 
     ax1 = fig1.add_subplot(1,1,1)
 
-    ticks = arange(len(labels_correct)) * 1.5
+    ticks = arange(len(labels_correct)) * 4
     ax1.set_yticks(ticks)
     ax1.set_yticklabels(
         [_get_publisher(l) + ' ' + l for l in labels_correct]
@@ -247,21 +279,27 @@ def plot_mimetypes_misreported_by_publisher():
 
     correct_color = '#8ae234'
     incorrect_color = '#ef2929'
+    unknown_color = '#babdb6'
 
     try:
         bar_correct = barh(ticks, values_correct, color=correct_color, align='center')
     except ValueError:  # most likely zero correct values
         stderr.write('Cannot plot correct MIME types.\n')
     try:
-        bar_incorrect = barh(ticks+0.5, values_incorrect, color=incorrect_color, align='center')
+        bar_incorrect = barh(ticks+1, values_incorrect, color=incorrect_color, align='center')
     except ValueError:  # most likely zero incorrect values
         stderr.write('Cannot plot incorrect MIME types.\n')
+    try:
+        bar_unknown = barh(ticks-1, values_unknown, color=unknown_color, align='center')
+    except ValueError:  # most likely zero unknown values
+        stderr.write('Cannot plot unknown MIME types.\n')
 
     correct_bar = bar([0], [0], color=correct_color)
     incorrect_bar = bar([0], [0], color=incorrect_color)
+    unknown_bar = bar([0], [0], color=unknown_color)
     legend(
-        [correct_bar, incorrect_bar],
-        ['correct MIME type', 'incorrect MIME type'],
+        [correct_bar, incorrect_bar, unknown_bar],
+        ['correct MIME type', 'incorrect MIME type', 'correctness unknown'],
         loc='upper center',
         bbox_to_anchor=(0.5, -0.05),
     )
