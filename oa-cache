@@ -340,7 +340,9 @@ if action == "stats":
         mimetype_composite = mimetype + '/' + material.mime_subtype
         try:
             mimetype_composite_reported = material.mimetype_reported + '/' + material.mime_subtype_reported
-            if mimetype_composite != mimetype_composite_reported:
+            if mimetype_composite == 'application/msword':
+                mimetypes_publishers['unknown'][doi_prefix] += 1
+            elif mimetype_composite != mimetype_composite_reported:
                 mimetypes['misreported'][mimetype_composite][mimetype_composite_reported] += 1
                 mimetypes_publishers['incorrect'][doi_prefix] += 1
             else:  # mimetype is correct
