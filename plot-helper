@@ -111,7 +111,7 @@ def csv_mimetypes_misreported():
             cols.add(col)
 
     import csv
-    filename = 'mimetypes-misreported.csv'
+    filename = 'mediatypes-misreported.csv'
     with open(filename, 'w') as f:
         writer = csv.writer(f, quoting=csv.QUOTE_ALL)
         rowdata = ['']
@@ -255,7 +255,7 @@ def plot_mimetypes_misreported_by_publisher():
         stderr.write('Division by Zero when calculating percentage of unknown MIME types.\n')
         percentage_unknown = 0
     suptitle(
-        'Supplementary Materials with wrong MIME type by DOI Prefix\n' + \
+        'Supplementary Materials with wrong internet media type by DOI Prefix\n' + \
         '(sample size %s: \
 %s incorrect, approx %.1f %%; %s unknown, approx %.1f %%)' % (
                 n_correct+n_incorrect+n_unknown,
@@ -299,13 +299,13 @@ def plot_mimetypes_misreported_by_publisher():
     unknown_bar = bar([0], [0], color=unknown_color)
     legend(
         [correct_bar, incorrect_bar, unknown_bar],
-        ['correct MIME type', 'incorrect MIME type', 'correctness unknown'],
+        ['correct media type', 'incorrect media type', 'correctness unknown'],
         loc='upper center',
         bbox_to_anchor=(0.5, -0.05),
     )
     gcf().subplots_adjust(left=0.5, bottom=0.15)
 
-    filename = 'mimetypes-misreported-by-publisher.png'
+    filename = 'mediatypes-misreported-by-publisher.png'
     with open(filename, 'w') as f:
         savefig(f, format='png')
         stderr.write('Wrote figure to “%s”.\n' % filename)
