@@ -128,7 +128,13 @@ def _get_article_categories(tree):
             if ' ' in category_text and not 'and' in category_text and \
                 category_text not in categories:
                 categories.append(category_text)
-    return categories
+    keywords = []
+    article_keywords = ElementTree(tree).find('.//*kwd-group')
+    for keyword in article_keywords.iter('kwd'):
+        if keyword.text is None:
+            continue
+        keywords.append(keyword.text)
+    return categories+keywords
 
 def _get_article_contrib_authors(tree):
     """
