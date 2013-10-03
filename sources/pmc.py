@@ -130,10 +130,11 @@ def _get_article_categories(tree):
                 categories.append(category_text)
     keywords = []
     article_keywords = ElementTree(tree).find('.//*kwd-group')
-    for keyword in article_keywords.iter('kwd'):
-        if keyword.text is None:
-            continue
-        keywords.append(keyword.text)
+    if article_keywords != None:
+        for keyword in article_keywords.iter('kwd'):
+            if keyword.text is None:
+                continue
+            keywords.append(keyword.text)
     return categories+keywords
 
 def _get_article_contrib_authors(tree):
