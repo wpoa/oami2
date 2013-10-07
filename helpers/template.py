@@ -46,7 +46,7 @@ def page(article_doi, article_pmid, article_pmcid, authors, article_title, journ
     else:
         description = "%s %s" % (_escape(title), _escape(caption))
     text += "|Description=\n"
-    if len(description) > 0:
+    if len(description.strip()) > 0:
         text+= "{{en|1=%s}}\n" % description
     text += "|Date= %s\n" % make_datestring(article_year, article_month, article_day)
     if label:
