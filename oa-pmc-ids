@@ -30,8 +30,7 @@ def get_records(url):
         for record in tree.iterfind('*//record'):
             yield record
         resumption_link = tree.find('*//resumption/link')
-        if resumption_link != None:
-            url = resumption_link.attrib['href']
+        url = resumption_link.attrib['href']
 
 date_from = parse_date(args.__getattribute__('from'))  # reserved word
 date_until = parse_date(args.until)
