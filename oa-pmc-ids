@@ -30,7 +30,7 @@ def get_records(url):
         for record in tree.iterfind('*//record'):
             yield record
         resumption_link = tree.find('*//resumption/link')
-        if resumption_link:
+        if resumption_link != None:
             url = resumption_link.attrib['href']
         else:
             url = None
