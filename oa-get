@@ -7,7 +7,6 @@ import magic
 from os import path
 from sys import argv, stderr
 from urllib2 import urlopen, Request, HTTPError
-from time import sleep
 
 BUFSIZE = 1024000  # (1024KB)
 
@@ -120,7 +119,6 @@ if action == 'update-mimetypes':
                     detected_mimetype = 'application/vnd.ms-powerpoint'
                 elif url.endswith('xls') or url.endswith('XLS'):
                     detected_mimetype = 'application/vnd.ms-excel'
-            sleep(3)
         reported_mimetype = material.mimetype + '/' + material.mime_subtype
         if detected_mimetype == 'application/octet-stream':  # general binary MIME type, useless
             detected_mimetype = reported_mimetype
