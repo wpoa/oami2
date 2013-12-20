@@ -30,13 +30,8 @@ def page(article_doi, article_pmid, article_pmcid, authors, article_title, journ
         u'http://creativecommons.org/licenses/by/4.0/': '{{cc-by-4.0}}',
         u'http://creativecommons.org/licenses/by-sa/4.0/': '{{cc-by-sa-4.0}}'
     }
-    if 'PLOS' in journal_title:
-        if license_url == u'http://creativecommons.org/publicdomain/zero/1.0/':
-            license_template = '{{PLOS|CC0}}'
-        else:
-            license_template = '{{PLOS}}'
-    else:
-        license_template = license_templates[license_url]
+
+    license_template = license_templates[license_url]
 
     text = "=={{int:filedesc}}==\n\n"
     text += "{{Information\n"
