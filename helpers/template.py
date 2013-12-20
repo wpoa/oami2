@@ -26,7 +26,7 @@ def page(article_doi, article_pmid, article_pmcid, authors, article_title, journ
         u'http://creativecommons.org/licenses/by/2.5/': '{{cc-by-2.5}}',
         u'http://creativecommons.org/licenses/by-sa/2.5/': '{{cc-by-sa-2.5}}',
         u'http://creativecommons.org/licenses/by/3.0/': '{{cc-by-3.0}}',
-        u'http://creativecommons.org/licenses/by-sa/3.0/': '{{cc-by-sa-3.0}},
+        u'http://creativecommons.org/licenses/by-sa/3.0/': '{{cc-by-sa-3.0}}',
         u'http://creativecommons.org/licenses/by/4.0/': '{{cc-by-4.0}}',
         u'http://creativecommons.org/licenses/by-sa/4.0/': '{{cc-by-sa-4.0}}'
     }
