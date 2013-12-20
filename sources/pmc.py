@@ -473,6 +473,7 @@ license_url_fixes = {
     'http://(http://creativecommons.org/licenses/by/2.0)': 'http://creativecommons.org/licenses/by/2.0/',
     'http://creativecommons.org/licenses/by/2.0': 'http://creativecommons.org/licenses/by/2.0/',
     'http://creativecommons.org/licenses/by/3.0': 'http://creativecommons.org/licenses/by/3.0/',
+    'http://creativecommons.org/licenses/by/4.0': 'http://creativecommons.org/licenses/by/4.0/',
     'http://creativecommons.org/licenses/by-nc-nd/3.0': 'http://creativecommons.org/licenses/by-nc-nd/3.0/',
     'http://creativecommons.org/licenses/by-nc-sa/3.0': 'http://creativecommons.org/licenses/by-nc-sa/3.0/',
     'http://creativecommons.org/licenses/by-nc/3.0': 'http://creativecommons.org/licenses/by-nc/3.0/'
