@@ -56,6 +56,8 @@ free_license_urls = [
     'http://creativecommons.org/licenses/by-sa/2.5/',
     'http://creativecommons.org/licenses/by/3.0/',
     'http://creativecommons.org/licenses/by-sa/3.0/',
+    'http://creativecommons.org/licenses/by/4.0/',
+    'http://creativecommons.org/licenses/by-sa/4.0/',
     'http://creativecommons.org/publicdomain/zero/1.0/'
 ]
 
