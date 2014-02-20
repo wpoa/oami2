@@ -116,7 +116,7 @@ class Media():
 
         try:
             duration = pipeline.query_duration(gst.FORMAT_TIME, None)[0]
-            progress = progressbar.ProgressBar(maxval=duration)
+            progress = progressbar.ProgressBar(maxval=duration).start()
         except gst.QueryError:
             pass
 

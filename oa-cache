@@ -301,7 +301,7 @@ if action == "stats":
     stderr.write('Counting supplementary materials … ')
     materials = SupplementaryMaterial.query.all()
     stderr.write(str(len(materials)) + ' supplementary materials found.\n')
-    p = progressbar.ProgressBar(maxval=len(materials))
+    p = progressbar.ProgressBar(maxval=len(materials)).start()
     completed = 0
     licenses = {
         'free': autovividict(),

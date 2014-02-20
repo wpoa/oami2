@@ -162,7 +162,7 @@ if action == 'download-metadata':
             url = result['url']
             stderr.write("Downloading “%s”, saving into directory “%s” …\n" % \
                 (url, source_path))
-            p = progressbar.ProgressBar(maxval=result['total'])
+            p = progressbar.ProgressBar(maxval=result['total']).start()
         p.update(result['completed'])
 
 if action == 'download-media':
@@ -216,7 +216,7 @@ if action == 'download-media':
 
         stderr.write("Downloading <%s>, saving as “%s” …\n" % \
             (url.encode('utf-8'), local_filename.encode('utf-8')))
-        p = progressbar.ProgressBar(maxval=total)
+        p = progressbar.ProgressBar(maxval=total).start()
 
         with open(local_filename,'wb') as local_file:
             while True:
