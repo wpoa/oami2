@@ -184,9 +184,9 @@ if action == 'download-media':
             continue
 
         if mediawiki.is_uploaded(material):
-            stderr.write("Skipping <%s>, already exists at <%s>.\n" % (
+            stderr.write("Skipping <%s>, already exists at %s.\n" % (
                 material.url,
-                config.api_url.encode('utf-8')
+                mediawiki.get_wiki_name()
             ))
             material.uploaded=True
             continue
