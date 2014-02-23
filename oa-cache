@@ -37,6 +37,7 @@ usage:  oa-cache browse-database [source] |
         oa-cache forget-converted [source] |
         oa-cache forget-downloaded [source] |
         oa-cache forget-uploaded [source] |
+        oa-cache print-database-path [source]
         oa-cache stats [source]
 
 """)
@@ -45,7 +46,8 @@ usage:  oa-cache browse-database [source] |
 try:
     assert(action in ['browse-database', 'clear-media', 'clear-database', \
         'convert-media', 'find-media', 'forget-converted', \
-        'forget-downloaded', 'forget-uploaded', 'stats'])
+        'forget-downloaded', 'forget-uploaded', 'print-database-path', \
+        'stats'])
 except AssertionError:  # invalid action
     stderr.write('Unknown action “%s”.\n' % action)
     exit(2)
@@ -296,6 +298,10 @@ if action == 'find-media':
             stderr.write('Saving database …\n')
             session.commit()
             exit(0)
+
+if action == "print-database-path":
+    filename = config.database_path(target)
+    stdout.write(filename)
 
 if action == "stats":
     stderr.write('Counting supplementary materials … ')
