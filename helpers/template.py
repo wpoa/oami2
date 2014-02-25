@@ -19,7 +19,7 @@ def _trim(text):
 
 def page(article_doi, article_pmid, article_pmcid, authors, article_title, journal_title, \
     article_year, article_month, article_day, article_url, license_url, label, caption, \
-    title, categories, mimetype):
+    title, categories, mimetype, material_url):
     license_templates = {
         u'http://creativecommons.org/licenses/by/2.0/': '{{cc-by-2.0}}',
         u'http://creativecommons.org/licenses/by-sa/2.0/': '{{cc-by-sa-2.0}}',
@@ -46,10 +46,9 @@ def page(article_doi, article_pmid, article_pmcid, authors, article_title, journ
     if len(description.strip()) > 0:
         text+= "{{en|1=%s}}\n" % description
     text += "|Date= %s\n" % make_datestring(article_year, article_month, article_day)
-    if label:
-        text += "|Source= %s from " % _escape(label)
-    else:
-        text += "|Source= "
+    if not label:
+        label = ("%s file" % mimetype).capitalize()
+    text += "|Source= [%s %s] from " % (material_url, _escape(label))
     text += "{{Cite journal\n"
     text += "| author = %s\n" % _escape(authors)
     text += "| title = %s\n" % _escape(_trim(article_title))
