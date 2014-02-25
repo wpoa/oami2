@@ -1,5 +1,6 @@
 #!/bin/sh
 # Tests if the CC BY 4.0 License used by PLOS is picked up by OAMI.
+../oa-cache clear-database pmc_doi
 echo \
   10.1371/journal.pbio.1001781 \
   10.1371/journal.pone.0088810 \
