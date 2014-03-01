@@ -15,6 +15,7 @@ PMCIDS_CC40="
 10.1371/journal.pone.0088810
 10.1371/journal.pone.0089000
 10.1371/journal.pbio.1001781
+10.1371/journal.pcbi.1003447
 "
 
 echo "$PMCIDS_CC40" "$PMCIDS_CC40_LEGALCODE" | ../oa-get download-metadata pmc_doi
