@@ -17,6 +17,10 @@ PMCIDS_CC40="
 10.1371/journal.pbio.1001781
 "
 
+PMCIDS_CC0="
+10.1371/journal.pcbi.1003447
+"
+
 echo "$PMCIDS_CC40" "$PMCIDS_CC40_LEGALCODE" | ../oa-get download-metadata pmc_doi
 ../oa-cache find-media pmc_doi
 
@@ -34,3 +38,8 @@ done
 for PMCID in $PMCIDS_CC40_LEGALCODE; do
   check_license "$PMCID" "http://creativecommons.org/licenses/by/4.0/legalcode"
 done
+
+for PMCID in $PMCIDS_CC0; do
+  check_license "$PMCID" "http://creativecommons.org/publicdomain/zero/1.0/"
+done
+
