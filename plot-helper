@@ -44,7 +44,7 @@ def plot_mimetypes(license_type):
         else:
             colors.append(basecolor)
 
-    b1 = barh(ticks, values, color=colors, align='center')
+    b1 = barh(ticks, values, color=colors, align='center', log=True)
     videobar = bar([0], [0], color=videocolor)
     audiobar = bar([0], [0], color=audiocolor)
     imagebar = bar([0], [0], color=imagecolor)
@@ -86,7 +86,7 @@ def plot_licenses():
         else:
             colors.append(nonfreecolor)
 
-    b1 = barh(ticks, values, color=colors, align='center')
+    b1 = barh(ticks, values, color=colors, align='center', log=True)
     nonebar = bar([0], [0], color=nonecolor)
     freebar = bar([0], [0], color=freecolor)
     nonfreebar = bar([0], [0], color=nonfreecolor)
@@ -178,7 +178,7 @@ def plot_mimetypes_by_publisher(license_type, mime_type):
     ax1.set_xscale('log')
     ax1.xaxis.set_major_formatter(ticker.FormatStrFormatter('%d'))
 
-    b1 = barh(ticks, values, color='#babdb6', align='center')
+    b1 = barh(ticks, values, color='#babdb6', align='center', log=True)
 
     gcf().subplots_adjust(left=0.5, bottom=0.15)
 
@@ -282,15 +282,15 @@ def plot_mimetypes_misreported_by_publisher():
     unknown_color = '#babdb6'
 
     try:
-        bar_correct = barh(ticks, values_correct, color=correct_color, align='center')
+        bar_correct = barh(ticks, values_correct, color=correct_color, align='center', log=True)
     except ValueError:  # most likely zero correct values
         stderr.write('Cannot plot correct MIME types.\n')
     try:
-        bar_incorrect = barh(ticks+1, values_incorrect, color=incorrect_color, align='center')
+        bar_incorrect = barh(ticks+1, values_incorrect, color=incorrect_color, align='center', log=True)
     except ValueError:  # most likely zero incorrect values
         stderr.write('Cannot plot incorrect MIME types.\n')
     try:
-        bar_unknown = barh(ticks-1, values_unknown, color=unknown_color, align='center')
+        bar_unknown = barh(ticks-1, values_unknown, color=unknown_color, align='center', log=True)
     except ValueError:  # most likely zero unknown values
         stderr.write('Cannot plot unknown MIME types.\n')
 
@@ -400,9 +400,9 @@ def plot_licensing_by_publisher():
     url_from_text_color = '#fce940'
     text_color = '#ef2929'
 
-    bar_url = barh(ticks, values_url, color=url_color, align='center')
-    bar_url_from_text = barh(ticks+0.33, values_url_from_text, color=url_from_text_color, align='center')
-    bar_text = barh(ticks+1, values_text, color=text_color, align='center')
+    bar_url = barh(ticks, values_url, color=url_color, align='center', log=True)
+    bar_url_from_text = barh(ticks+0.33, values_url_from_text, color=url_from_text_color, align='center', log=True)
+    bar_text = barh(ticks+1, values_text, color=text_color, align='center', log=True)
     #bar_none = barh(ticks+3, values_none, color='#ef2929', align='center')
 
     url_bar = bar([0], [0], color=url_color)
