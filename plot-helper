@@ -239,7 +239,7 @@ def plot_mimetypes_misreported_by_publisher():
         labels_unknown, values_unknown = [], []
     assert(labels_correct == labels_incorrect == labels_unknown)
 
-    fig1 = figure(figsize=(8,12))
+    fig1 = figure(figsize=(8,24))
 
     n_correct= sum(v for v in mimetypes_correct.values())
     n_incorrect = sum(v for v in mimetypes_incorrect.values())
