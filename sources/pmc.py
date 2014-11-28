@@ -496,7 +496,7 @@ def _get_article_licensing(tree):
     if license is not None:
         try:
             license_url = license.attrib['{http://www.w3.org/1999/xlink}href']
-        except KeyError: # license URL is possibly in in <ext-link> element
+        except KeyError: # license URL is possibly in <ext-link> element
             try:
                 ext_link = license.find('license-p/ext-link')
                 if ext_link is not None:
