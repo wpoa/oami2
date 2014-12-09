@@ -481,11 +481,11 @@ def _get_article_licensing(tree):
     """
     Given an ElementTree, returns article license URL.
     """
-    licence_text = None
-    licence_url = None
+    license_text = None
+    license_url = None
     copyright_statement_text = None
 
-    licence = tree.find('front//*license')
+    license = tree.find('front//*license')
     copyright_statement = tree.find('front//*copyright-statement')
 
     def _get_text_from_element(element):
@@ -493,55 +493,55 @@ def _get_article_licensing(tree):
         text = ' '.join(text.split())  # clean whitespace
         return text
 
-    if licence is not None:
+    if license is not None:
         try:
-            licence_url = licence.attrib['{http://www.w3.org/1999/xlink}href']
-        except KeyError: # licence URL is possibly in <ext-link> element
+            license_url = license.attrib['{http://www.w3.org/1999/xlink}href']
+        except KeyError: # license URL is possibly in in <ext-link> element
             try:
-                ext_link = licence.find('license-p/ext-link')
+                ext_link = license.find('license-p/ext-link')
                 if ext_link is not None:
-                    licence_url = \
+                    license_url = \
                         ext_link.attrib['{http://www.w3.org/1999/xlink}href']
-            except KeyError: # licence statement is in plain text
-                licence_text = _get_text_from_element(licence)
+            except KeyError: # license statement is in plain text
+                license_text = _get_text_from_element(license)
     elif copyright_statement is not None:
         copyright_statement_text = _get_text_from_element(copyright_statement)
     else:
         logging.error('No <license> or <copyright-statement> element found in XML.')
         return None, None, None
 
-    if licence_url is None:
-        if licence_text is not None:
+    if license_url is None:
+        if license_text is not None:
            try:
-               licence_url = licence_url_equivalents[licence_text]
+               license_url = license_url_equivalents[license_text]
            except:
-             logging.error('Unknown license: %s', licence_text)
+             logging.error('Unknown license: %s', license_text)
 
         elif copyright_statement_text is not None:
             copyright_statement_found = False
             for text in copyright_statement_url_equivalents.keys():
                 if copyright_statement_text.endswith(text):
-                    licence_url = copyright_statement_url_equivalents[text]
+                    license_url = copyright_statement_url_equivalents[text]
                     copyright_statement_found = True
                     break
             if not copyright_statement_found:
                 logging.error('Unknown copyright statement: %s', copyright_statement_text)
 
-    def _fix_licence_url(licence_url):
-        if licence_url in licence_url_fixes.keys():
-            return licence_url_fixes[licence_url]
-        return licence_url
+    def _fix_license_url(license_url):
+        if license_url in license_url_fixes.keys():
+            return license_url_fixes[license_url]
+        return license_url
 
-    if licence_text is not None:
-        licence_text = licence_text.decode('utf-8')
+    if license_text is not None:
+        license_text = license_text.decode('utf-8')
 
     if copyright_statement_text is not None:
         copyright_statement_text = copyright_statement_text.decode('utf-8')
 
-    if licence_url is not None:
-        return _fix_licence_url(licence_url), licence_text, copyright_statement_text
+    if license_url is not None:
+        return _fix_license_url(license_url), license_text, copyright_statement_text
     else:
-        return None, licence_text, copyright_statement_text
+        return None, license_text, copyright_statement_text
 
 def _get_article_copyright_holder(tree):
     """
