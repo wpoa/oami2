@@ -1,0 +1,129 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from os import path
+from sys import argv, stderr
+from time import sleep
+from urllib2 import urlparse
+
+import csv
+# csv.field_size_limit must be reset according to
+# <http://lethain.com/handling-very-large-csv-and-xml-files-in-python/>
+csv.field_size_limit(999999999)
+
+from helpers import config, efetch, filename_from_url, mediawiki, template
+from model import session, setup_all, create_all, set_source, \
+    Article, Journal, SupplementaryMaterial
+
+try:
+    action = argv[1]
+    target = argv[2]
+except IndexError:  # no arguments given
+    stderr.write("""
+oa-put – Open Access Importer upload operations
+
+usage:  oa-put upload-media [source]
+
+""")
+    exit(1)
+
+try:
+    assert(action in ['upload-media'])
+except AssertionError:  # invalid action
+    stderr.write("Unknown action “%s”.\n" % action)
+    exit(2)
+
+try:
+    exec "from sources import %s as source_module" % target
+except ImportError:  # invalid source
+    stderr.write("Unknown source “%s”.\n" % target)
+    exit(3)
+
+set_source(target)
+setup_all(True)
+
+if action == 'upload-media':
+    media_refined_directory = config.get_media_refined_source_path(target)
+
+    materials = SupplementaryMaterial.query.filter_by(
+        converted=True,
+        uploaded=False
+    ).all()
+    for material in materials:
+        filename = filename_from_url(material.url) + '.ogg'
+        media_refined_path = path.join(media_refined_directory, filename)
+
+        if (path.getsize(media_refined_path) == 0):
+            material.converted=False
+            continue
+
+        if mediawiki.is_uploaded(material):
+            stderr.write("Skipping “%s”, already exists at %s.\n" % (
+                media_refined_path.encode('utf-8'),
+                mediawiki.get_wiki_name()
+            ))
+            material.uploaded=True
+            continue
+
+        article_doi = material.article.doi
+        article_pmid = efetch.get_pmid_from_doi(article_doi)
+        article_pmcid = efetch.get_pmcid_from_doi(article_doi)
+        authors = material.article.contrib_authors
+        article_title = material.article.title
+        journal_title = material.article.journal.title
+        article_year = material.article.year
+        article_month = material.article.month
+        article_day = material.article.day
+        article_url = material.article.url
+        license_url = material.article.license_url
+        rights_holder = material.article.copyright_holder
+        label = material.label
+        title = material.title
+        caption = material.caption
+        mimetype = material.mimetype
+        material_url = material.url
+        categories = [category.name for category in material.article.categories]
+        if article_pmid is not None:
+            categories += efetch.get_categories_from_pmid(article_pmid)
+
+        #TODO: file extension should be adapted for other file formats
+        url_path = urlparse.urlsplit(material.url).path
+        source_filename = url_path.split('/')[-1]
+        assert(mimetype in ('audio', 'video'))
+        if mimetype == 'audio':
+            extension = 'oga'
+        elif mimetype == 'video':
+            extension = 'ogv'
+        wiki_filename = path.splitext(source_filename)[0] + '.' + extension
+        if article_title is not None:
+            dirty_prefix = article_title
+            dirty_prefix = dirty_prefix.replace('\n', '')
+            dirty_prefix = ' '.join(dirty_prefix.split()) # remove multiple spaces
+            forbidden_chars = u"""?,;:^/!<>"`'±#[]|{}ʻʾʿ᾿῾‘’“”"""
+            for character in forbidden_chars:
+                dirty_prefix = dirty_prefix.replace(character, '')
+            # prefix is first hundred chars of title sans forbidden characters
+            prefix = '-'.join(dirty_prefix[:100].split(' '))
+            # if original title is longer than cleaned up title, remove last word
+            if len(dirty_prefix) > len(prefix):
+                prefix = '-'.join(prefix.split('-')[:-1])
+            if prefix[-1] != '-':
+               prefix += '-'
+            wiki_filename = prefix + wiki_filename
+
+        page_template = template.page(article_doi, article_pmid, \
+            article_pmcid, authors, article_title, journal_title, \
+            article_year, article_month, article_day, article_url, \
+            license_url, label, caption, title, categories, mimetype, \
+                                          material_url)
+
+        mediawiki.upload(media_refined_path, wiki_filename, page_template)
+
+        stderr.write("“%s” uploaded to <%s>.\n" % (
+            media_refined_path.encode('utf-8'),
+            config.api_url.encode('utf-8')
+        ))
+
+        material.uploaded = True
+        session.commit()
+        sleep(10)  # 6 uploads per minute

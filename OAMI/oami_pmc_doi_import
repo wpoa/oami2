@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# normal workflow for OAMI
+./oa-get download-metadata pmc_doi && \
+    ./oa-cache find-media pmc_doi && \
+    ./oa-get update-mimetypes pmc_doi && \
+    ./oa-get download-media pmc_doi && \
+    ./oa-cache convert-media pmc_doi && \
+    ./oa-put upload-media pmc_doi

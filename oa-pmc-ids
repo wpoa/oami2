@@ -28,10 +28,10 @@ def get_records(url):
                 request = get(url, timeout=3)
                 break
             except Timeout:
-                if verbose: stderr.write('-')
+                if verbose: print('-')
         assert(request.ok)
         assert(request.text != u'')
-        if verbose: stderr.write('.')
+        if verbose: print('.')
         tree = fromstring(request.text)
         for record in tree.iterfind('*//record'):
             yield record

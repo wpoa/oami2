@@ -1,32 +1,46 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import os
 from os import listdir, path, remove, rename
+from os.path import exists, join, isfile
+from os import rename
 from sys import argv, exit, stderr, stdout
 
 import errno
-import gobject, pygst
-pygst.require("0.10")
 
-import gst
+# import gobject, pygst
+# pygst.require("0.10")
+# import gst
+
 import logging
 import progressbar
-
+import mutagen
 import mutagen.oggtheora
-
+import datetime
 import pprint
 
 import subprocess
 
-from helpers import autovividict, filename_from_url, media, make_datestring
-from model import session, setup_all, create_all, set_source, \
-    Article, Category, Journal, SupplementaryMaterial
+from helpers import autovividict  # media
+from helpers import make_datestring
+from helpers import filename_from_url
+from model import session
+
+# from model import setup_all
+# from model import create_all
+from model import set_source
+from model import Article, Category, Journal, SupplementaryMaterial
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
 
 try:
     action = argv[1]
     target = argv[2]
 except IndexError:
-    stderr.write("""
+    print(
+        """
 oa-cache – Open Access Media Importer local operations
 
 usage:  oa-cache browse-database [source] |
@@ -40,85 +54,104 @@ usage:  oa-cache browse-database [source] |
         oa-cache print-database-path [source]
         oa-cache stats [source]
 
-""")
+"""
+    )
     exit(1)
 
 try:
-    assert(action in ['browse-database', 'clear-media', 'clear-database', \
-        'convert-media', 'find-media', 'forget-converted', \
-        'forget-downloaded', 'forget-uploaded', 'print-database-path', \
-        'stats'])
+    assert action in [
+        "browse-database",
+        "clear-media",
+        "clear-database",
+        "convert-media",
+        "find-media",
+        "forget-converted",
+        "forget-downloaded",
+        "forget-uploaded",
+        "print-database-path",
+        "stats",
+    ]
 except AssertionError:  # invalid action
-    stderr.write('Unknown action “%s”.\n' % action)
+    print("Unknown action “%s”.\n" % action)
     exit(2)
-
 try:
-    exec "from sources import %s as source_module" % target
-except ImportError:  # invalid source
-    stderr.write("Unknown source “%s”.\n" % target)
+    exec("from sources import %s as source_module" % target)
+except ImportError:  # ungültige Quelle
+    print("Unbekannte Quelle “%s”.\n" % target)
     exit(3)
 
 set_source(target)
-setup_all(True)
+# setup_all(True)
 
 from helpers import config
 
-if action == 'browse-database':
+if action == "browse-database":
     filename = config.database_path(target)
     try:
-        subprocess.call(['sqlitebrowser', filename])
+        subprocess.call(["sqlite:///", filename])
     except OSError:
-        stderr.write('Unable to start sqlitebrowser <http://sqlitebrowser.sourceforge.net/>.\n')
+        print(
+            "Unable to start sqlitebrowser <http://sqlitebrowser.sourceforge.net/>.\n"
+        )
         exit(4)
 
-if action == 'clear-media':
+if action == "clear-media":
     media_raw_directory = config.get_media_refined_source_path(target)
     listing = listdir(media_raw_directory)
 
     metadata_refined_directory = config.get_metadata_refined_source_path(target)
-    download_cache_path = path.join(metadata_refined_directory, 'download_cache')
+    download_cache_path = path.join(metadata_refined_directory, "download_cache")
     remove(download_cache_path)
 
     for filename in listing:
         media_path = path.join(media_raw_directory, filename)
-        stderr.write("Removing “%s” … " % media_path)
+        print("Removing “%s” … " % media_path)
         remove(media_path)
-        stderr.write("done.\n")
+        print("done.\n")
 
-if action == 'clear-database':
+if action == "clear-database":
     filename = config.database_path(target)
-    stderr.write("Removing “%s” … " % filename)
+    print("Removing “%s” … " % filename)
     try:
         remove(filename)
-        stderr.write("done.\n")
-    except OSError, e:
-        stderr.write('\n%s\n' % str(e))
+        print("done.\n")
+    except OSError as e:
+        print("\n%s\n" % str(e))
 
-if action == 'convert-media':
-    materials = SupplementaryMaterial.query.filter_by(
-        downloaded=True,
-        converted=False
-    ).all()
+
+# Erstellen Sie eine SQLAlchemy Engine und Session
+engine = create_engine("sqlite:///mydata.sqlite")
+Session = sessionmaker(bind=engine)
+session = Session()
+
+if action == "convert-media":
+    materials = (
+        session.query(SupplementaryMaterial)
+        # .filter_by(downloaded=True, converted=False)
+        .all()
+    )
+    print(session)
+    print(len(materials))
     for material in materials:
         media_refined_directory = config.get_media_refined_source_path(target)
         media_raw_directory = config.get_media_raw_source_path(target)
-        temporary_media_path = path.join(media_refined_directory, 'current.ogg')
+        temporary_media_path = join(media_refined_directory, "current.ogg")
 
         filename = filename_from_url(material.url)
-        media_raw_path = path.join(media_raw_directory, filename)
-        media_refined_path = path.join(media_refined_directory, filename + '.ogg')
+        media_raw_path = join(media_raw_directory, filename)
+        media_refined_path = os.path.splitext(media_raw_path)[0] + ".ogg"
 
         if material.converting:
-            stderr.write("Skipping conversion of “%s”, earlier attempt failed.\n" % \
-                media_raw_path.encode('utf-8'))
+            print(
+                "Skipping conversion of “%s”, earlier attempt failed.\n"
+                % media_raw_path.encode("utf-8")
+            )
             continue
 
-        if path.isfile(media_refined_path):
-            stderr.write("Skipping conversion of “%s”, exists at “%s”.\n" %
-                (
-                    media_raw_path.encode('utf-8'),
-                    media_refined_path.encode('utf-8')
-                )
+        if isfile(media_refined_path):
+            print(
+                "Skipping conversion of “%s”, exists at “%s”.\n"
+                % (media_raw_path.encode("utf-8"), media_refined_path.encode("utf-8"))
             )
             material.converted = True
             session.commit()
@@ -126,176 +159,179 @@ if action == 'convert-media':
 
         material.converting = True
         session.commit()
-        stderr.write("Converting “%s”, saving into “%s” … " % (
-                media_raw_path.encode('utf-8'),
-                media_refined_path.encode('utf-8')
-            )
+        print(
+            "Converting “%s”, saving into “%s” … "
+            % (media_raw_path.encode("utf-8"), media_refined_path.encode("utf-8"))
         )
 
-        #loop = gobject.MainLoop()
-        m = media.Media(media_raw_path)
+        # Konvertierung mit ffmpeg durchführen
+        command = [
+            "ffmpeg",
+            "-i",
+            media_raw_path,
+            "-c:v",
+            "libtheora",
+            "-q:v",
+            "5",
+            media_refined_path,
+        ]
         try:
+            subprocess.run(command, check=True)
+            print("Conversion successful")
+            material.converted = True
+            session.commit()
+        except subprocess.CalledProcessError as e:
+            print("Error occurred during conversion:", e)
+            material.converting = False
+            session.commit()
+
+        try:
+            m = media.Media(media_raw_path)
             m.find_streams()
             m.convert(temporary_media_path)
-        except RuntimeError, e:
-            logging.error("%s: Skipping conversion of “%s”.", \
-                e, media_raw_path.encode('utf-8'))
+        except RuntimeError as e:
+            logging.error(
+                "%s: Skipping conversion of “%s”.", e, media_raw_path.encode("utf-8")
+            )
             continue
 
         try:
             f = mutagen.oggtheora.OggTheora(temporary_media_path)
-            for key, value in \
-                [
-                    ('TITLE', material.title),
-                    ('ALBUM', material.article.title),
-                    ('ARTIST', material.article.contrib_authors),
-                    ('COPYRIGHTS', material.article.copyright_holder),
-                    ('LICENSE', material.article.license_url),
-                    ('DESCRIPTION', material.caption),
-                    ('DATE', make_datestring(
-                        material.article.year,
-                        material.article.month,
-                        material.article.day
-                    ))
-                ]:
+            for key, value in [
+                ("TITLE", material.title),
+                ("ALBUM", material.article.title),
+                ("ARTIST", material.article.contrib_authors),
+                ("COPYRIGHTS", material.article.copyright_holder),
+                ("LICENSE", material.article.license_url),
+                ("DESCRIPTION", material.caption),
+                (
+                    "DATE",
+                    datetime.date(
+                        material.article.article_year,
+                        material.article.article_month,
+                        material.article.article_day,
+                    ).strftime("%Y-%m-%d"),
+                ),
+            ]:
                 if value is not None:
                     f[key] = value
                 else:
-                    logging.warning('Missing metadata: %s.', key)
+                    logging.warning("Missing metadata: %s.", key)
             f.save()
         except mutagen.oggtheora.OggTheoraHeaderError:
             pass  # Most probably an encoding failure.
 
         rename(temporary_media_path, media_refined_path)
-        stderr.write("done.\n")
+        print("done.\n")
 
         material.converting = False
         material.converted = True
         session.commit()
 
-if action == 'forget-converted':
-    materials = SupplementaryMaterial.query.filter_by(
-        converted=True
-    ).all()
-    stderr.write("Forgetting conversion of %s materials … " % len(materials))
+if action == "forget-converted":
+    materials = SupplementaryMaterial.query.filter_by(converted=True).all()
+    print("Forgetting conversion of %s materials … " % len(materials))
     for material in materials:
         material.converted = False
     session.commit()
-    stderr.write("done.\n")
+    print("done.\n")
 
-if action == 'forget-downloaded':
-    materials = SupplementaryMaterial.query.filter_by(
-        downloaded=True
-    ).all()
-    stderr.write("Forgetting download of %s materials … " % len(materials))
+if action == "forget-downloaded":
+    materials = SupplementaryMaterial.query.filter_by(downloaded=True).all()
+    print("Forgetting download of %s materials … " % len(materials))
     for material in materials:
         material.downloaded = False
     session.commit()
-    stderr.write("done.\n")
+    print("done.\n")
 
-if action == 'forget-uploaded':
-    materials = SupplementaryMaterial.query.filter_by(
-        uploaded=True
-    ).all()
-    stderr.write("Forgetting upload of %s materials … " % len(materials))
+if action == "forget-uploaded":
+    materials = SupplementaryMaterial.query.filter_by(uploaded=True).all()
+    print("Forgetting upload of %s materials … " % len(materials))
     for material in materials:
         material.uploaded = False
     session.commit()
-    stderr.write("done.\n")
+    print("done.\n")
 
-if action == 'find-media':
-    skip = [article.name for article in Article.query.all()]
-    if len(skip) > 0:
-        stderr.write('Skipping %s records … \n' % len(skip))
+if action == "find-media":
+    # skip = [article.name for article in session.query.Article.all()]
+    # if len(skip) > 0:
+    #     print("Skipping %s records … \n" % len(skip))
     source_path = config.get_metadata_raw_source_path(target)
+    print(source_module)
     for result in source_module.list_articles(
-        source_path,
-        supplementary_materials=True,
-        skip=skip
+        source_path, supplementary_materials=True  # ,# skip=skip
     ):
         try:
-            journal = Journal.get_by(title=result['journal-title'])
+            journal = Journal.title == result["journal-title"]
             if not journal:
-                journal = Journal(
-                    title = result['journal-title']
-                )
-            article = Article.get_by(
-                title=result['article-title'],
-                contrib_authors=result['article-contrib-authors']
-            )
+                journal = Journal(title=result["journal-title"])
+            article = Article.title = (result["article-title"],)
+            contrib_authors = (result["article-contrib-authors"],)
+
             if not article:
                 # if there is a whitelist, skip non-whitelisted content
-                doi = result['doi']
+                doi = result["doi"]
                 try:
-                    doi_prefix = doi.split('/')[0]
+                    doi_prefix = doi.split("/")[0]
                 except AttributeError:
-                    stderr.write(
-                        "Skipping Article “%s”, as it has no DOI.\n" % \
-                            result['name']
+                    print("Skipping Article “%s”, as it has no DOI.\n" % result["name"])
+                    continue
+                if config.whitelist_doi and doi_prefix not in config.whitelist_doi:
+                    print(
+                        "Skipping DOI %s, prefix %s is not in whitelist.\n"
+                        % (doi, doi_prefix)
                     )
                     continue
-                if config.whitelist_doi and \
-                    doi_prefix not in config.whitelist_doi:
-                    stderr.write(
-                        "Skipping DOI %s, prefix %s is not in whitelist.\n" % \
-                            (doi, doi_prefix)
-                        )
-                    continue
                 article = Article(
-                    name=result['name'],
+                    name=result["name"],
                     doi=doi,
-                    title=result['article-title'],
-                    contrib_authors=result['article-contrib-authors'],
-                    abstract=result['article-abstract'],
-                    year=result['article-year'],
-                    month=result['article-month'],
-                    day=result['article-day'],
-                    url=result['article-url'],
-                    license_url=result['article-license-url'],
-                    license_text=result['article-license-text'],
-                    copyright_statement=result['article-copyright-statement'],
-                    copyright_holder=result['article-copyright-holder'],
-                    journal=journal
+                    title=result["article-title"],
+                    contrib_authors=result["article-contrib-authors"],
+                    abstract=result["article-abstract"],
+                    year=result["article-year"],
+                    month=result["article-month"],
+                    day=result["article-day"],
+                    url=result["article-url"],
+                    license_url=result["article-license-url"],
+                    license_text=result["article-license-text"],
+                    copyright_statement=result["article-copyright-statement"],
+                    copyright_holder=result["article-copyright-holder"],
+                    journal=journal,
                 )
-            for category_name in result['article-categories']:
-                category = Category.get_by(name=category_name)
-                if not category:
-                    category = Category(name=category_name)
-                category.articles.append(article)
-            materials = result['supplementary-materials']
+            print(result)
+            # for category_name in result["article-categories"]:
+            #     category = Category.name == category_name
+            #     if not category:
+            #         category = Category(name=category_name)
+            #     category.articles.append(article)
+            materials = result["supplementary-materials"]
             if materials:
-                stderr.write(
-                    '“%s”:\n' % result['article-title'].encode('utf-8')
-                )
+                print("“%s”:\n" % result["article-title"].encode("utf-8"))
                 mimetypes = {}
                 for material in materials:
-                    mimetype = material['mimetype'] + '/' + material['mime-subtype']
+                    mimetype = material["mimetype"] + "/" + material["mime-subtype"]
                     try:
                         mimetypes[mimetype] += 1
                     except KeyError:
                         mimetypes[mimetype] = 1
-                    supplementary_material = SupplementaryMaterial.get_by(url=material['url'])
+                    supplementary_material = SupplementaryMaterial.url = material["url"]
+
                     if not supplementary_material:
-                        supplementary_material=SupplementaryMaterial(
-                            label=material['label'],
-                            title=material['title'],
-                            caption=material['caption'],
-                            mimetype=material['mimetype'],
-                            mime_subtype=material['mime-subtype'],
-                            url=material['url'],
-                            article=article
+                        supplementary_material = SupplementaryMaterial(
+                            label=material["label"],
+                            title=material["title"],
+                            caption=material["caption"],
+                            mimetype=material["mimetype"],
+                            mime_subtype=material["mime-subtype"],
+                            url=material["url"],
+                            article=article,
                         )
                 for mimetype in mimetypes.keys():
-                     stderr.write(
-                        '\t%s × %s\n' % (
-                            mimetypes[mimetype],
-                            mimetype
-                            )
-                        )
-                stderr.write('\n')
+                    print("\t%s × %s\n" % (mimetypes[mimetype], mimetype))
+                print("\n")
                 session.commit()
         except KeyboardInterrupt:
-            stderr.write('Saving database …\n')
+            print("Saving database …\n")
             session.commit()
             exit(0)
 
@@ -304,87 +340,88 @@ if action == "print-database-path":
     stdout.write(filename)
 
 if action == "stats":
-    stderr.write('Counting supplementary materials … ')
+    print("Counting supplementary materials … ")
     materials = SupplementaryMaterial.query.all()
-    stderr.write(str(len(materials)) + ' supplementary materials found.\n')
+    print(str(len(materials)) + " supplementary materials found.\n")
     p = progressbar.ProgressBar(maxval=len(materials)).start()
     completed = 0
     licenses = {
-        'free': autovividict(),
-        'non-free': autovividict(),
+        "free": autovividict(),
+        "non-free": autovividict(),
     }
     licensing_publishers = {
-        'url': autovividict(),
-        'url-from-text': autovividict(),
-        'text': autovividict(),
-        'none': autovividict()
+        "url": autovividict(),
+        "url-from-text": autovividict(),
+        "text": autovividict(),
+        "none": autovividict(),
     }
     mimetypes = {
-        'free': autovividict(),
-        'non-free': autovividict(),
-        'misreported': autovividict()
+        "free": autovividict(),
+        "non-free": autovividict(),
+        "misreported": autovividict(),
     }
     mimetypes_publishers = {
-        'correct': autovividict(),
-        'incorrect': autovividict(),
-        'unknown': autovividict()
+        "correct": autovividict(),
+        "incorrect": autovividict(),
+        "unknown": autovividict(),
     }
-    mimetypes_prefix_publishers = {
-        'free': autovividict(),
-        'non-free': autovividict()
-    }
+    mimetypes_prefix_publishers = {"free": autovividict(), "non-free": autovividict()}
     for material in materials:
         license_url = material.article.license_url
         license_text = material.article.license_text
         copyright_statement = material.article.copyright_statement
         doi = material.article.doi
         if doi is not None:
-            doi_prefix = doi.split('/')[0]
+            doi_prefix = doi.split("/")[0]
         else:
-            doi_prefix = u'None'
+            doi_prefix = "None"
         mimetype = material.mimetype
-        mimetype_composite = mimetype + '/' + material.mime_subtype
+        mimetype_composite = mimetype + "/" + material.mime_subtype
         try:
-            mimetype_composite_reported = material.mimetype_reported + '/' + material.mime_subtype_reported
-            if mimetype_composite == 'application/msword':
-                mimetypes_publishers['unknown'][doi_prefix] += 1
+            mimetype_composite_reported = (
+                material.mimetype_reported + "/" + material.mime_subtype_reported
+            )
+            if mimetype_composite == "application/msword":
+                mimetypes_publishers["unknown"][doi_prefix] += 1
             elif mimetype_composite != mimetype_composite_reported:
-                mimetypes['misreported'][mimetype_composite][mimetype_composite_reported] += 1
-                mimetypes_publishers['incorrect'][doi_prefix] += 1
+                mimetypes["misreported"][mimetype_composite][
+                    mimetype_composite_reported
+                ] += 1
+                mimetypes_publishers["incorrect"][doi_prefix] += 1
             else:  # mimetype is correct
-                mimetypes_publishers['correct'][doi_prefix] += 1
+                mimetypes_publishers["correct"][doi_prefix] += 1
         except TypeError:  # oa-get update-mimetypes was not run
-            mimetypes_publishers['unknown'][doi_prefix] += 1
+            mimetypes_publishers["unknown"][doi_prefix] += 1
         if license_url in config.free_license_urls:
-            licenses['free'][license_url] += 1
-            mimetypes['free'][mimetype_composite] += 1
-            mimetypes_prefix_publishers['free'][mimetype][doi_prefix] += 1
+            licenses["free"][license_url] += 1
+            mimetypes["free"][mimetype_composite] += 1
+            mimetypes_prefix_publishers["free"][mimetype][doi_prefix] += 1
         else:
-            licenses['non-free'][license_url] += 1
-            mimetypes['non-free'][mimetype_composite] += 1
-            mimetypes_prefix_publishers['non-free'][mimetype][doi_prefix] += 1
+            licenses["non-free"][license_url] += 1
+            mimetypes["non-free"][mimetype_composite] += 1
+            mimetypes_prefix_publishers["non-free"][mimetype][doi_prefix] += 1
         if license_url is not None:
-            if license_text is not None or \
-                copyright_statement is not None:
-                licensing_publishers['url-from-text'][doi_prefix] += 1
+            if license_text is not None or copyright_statement is not None:
+                licensing_publishers["url-from-text"][doi_prefix] += 1
             else:  # URL was given, no text lookup necessary
-                licensing_publishers['url'][doi_prefix] += 1
+                licensing_publishers["url"][doi_prefix] += 1
         else:
-            if license_text is not None or \
-                copyright_statement is not None:
-                licensing_publishers['text'][doi_prefix] += 1
+            if license_text is not None or copyright_statement is not None:
+                licensing_publishers["text"][doi_prefix] += 1
             else:  # no licensing information at all
-                licensing_publishers['none'][doi_prefix] += 1
+                licensing_publishers["none"][doi_prefix] += 1
         completed += 1
         p.update(completed)
 
-    stderr.write('\n')
+    print("\n")
     pp = pprint.PrettyPrinter(indent=4)
-    output = pp.pformat({
-        'licenses': licenses,
-        'licensing_publishers': licensing_publishers,
-        'mimetypes': mimetypes,
-        'mimetypes_publishers': mimetypes_publishers,
-        'mimetypes_prefix_publishers': mimetypes_prefix_publishers
-    })
-    stdout.write(output + '\n')
+    output = pp.pformat(
+        {
+            "licenses": licenses,
+            "licensing_publishers": licensing_publishers,
+            "mimetypes": mimetypes,
+            "mimetypes_publishers": mimetypes_publishers,
+            "mimetypes_prefix_publishers": mimetypes_prefix_publishers,
+        }
+    )
+    stdout.write(output + "\n")

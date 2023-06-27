@@ -1,0 +1,436 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from csv import reader
+from sys import stdin, stderr
+from pylab import figure, suptitle, bar, barh, legend, gcf, savefig
+from matplotlib import ticker
+from numpy import arange
+
+from helpers import config
+
+exec("stats = %s" % stdin.read())
+
+def plot_mimetypes(license_type):
+    mimetypes = stats['mimetypes'][license_type]
+    # sort the values, zip and the * operator are used here for magic
+    # see <http://docs.python.org/library/functions.html#zip>
+    labels, values = zip(*sorted(mimetypes.iteritems(), key=lambda x: x[1]))
+
+    fig1 = figure(figsize=(8,8))
+    suptitle('MIME Types of Supplementary Materials under %s Licenses' % \
+        license_type.capitalize())
+    ax1 = fig1.add_subplot(1,1,1)
+
+    ticks = range(len(labels))
+    ax1.set_yticks(ticks)
+    ax1.set_yticklabels(labels)
+
+    ax1.set_xscale('log')
+    ax1.xaxis.set_major_formatter(ticker.FormatStrFormatter('%d'))
+
+    colors = []
+    basecolor = '#babdb6'
+    videocolor = '#8ae234'
+    audiocolor = '#729fcf'
+    imagecolor = '#ad7fa8'
+    for l in labels:
+        if l.startswith('video'):
+            colors.append(videocolor)
+        elif l.startswith('audio'):
+            colors.append(audiocolor)
+        elif l.startswith('image'):
+            colors.append(imagecolor)
+        else:
+            colors.append(basecolor)
+
+    b1 = barh(ticks, values, color=colors, align='center', log=True)
+    videobar = bar([0], [0], color=videocolor)
+    audiobar = bar([0], [0], color=audiocolor)
+    imagebar = bar([0], [0], color=imagecolor)
+    legend([videobar, audiobar, imagebar], ['video', 'audio', 'image'], loc=4)
+    gcf().subplots_adjust(left=0.4)
+
+    filename = 'mimetypes-%s.png' % license_type
+    with open(filename, 'w') as f:
+        savefig(f, format='png')
+        stderr.write('Wrote figure to “%s”.\n' % filename)
+
+def plot_licenses():
+    licenses = dict(
+        stats['licenses']['free'].items() +
+        stats['licenses']['non-free'].items()
+    )
+    labels, values = zip(*sorted(licenses.iteritems(), key=lambda x: x[1]))
+
+    fig1 = figure(figsize=(12,8))
+    suptitle('Licensing of Supplementary Materials')
+    ax1 = fig1.add_subplot(1,1,1)
+
+    ticks = range(len(labels))
+    ax1.set_yticks(ticks)
+    ax1.set_yticklabels(labels)
+
+    ax1.set_xscale('log')
+    ax1.xaxis.set_major_formatter(ticker.FormatStrFormatter('%d'))
+
+    colors = []
+    nonecolor = '#babdb6'
+    freecolor = '#729fcf'
+    nonfreecolor = '#fcaf3e'
+    for l in labels:
+        if l == None:
+            colors.append(nonecolor)
+        if l in config.free_license_urls:
+            colors.append(freecolor)
+        else:
+            colors.append(nonfreecolor)
+
+    b1 = barh(ticks, values, color=colors, align='center', log=True)
+    nonebar = bar([0], [0], color=nonecolor)
+    freebar = bar([0], [0], color=freecolor)
+    nonfreebar = bar([0], [0], color=nonfreecolor)
+    legend(
+        [nonebar, freebar, nonfreebar],
+        ['no license', 'free license', 'non-free license'],
+        loc=4
+    )
+    gcf().subplots_adjust(left=0.5)
+
+    filename = 'licenses.png'
+    with open(filename, 'w') as f:
+        savefig(f, format='png')
+        stderr.write('Wrote figure to “%s”.\n' % filename)
+
+def csv_mimetypes_misreported():
+    misreported = stats['mimetypes']['misreported']
+    rows = misreported.keys()
+    cols = set()
+    for row in misreported:
+        for col in misreported[row]:
+            cols.add(col)
+
+    import csv
+    filename = 'mediatypes-misreported.csv'
+    with open(filename, 'w') as f:
+        writer = csv.writer(f, quoting=csv.QUOTE_ALL)
+        rowdata = ['']
+        for col in cols:
+            rowdata.append(col)
+        writer.writerow(rowdata)
+        for row in rows:
+            rowdata = [row]
+            for col in cols:
+                try:
+                    rowdata.append(misreported[row][col])
+                except KeyError:
+                    rowdata.append(0)
+            writer.writerow(rowdata)
+    stderr.write('Wrote CSV data fo “%s”.\n' % filename)
+
+doi_prefix_mapping = {}
+
+def _get_publisher(doi):
+    try:
+        return doi_prefix_mapping[doi]
+    except KeyError:
+        return ''
+
+doi_pref_filename = 'doi_pref.tsv'
+with open(doi_pref_filename) as f:
+    prefreader = reader(f)
+    for i, row in enumerate(f):
+        rowparts = row.strip().split('\t')
+        try:
+            publisher = rowparts[0]
+            doi_prefix = rowparts[1]
+            if len(publisher) > 32:
+                publisher = publisher[:30] + u' …'
+        except IndexError:
+            stderr.write(
+                'No prefix found in row %d of %s:\n\t„%s“.\n' % (
+                    i,
+                    doi_pref_filename,
+                    row.strip()
+                )
+            )
+        doi_prefix_mapping[doi_prefix] = publisher
+
+def plot_mimetypes_by_publisher(license_type, mime_type):
+    try:
+        mimetypes = stats['mimetypes_prefix_publishers'][license_type][mime_type]
+    except KeyError:
+        stderr.write('No MIME type listing by publishers found for %s materials.\n' % mime_type)
+        return
+    labels, values = zip(*sorted(mimetypes.iteritems(), key=lambda x: x[1]))
+
+    fig1 = figure(figsize=(8,8))
+    suptitle('%s Supplementary Materials under %s Licenses by DOI Prefix' % \
+        (mime_type.capitalize(), license_type.capitalize()))
+    ax1 = fig1.add_subplot(1,1,1)
+
+    ticks = range(len(labels))
+    ax1.set_yticks(ticks)
+    ax1.set_yticklabels(
+        [_get_publisher(l) + ' ' + l for l in labels]
+    )
+
+    ax1.set_xscale('log')
+    ax1.xaxis.set_major_formatter(ticker.FormatStrFormatter('%d'))
+
+    b1 = barh(ticks, values, color='#babdb6', align='center', log=True)
+
+    gcf().subplots_adjust(left=0.5, bottom=0.15)
+
+    filename = 'mimetypes-%s-%s.png' % (license_type, mime_type)
+    with open(filename, 'w') as f:
+        savefig(f, format='png')
+        stderr.write('Wrote figure to “%s”.\n' % filename)
+
+def plot_mimetypes_misreported_by_publisher():
+    mimetypes_correct = stats['mimetypes_publishers']['correct']
+    mimetypes_incorrect = stats['mimetypes_publishers']['incorrect']
+    mimetypes_unknown = stats['mimetypes_publishers']['unknown']
+
+    for m in mimetypes_correct:
+        try:
+            mimetypes_incorrect[m]
+        except KeyError:
+            mimetypes_incorrect[m] = 0
+        try:
+            mimetypes_unknown[m]
+        except KeyError:
+            mimetypes_unknown[m] = 0
+
+    for m in mimetypes_incorrect:
+        try:
+            mimetypes_correct[m]
+        except KeyError:
+            mimetypes_correct[m] = 0
+        try:
+            mimetypes_unknown[m]
+        except KeyError:
+            mimetypes_unknown[m] = 0
+
+    for m in mimetypes_unknown:
+        try:
+            mimetypes_correct[m]
+        except KeyError:
+            mimetypes_correct[m] = 0
+        try:
+            mimetypes_incorrect[m]
+        except KeyError:
+            mimetypes_incorrect[m] = 0
+
+    try:
+        labels_correct, values_correct = zip(*sorted(mimetypes_correct.iteritems(), key=lambda x: x[0]))
+    except ValueError:
+        stderr.write('No correct MIME types found. Was “oa-get update-mimetypes” run?\n')
+        labels_correct, values_correct = [], []
+    try:
+        labels_incorrect, values_incorrect = zip(*sorted(mimetypes_incorrect.iteritems(), key=lambda x: x[0]))
+    except ValueError:
+        stderr.write('No incorrect MIME types found. Was “oa-get update-mimetypes” run?\n')
+        labels_incorrect, values_incorrect = [], []
+    try:
+        labels_unknown, values_unknown = zip(*sorted(mimetypes_unknown.iteritems(), key=lambda x: x[0]))
+    except ValueError:
+        stderr.write('No unknown MIME types found.')
+        labels_unknown, values_unknown = [], []
+    assert(labels_correct == labels_incorrect == labels_unknown)
+
+    fig1 = figure(figsize=(8,24))
+
+    n_correct= sum(v for v in mimetypes_correct.values())
+    n_incorrect = sum(v for v in mimetypes_incorrect.values())
+    n_unknown = sum(v for v in mimetypes_unknown.values())
+    try:
+        percentage_incorrect = float(n_incorrect)/(n_correct+n_incorrect+n_unknown)*100
+    except ZeroDivisionError:
+        stderr.write('Division by Zero when calculating percentage of incorrect MIME types.\n')
+        percentage_incorrect = 0
+    try:
+        percentage_unknown = float(n_unknown)/(n_correct+n_incorrect+n_unknown)*100
+    except ZeroDivisionError:
+        stderr.write('Division by Zero when calculating percentage of unknown MIME types.\n')
+        percentage_unknown = 0
+    suptitle(
+        'Supplementary Materials with wrong internet media type by DOI Prefix\n' + \
+        '(sample size %s: \
+%s incorrect, approx %.1f %%; %s unknown, approx %.1f %%)' % (
+                n_correct+n_incorrect+n_unknown,
+                n_incorrect,
+                percentage_incorrect,
+                n_unknown,
+                percentage_unknown
+        )
+    )
+
+    ax1 = fig1.add_subplot(1,1,1)
+
+    ticks = arange(len(labels_correct)) * 4
+    ax1.set_yticks(ticks)
+    ax1.set_yticklabels(
+        [_get_publisher(l) + ' ' + l for l in labels_correct]
+    )
+
+    ax1.set_xscale('log')
+    ax1.xaxis.set_major_formatter(ticker.FormatStrFormatter('%d'))
+
+    correct_color = '#8ae234'
+    incorrect_color = '#ef2929'
+    unknown_color = '#babdb6'
+
+    try:
+        bar_correct = barh(ticks, values_correct, color=correct_color, align='center', log=True)
+    except ValueError:  # most likely zero correct values
+        stderr.write('Cannot plot correct MIME types.\n')
+    try:
+        bar_incorrect = barh(ticks+1, values_incorrect, color=incorrect_color, align='center', log=True)
+    except ValueError:  # most likely zero incorrect values
+        stderr.write('Cannot plot incorrect MIME types.\n')
+    try:
+        bar_unknown = barh(ticks-1, values_unknown, color=unknown_color, align='center', log=True)
+    except ValueError:  # most likely zero unknown values
+        stderr.write('Cannot plot unknown MIME types.\n')
+
+    correct_bar = bar([0], [0], color=correct_color)
+    incorrect_bar = bar([0], [0], color=incorrect_color)
+    unknown_bar = bar([0], [0], color=unknown_color)
+    legend(
+        [correct_bar, incorrect_bar, unknown_bar],
+        ['correct media type', 'incorrect media type', 'correctness unknown'],
+        loc='upper center',
+        bbox_to_anchor=(0.5, -0.05),
+    )
+    gcf().subplots_adjust(left=0.5, bottom=0.15)
+
+    filename = 'mediatypes-misreported-by-publisher.png'
+    with open(filename, 'w') as f:
+        savefig(f, format='png')
+        stderr.write('Wrote figure to “%s”.\n' % filename)
+
+def plot_licensing_by_publisher():
+    licensing_none = stats['licensing_publishers']['none']
+    licensing_text = stats['licensing_publishers']['text']
+    licensing_url = stats['licensing_publishers']['url']
+    licensing_url_from_text = stats['licensing_publishers']['url-from-text']
+
+#    for l in licensing_none:
+#        try:
+#            licensing_text[l]
+#        except KeyError:
+#            licensing_text[l] = 0
+#        try:
+#            licensing_url[l]
+#        except KeyError:
+#            licensing_url[l] = 0
+#        try:
+#            licensing_url_from_text[l]
+#        except KeyError:
+#            licensing_url_from_text[l] = 0
+
+    for l in licensing_text:
+    #    try:
+    #        licensing_none[l]
+    #    except KeyError:
+    #        licensing_none[l] = 0
+        try:
+            licensing_url[l]
+        except KeyError:
+            licensing_url[l] = 0
+        try:
+            licensing_url_from_text[l]
+        except KeyError:
+            licensing_url_from_text[l] = 0
+
+    for l in licensing_url:
+    #    try:
+    #        licensing_none[l]
+    #    except KeyError:
+    #        licensing_none[l] = 0
+        try:
+            licensing_text[l]
+        except KeyError:
+            licensing_text[l] = 0
+        try:
+            licensing_url_from_text[l]
+        except KeyError:
+            licensing_url_from_text[l] = 0
+
+    for l in licensing_url_from_text:
+    #    try:
+    #        licensing_none[l]
+    #    except KeyError:
+    #        licensing_none[l] = 0
+        try:
+            licensing_text[l]
+        except KeyError:
+            licensing_text[l] = 0
+        try:
+            licensing_url[l]
+        except KeyError:
+            licensing_url[l] = 0
+
+    #labels_none, values_none = zip(*sorted(licensing_none.iteritems(), key=lambda x: x[0]))
+    labels_text, values_text = zip(*sorted(licensing_text.iteritems(), key=lambda x: x[0]))
+    labels_url, values_url = zip(*sorted(licensing_url.iteritems(), key=lambda x: x[0]))
+    labels_url_from_text, values_url_from_text = zip(*sorted(licensing_url_from_text.iteritems(), key=lambda x: x[0]))
+    assert(labels_text == labels_url == labels_url_from_text)
+
+    fig1 = figure(figsize=(8,40))
+
+    #n_none= sum(v for v in licensing_none.values())
+    n_text = sum(v for v in licensing_text.values())
+    n_url = sum(v for v in licensing_url.values())
+    n_url_from_text = sum(v for v in licensing_url_from_text.values())
+    suptitle('Licensing information in PubMed Central XML by DOI Prefix (%s Materials)' % (n_text + n_url + n_url_from_text))
+    ax1 = fig1.add_subplot(1,1,1)
+
+    ticks = arange(len(labels_url)) * 3
+    ax1.set_yticks(ticks)
+    ax1.set_yticklabels(
+       [_get_publisher(l) + ' ' + l for l in labels_url]
+    )
+
+    ax1.set_xscale('log')
+    ax1.xaxis.set_major_formatter(ticker.FormatStrFormatter('%d'))
+
+    url_color = '#8ae234'
+    url_from_text_color = '#fce940'
+    text_color = '#ef2929'
+
+    bar_url = barh(ticks, values_url, color=url_color, align='center', log=True)
+    bar_url_from_text = barh(ticks+0.33, values_url_from_text, color=url_from_text_color, align='center', log=True)
+    bar_text = barh(ticks+1, values_text, color=text_color, align='center', log=True)
+    #bar_none = barh(ticks+3, values_none, color='#ef2929', align='center')
+
+    url_bar = bar([0], [0], color=url_color)
+    url_from_text_bar = bar([0], [0], color=url_from_text_color)
+    text_bar = bar([0], [0], color=text_color)
+    legend(
+        [url_bar, url_from_text_bar, text_bar],
+        ['URL', 'text recognized by OAMI', 'text not recognized by OAMI'],
+        loc='upper center',
+        bbox_to_anchor=(0.5, -0.05),
+    )
+    gcf().subplots_adjust(left=0.5, bottom=0.15)
+
+    filename = 'mimetypes-licensing-by-publisher.png'
+    with open(filename, 'w') as f:
+        savefig(f, format='png')
+        stderr.write('Wrote figure to “%s”.\n' % filename)
+
+if __name__ == '__main__':
+    plot_mimetypes('free')
+    plot_mimetypes('non-free')
+    plot_licenses()
+    plot_licensing_by_publisher()
+    csv_mimetypes_misreported()
+    plot_mimetypes_misreported_by_publisher()
+    plot_mimetypes_by_publisher('free', 'audio')
+    plot_mimetypes_by_publisher('free', 'video')
+    plot_mimetypes_by_publisher('free', 'image')
+    plot_mimetypes_by_publisher('non-free', 'audio')
+    plot_mimetypes_by_publisher('non-free', 'video')
+    plot_mimetypes_by_publisher('non-free', 'image')

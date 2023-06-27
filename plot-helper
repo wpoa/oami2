@@ -54,7 +54,7 @@ def plot_mimetypes(license_type):
     filename = 'mimetypes-%s.png' % license_type
     with open(filename, 'w') as f:
         savefig(f, format='png')
-        stderr.write('Wrote figure to “%s”.\n' % filename)
+        print('Wrote figure to “%s”.\n' % filename)
 
 def plot_licenses():
     licenses = dict(
@@ -100,7 +100,7 @@ def plot_licenses():
     filename = 'licenses.png'
     with open(filename, 'w') as f:
         savefig(f, format='png')
-        stderr.write('Wrote figure to “%s”.\n' % filename)
+        print('Wrote figure to “%s”.\n' % filename)
 
 def csv_mimetypes_misreported():
     misreported = stats['mimetypes']['misreported']
@@ -126,7 +126,7 @@ def csv_mimetypes_misreported():
                 except KeyError:
                     rowdata.append(0)
             writer.writerow(rowdata)
-    stderr.write('Wrote CSV data fo “%s”.\n' % filename)
+    print('Wrote CSV data fo “%s”.\n' % filename)
 
 doi_prefix_mapping = {}
 
@@ -147,7 +147,7 @@ with open(doi_pref_filename) as f:
             if len(publisher) > 32:
                 publisher = publisher[:30] + u' …'
         except IndexError:
-            stderr.write(
+            print(
                 'No prefix found in row %d of %s:\n\t„%s“.\n' % (
                     i,
                     doi_pref_filename,
@@ -160,7 +160,7 @@ def plot_mimetypes_by_publisher(license_type, mime_type):
     try:
         mimetypes = stats['mimetypes_prefix_publishers'][license_type][mime_type]
     except KeyError:
-        stderr.write('No MIME type listing by publishers found for %s materials.\n' % mime_type)
+        print('No MIME type listing by publishers found for %s materials.\n' % mime_type)
         return
     labels, values = zip(*sorted(mimetypes.iteritems(), key=lambda x: x[1]))
 
@@ -185,7 +185,7 @@ def plot_mimetypes_by_publisher(license_type, mime_type):
     filename = 'mimetypes-%s-%s.png' % (license_type, mime_type)
     with open(filename, 'w') as f:
         savefig(f, format='png')
-        stderr.write('Wrote figure to “%s”.\n' % filename)
+        print('Wrote figure to “%s”.\n' % filename)
 
 def plot_mimetypes_misreported_by_publisher():
     mimetypes_correct = stats['mimetypes_publishers']['correct']
@@ -225,17 +225,17 @@ def plot_mimetypes_misreported_by_publisher():
     try:
         labels_correct, values_correct = zip(*sorted(mimetypes_correct.iteritems(), key=lambda x: x[0]))
     except ValueError:
-        stderr.write('No correct MIME types found. Was “oa-get update-mimetypes” run?\n')
+        print('No correct MIME types found. Was “oa-get update-mimetypes” run?\n')
         labels_correct, values_correct = [], []
     try:
         labels_incorrect, values_incorrect = zip(*sorted(mimetypes_incorrect.iteritems(), key=lambda x: x[0]))
     except ValueError:
-        stderr.write('No incorrect MIME types found. Was “oa-get update-mimetypes” run?\n')
+        print('No incorrect MIME types found. Was “oa-get update-mimetypes” run?\n')
         labels_incorrect, values_incorrect = [], []
     try:
         labels_unknown, values_unknown = zip(*sorted(mimetypes_unknown.iteritems(), key=lambda x: x[0]))
     except ValueError:
-        stderr.write('No unknown MIME types found.')
+        print('No unknown MIME types found.')
         labels_unknown, values_unknown = [], []
     assert(labels_correct == labels_incorrect == labels_unknown)
 
@@ -247,12 +247,12 @@ def plot_mimetypes_misreported_by_publisher():
     try:
         percentage_incorrect = float(n_incorrect)/(n_correct+n_incorrect+n_unknown)*100
     except ZeroDivisionError:
-        stderr.write('Division by Zero when calculating percentage of incorrect MIME types.\n')
+        print('Division by Zero when calculating percentage of incorrect MIME types.\n')
         percentage_incorrect = 0
     try:
         percentage_unknown = float(n_unknown)/(n_correct+n_incorrect+n_unknown)*100
     except ZeroDivisionError:
-        stderr.write('Division by Zero when calculating percentage of unknown MIME types.\n')
+        print('Division by Zero when calculating percentage of unknown MIME types.\n')
         percentage_unknown = 0
     suptitle(
         'Supplementary Materials with wrong internet media type by DOI Prefix\n' + \
@@ -284,15 +284,15 @@ def plot_mimetypes_misreported_by_publisher():
     try:
         bar_correct = barh(ticks, values_correct, color=correct_color, align='center', log=True)
     except ValueError:  # most likely zero correct values
-        stderr.write('Cannot plot correct MIME types.\n')
+        print('Cannot plot correct MIME types.\n')
     try:
         bar_incorrect = barh(ticks+1, values_incorrect, color=incorrect_color, align='center', log=True)
     except ValueError:  # most likely zero incorrect values
-        stderr.write('Cannot plot incorrect MIME types.\n')
+        print('Cannot plot incorrect MIME types.\n')
     try:
         bar_unknown = barh(ticks-1, values_unknown, color=unknown_color, align='center', log=True)
     except ValueError:  # most likely zero unknown values
-        stderr.write('Cannot plot unknown MIME types.\n')
+        print('Cannot plot unknown MIME types.\n')
 
     correct_bar = bar([0], [0], color=correct_color)
     incorrect_bar = bar([0], [0], color=incorrect_color)
@@ -308,7 +308,7 @@ def plot_mimetypes_misreported_by_publisher():
     filename = 'mediatypes-misreported-by-publisher.png'
     with open(filename, 'w') as f:
         savefig(f, format='png')
-        stderr.write('Wrote figure to “%s”.\n' % filename)
+        print('Wrote figure to “%s”.\n' % filename)
 
 def plot_licensing_by_publisher():
     licensing_none = stats['licensing_publishers']['none']
@@ -419,7 +419,7 @@ def plot_licensing_by_publisher():
     filename = 'mimetypes-licensing-by-publisher.png'
     with open(filename, 'w') as f:
         savefig(f, format='png')
-        stderr.write('Wrote figure to “%s”.\n' % filename)
+        print('Wrote figure to “%s”.\n' % filename)
 
 if __name__ == '__main__':
     plot_mimetypes('free')

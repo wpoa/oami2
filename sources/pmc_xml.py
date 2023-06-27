@@ -13,7 +13,7 @@ def download_metadata(target_directory):
     """
     Writes XML into a directory.
     """
-    stderr.write('Input XML: ')
+    print('Input XML: ')
     xml = stdin.read()
 
     yield { 'url': '', 'completed': 0, 'total': 1 }

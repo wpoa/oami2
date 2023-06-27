@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import gobject, pygst
-pygst.require("0.10")
+#import gobject, pygst
+#pygst.require("0.10")
 
-import gst
+#import gst
 import progressbar
 
 from sys import exit, stderr
@@ -47,9 +47,10 @@ class Media():
                     'Your GStreamer installation is missing a plug-in.',
                     'Could not demultiplex stream.'
                 ]:
-                    raise RuntimeError, str(err)
+                    raise RuntimeError(str(err))
+
                 else:
-                    stderr.write('ERROR: %s\n' %str(err))
+                    print('ERROR: %s\n' %str(err))
 
         bus.add_signal_watch()
         bus.connect('message', on_message)
@@ -85,7 +86,8 @@ class Media():
                 muxer. ! filesink name=sink
             """)
         else:
-            raise RuntimeError, 'Unknown audio/video stream combination.'
+            raise RuntimeError('Unknown audio/video stream combination.')
+
 
         source = pipeline.get_by_name('source')
         source.set_property('location', self.filename)
@@ -104,7 +106,7 @@ class Media():
                 loop.quit()
             elif t == gst.MESSAGE_ERROR:  # error
                 err, debug = message.parse_error()
-                stderr.write('ERROR: %s\n' %str(err))
+                print('ERROR: %s\n' %str(err))
                 pipeline.set_state(gst.STATE_NULL)
                 loop.quit()
 

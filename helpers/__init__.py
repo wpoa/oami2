@@ -1,5 +1,5 @@
-from autovividict import autovividict
-from urllib2 import quote
+#from autovividict import autovividict
+from urllib.parse import quote
 
 def make_datestring(year, month, day):
     datestring = "%04d" % year  # YYYY

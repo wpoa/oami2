@@ -4,7 +4,9 @@
 from datetime import date
 from os import listdir, path
 from sys import stderr
-from urllib2 import urlopen, urlparse
+from urllib.request import urlopen
+from urllib.parse import urlparse
+import urllib3
 from xml.etree.cElementTree import dump, ElementTree
 # the C implementation of ElementTree is 5 to 20 times faster than the Python one
 
@@ -220,7 +222,7 @@ def _get_article_date(tree):
         except AttributeError:
             return year, month, None
         return year, month, day
-    raise RuntimeError, 'No date information found.'
+    raise RuntimeError('No date information found.')
 
 def _get_article_url(tree):
     """

@@ -1,20 +1,20 @@
-import config
-import wikitools
-
+import mwclient
+from helpers import config, mediawiki, filename_from_url
 from dateutil import parser
 from sys import stderr
-from werkzeug.contrib.cache import SimpleCache
+from cachelib import SimpleCache
+
 is_uploaded_cache = SimpleCache()
 
-wiki = wikitools.wiki.Wiki(config.api_url)
+scheme, host = config.api_url.split('://')
+site = mwclient.Site(host='commons.wikimedia.org', scheme='https')
 
 def query(params):
-    request = wikitools.api.APIRequest(wiki, params)
     try:
-        return request.query()
-    except wikitools.api.APIError:
-        stderr.write('Mediawiki API request failed, retrying.\n')
-        return query(request)
+        return site.api('query', **params)
+    except mwclient.errors.APIError:
+        print('Mediawiki API request failed, retrying.\n')
+        return query(params)
 
 def get_uploads():
     params = {
@@ -105,13 +105,11 @@ def is_uploaded(material):
 
 def upload(filename, wiki_filename, page_template):
     """
-    Uploades a file to a mediawiki site.
+    Uploads a file to a mediawiki site.
     """
-    stderr.write('Authenticating with <%s>.\n' % config.api_url)
-    wiki.login(username=config.username, password=config.password)
-    wiki_file = wikitools.wikifile.File(wiki=wiki, title=wiki_filename)
-    wiki_file.upload(
-        fileobj = open(filename, 'r'),
-        text=page_template.encode('utf-8'),
-        comment = 'Automatically uploaded media file from [[:en:Open access|Open Access]] source. Please report problems or suggestions [[User talk:Open Access Media Importer Bot|here]].'
-    )
+    print('Authenticating with <%s>.\n' % config.api_url)
+    site.login(username=config.username, password=config.password)
+    with open(filename, 'rb') as file:
+        site.upload(file, filename=wiki_filename, description=page_template,
+                    comment='Automatically uploaded media file from [[:en:Open access|Open Access]] source. Please report problems or suggestions [[User talk:Open Access Media Importer Bot|here]].')
+        

@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo 10.1371/journal.pcbi.0030212 10.1371/journal.pmed.1000044 10.1371/journal.pmed.0040013 10.1371/journal.pcbi.0050221 10.1371/journal.pbio.0040337 10.1371/journal.pbio.0050305 10.1371/journal.pbio.0060014 10.1371/journal.pbio.0060202 10.1371/journal.pbio.0060307 10.1371/journal.pbio.1000088 10.1371/journal.pmed.0040336 10.1371/journal.ppat.1000354 10.1371/journal.pbio.0020294 10.1371/journal.pone.0012674 10.1371/journal.pone.0002208 10.1371/journal.pone.0004536 10.1371/journal.pmed.0020333 | ./oami_pmc_doi_import
+

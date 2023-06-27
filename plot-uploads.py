@@ -76,4 +76,4 @@ pylab.grid(True)
 filename = 'plot-uploads.png'
 with open(filename, 'w') as f:
     pylab.savefig(f, format='png', bb_inches='tight', pad_inches=0)
-    stderr.write('Wrote figure to “%s”.\n' % filename)
+    print('Wrote figure to “%s”.\n' % filename)

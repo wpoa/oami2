@@ -1,0 +1,232 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import csv, progressbar
+import magic
+
+from os import path
+from sys import argv, stderr
+from urllib2 import urlopen, Request, HTTPError
+
+BUFSIZE = 1024000  # (1024KB)
+
+from model import session, setup_all, create_all, set_source, \
+    Article, Journal, SupplementaryMaterial
+
+try:
+    action = argv[1]
+    target = argv[2]
+except IndexError:  # no arguments given
+    stderr.write("""
+oa-get – Open Access Media Importer download operations
+
+usage:  oa-get detect-duplicates [source] |
+        oa-get download-metadata [source] |
+        oa-get download-media [source] |
+        oa-get update-mimetypes [source]
+
+""")
+    exit(1)
+
+try:
+    assert(action in ['detect-duplicates', 'download-media', 'download-metadata', 'update-mimetypes'])
+except AssertionError:  # invalid action
+    stderr.write("Unknown action “%s”.\n" % action)
+    exit(2)
+
+try:
+    exec "from sources import %s as source_module" % target
+except ImportError:  # invalid source
+    stderr.write("Unknown source “%s”.\n" % target)
+    exit(3)
+
+set_source(target)
+setup_all(True)
+
+from helpers import config, mediawiki, filename_from_url
+
+if action == 'detect-duplicates':
+    materials = SupplementaryMaterial.query.filter(
+        (SupplementaryMaterial.mimetype_reported=='audio') |
+        (SupplementaryMaterial.mimetype_reported=='video')
+        ).all()
+    if len(materials) == 0:
+        stderr.write('No audio or video materials found.\n')
+        exit(5)
+    for material in materials:
+        if mediawiki.is_uploaded(material):
+            stderr.write('[X] %s %s %s\n' % (
+                    material.article.doi,
+                    material.title,
+                    material.label
+                    ))
+        else:
+            stderr.write('[ ] %s %s %s\n' % (
+                    material.article.doi,
+                    material.title,
+                    material.label
+                    ))
+
+if action == 'update-mimetypes':
+    ms = magic.open(magic.MIME_TYPE)
+    ms.load()
+    materials = SupplementaryMaterial.query.filter_by(
+        mimetype_reported=None,
+        mime_subtype_reported=None
+    ).all()
+    free_materials = [
+        material for material in materials \
+            if material.article.license_url in config.free_license_urls
+        ]
+    materials = free_materials  # Checking MIME types of non-free
+                                # supplementary materials costs time.
+    stderr.write('Checking MIME types …\n')
+    try:
+        widgets = [
+            progressbar.SimpleProgress(), ' ',
+            progressbar.Percentage(), ' ',
+            progressbar.Bar(), ' ',
+            progressbar.ETA()
+            ]
+        p = progressbar.ProgressBar(
+            maxval=len(materials),
+            widgets=widgets
+            ).start()
+    except AssertionError:
+        stderr.write('No materials found where MIME type has to be checked.\n')
+        exit(0)
+    for material in materials:
+        url = material.url
+        request = Request(url, None, {'User-Agent' : 'oa-get/2012-10-26'})
+        request.headers['Range'] = 'bytes=%s-%s' % (0, 11)
+        # 12 bytes should be enough to detect audio or video resources
+        # <http://mimesniff.spec.whatwg.org/#matching-an-audio-or-video-type-pattern>
+        p.update(p.currval+1)
+        try:
+            chunk = urlopen(request).read()
+        except HTTPError, e:
+            stderr.write('When trying to download <%s>, the following error occured: “%s”.\n' % \
+                             (url.encode('utf-8'), str(e)))
+            continue
+        detected_mimetype = ms.buffer(chunk)
+        if 'Document, corrupt' in detected_mimetype:  # partial MS Office document
+            request = Request(url, None, {'User-Agent' : 'oa-get/2013-05-24'})
+            chunk = urlopen(request, timeout=15).read()
+            detected_mimetype = ms.buffer(chunk)
+            if detected_mimetype == 'application/msword':
+                # MS Office documents are all detected as application/msword, therefore guess based on extension
+                # <http://www.mediawiki.org/wiki/Manual_talk:Mime_type_detection#Fix_for_MS_Office_File_Confusion>
+                if url.endswith('ppt') or url.endswith('PPT'):
+                    detected_mimetype = 'application/vnd.ms-powerpoint'
+                elif url.endswith('xls') or url.endswith('XLS'):
+                    detected_mimetype = 'application/vnd.ms-excel'
+        reported_mimetype = material.mimetype + '/' + material.mime_subtype
+        if detected_mimetype == 'application/octet-stream':  # general binary MIME type, useless
+            detected_mimetype = reported_mimetype
+
+        def get_mimetype(mimetype):
+            try:
+                return mimetype.split('/')[0]
+            except IndexError:
+                pass
+
+        def get_mime_subtype(mimetype):
+            try:
+                return mimetype.split('/')[1]
+            except IndexError:
+                pass
+
+        if detected_mimetype != reported_mimetype:
+            material.mimetype_reported = material.mimetype
+            material.mime_subtype_reported = material.mime_subtype
+            material.mimetype = get_mimetype(detected_mimetype) or material.mimetype
+            material.mime_subtype = get_mime_subtype(detected_mimetype) or material.mime_subtype
+            stderr.write(
+                'DOI %s, %s, source claimed %s but is %s.\n' % (
+                    material.article.doi,
+                    material.url,
+                    reported_mimetype,
+                    detected_mimetype
+                )
+            )
+        else:
+            material.mimetype_reported = get_mimetype(reported_mimetype)
+            material.mime_subtype_reported = get_mime_subtype(reported_mimetype)
+        session.commit()
+
+if action == 'download-metadata':
+    source_path = config.get_metadata_raw_source_path(target)
+    url = None
+    for result in source_module.download_metadata(source_path):
+        if result['url'] != url:
+            url = result['url']
+            stderr.write("Downloading “%s”, saving into directory “%s” …\n" % \
+                (url, source_path))
+            p = progressbar.ProgressBar(maxval=result['total']).start()
+        p.update(result['completed'])
+
+if action == 'download-media':
+    media_path = config.get_media_raw_source_path(target)
+    materials = SupplementaryMaterial.query.filter_by(
+        downloaded=False
+    ).all()
+    for material in materials:
+        license_url = material.article.license_url
+        if license_url == '':
+            continue
+        if not license_url in config.free_license_urls:
+            stderr.write('Unknown, possibly non-free license: <%s>\n' %
+                license_url)
+            continue
+
+        mimetype = mimetype = material.mimetype
+        if mimetype not in ['audio', 'video']:
+            continue
+
+        if mediawiki.is_uploaded(material):
+            stderr.write("Skipping <%s>, already exists at %s.\n" % (
+                material.url,
+                mediawiki.get_wiki_name()
+            ))
+            material.uploaded=True
+            continue
+
+        url = material.url
+        try:
+            req = Request(url, None, {'User-Agent' : 'oa-get/2012-07-21'})
+            remote_file = urlopen(req)
+        except HTTPError as e:
+            stderr.write('When trying to download <%s>, the following error occured: “%s”.\n' % \
+                             (url.encode('utf-8'), str(e)))
+            exit(4)
+        total = int(remote_file.headers['content-length'])
+        completed = 0
+
+        local_filename = path.join(media_path, filename_from_url(url))
+
+        # if local file has same size as remote file, skip download
+        try:
+            if (path.getsize(local_filename) == total):
+                stderr.write("Skipping download of <%s>.\n" % url.encode('utf-8'))
+                material.downloaded = True
+                session.commit()
+                continue
+        except OSError:  # local file does not exist
+            pass
+
+        stderr.write("Downloading <%s>, saving as “%s” …\n" % \
+            (url.encode('utf-8'), local_filename.encode('utf-8')))
+        p = progressbar.ProgressBar(maxval=total).start()
+
+        with open(local_filename,'wb') as local_file:
+            while True:
+                chunk = remote_file.read(BUFSIZE)
+                if chunk != '':
+                    local_file.write(chunk)
+                    completed += len(chunk)
+                    p.update(completed)
+                else:
+                    break
+
+                material.downloaded = True
+                session.commit()
