@@ -11,7 +11,7 @@ Status Dummy File:
 
 
 to-do: 
-    - elixir equivalent (Elixir replacement has to be found especially for .query function in code)
-    - oa-cache convert-media ffmpeg config
-    - sqllite database
-    - sqllite format might be malformed due to fields in the model.py (Article) might not exist in PMC anymore or might be named differently
+ - elixir equivalent (Elixir replacement has to be found especially for .query function in code)
+ - oa-cache convert-media ffmpeg config
+ - sqllite database
+ - sqllite format might be malformed due to fields in the model.py (Article) might not exist in PMC anymore or might be named differently
