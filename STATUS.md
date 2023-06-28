@@ -12,6 +12,6 @@ Status Dummy File:
 
 to-do: 
  - elixir equivalent (Elixir replacement has to be found especially for .query function in code)
- - oa-cache convert-media ffmpeg config
- - sqllite database
+ - oa-cache convert-media ffmpeg config | ffmpeg has to be used instead of gobject, code is partially in place, ffmpeg needs to be downloaded from the official website
+ - sqllite database has to be fixed to download media
  - sqllite format might be malformed due to fields in the model.py (Article) might not exist in PMC anymore or might be named differently
